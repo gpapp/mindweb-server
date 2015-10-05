@@ -51,11 +51,13 @@ router.setupDB = function (cassandraOptions, BASE_URL) {
     var cassandraClient = new cassandra.Client(cassandraOptions);
     cassandraClient.connect(function (error, ok) {
         if (error) {
-            throw 'Cannot connect to database';
+            console.error(error);
+            throw new Error('Cannot connect to database');
         }
         console.log('Connected to database:' + ok);
+        require('../db/session_schema.js')(cassandraClient);
+        userService = new UserService(cassandraClient);
     });
-    userService = new UserService(cassandraClient);
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to

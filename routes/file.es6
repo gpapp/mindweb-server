@@ -148,11 +148,13 @@ router.setupDB = function (cassandraOptions) {
     var cassandraClient = new cassandra.Client(cassandraOptions);
     cassandraClient.connect(function (error, ok) {
         if (error) {
-            throw 'Cannot connect to database';
+            console.error(error);
+            throw new Error('Cannot connect to database');
         }
         console.log('Connected to database:' + ok);
+        require('../db/storage_schema.js')(cassandraClient);
+        fileService = new FileService(cassandraClient);
     });
-    fileService = new FileService(cassandraClient);
 };
 
 function ensureAuthenticated(request, response, next) {
