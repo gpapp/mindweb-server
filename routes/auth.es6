@@ -13,7 +13,7 @@ var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
     LinkedInStrategy = require('passport-linkedin').Strategy;
 
-router.get('/google', passport.authenticate('google', {scope: ['https://www.es6.googleapis.com/auth/plus.login']}));
+router.get('/google', passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login']}));
 router.get('/google/return', passport.authenticate('google', {
     successRedirect: '/',
     failureRedirect: '/login'

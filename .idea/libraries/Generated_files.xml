@@ -2,39 +2,60 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/routes/file-compiled.js" />
-        <item url="file://$PROJECT_DIR$/bin/www-compiled.js" />
         <item url="file://$PROJECT_DIR$/routes/index-compiled.js" />
+        <item url="file://$PROJECT_DIR$/test/file/fileTest-compiled.js" />
         <item url="file://$PROJECT_DIR$/services/FreeplaneConverterService-compiled.js" />
+        <item url="file://$PROJECT_DIR$/app.js" />
         <item url="file://$PROJECT_DIR$/services/FileService-compiled.js" />
+        <item url="file://$PROJECT_DIR$/test/user/userTest-compiled.js" />
         <item url="file://$PROJECT_DIR$/services/EditorService-compiled.js" />
         <item url="file://$PROJECT_DIR$/dao/DAOBase-compiled.js" />
-        <item url="file://$PROJECT_DIR$/app-compiled.js" />
+        <item url="file://$PROJECT_DIR$/app.js" />
         <item url="file://$PROJECT_DIR$/dao/File-compiled.js" />
         <item url="file://$PROJECT_DIR$/dao/FileVersion-compiled.js" />
+        <item url="file://$PROJECT_DIR$/bin/www.js" />
         <item url="file://$PROJECT_DIR$/dao/User-compiled.js" />
         <item url="file://$PROJECT_DIR$/classes/File-compiled.js" />
         <item url="file://$PROJECT_DIR$/routes/auth-compiled.js" />
+        <item url="file://$PROJECT_DIR$/classes/EditAction-compiled.js" />
+        <item url="file://$PROJECT_DIR$/classes/FileContent-compiled.js" />
+        <item url="file://$PROJECT_DIR$/classes/Node-compiled.js" />
+        <item url="file://$PROJECT_DIR$/classes/ServiceError-compiled.js" />
+        <item url="file://$PROJECT_DIR$/routes/file-compiled.js" />
+        <item url="file://$PROJECT_DIR$/classes/User-compiled.js" />
+        <item url="file://$PROJECT_DIR$/services/UserService-compiled.js" />
+        <item url="file://$PROJECT_DIR$/bin/www-compiled.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/test/fileTest-compiled.js" />
-      <root url="file://$PROJECT_DIR$/services/UserService-compiled.js" />
       <root url="file://$PROJECT_DIR$/test/fileTest-compiled.js" />
-      <root url="file://$PROJECT_DIR$/services/UserService-compiled.js" />
-      <root url="file://$PROJECT_DIR$/routes/file-compiled.js" />
+      <root url="file://$PROJECT_DIR$/app-compiled.js" />
+      <root url="file://$PROJECT_DIR$/app-compiled.js" />
       <root url="file://$PROJECT_DIR$/bin/www-compiled.js" />
       <root url="file://$PROJECT_DIR$/routes/index-compiled.js" />
+      <root url="file://$PROJECT_DIR$/test/file/fileTest-compiled.js" />
       <root url="file://$PROJECT_DIR$/services/FreeplaneConverterService-compiled.js" />
+      <root url="file://$PROJECT_DIR$/app.es6" />
       <root url="file://$PROJECT_DIR$/services/FileService-compiled.js" />
+      <root url="file://$PROJECT_DIR$/test/user/userTest-compiled.js" />
       <root url="file://$PROJECT_DIR$/services/EditorService-compiled.js" />
       <root url="file://$PROJECT_DIR$/dao/DAOBase-compiled.js" />
-      <root url="file://$PROJECT_DIR$/app-compiled.js" />
+      <root url="file://$PROJECT_DIR$/app.es6" />
       <root url="file://$PROJECT_DIR$/dao/File-compiled.js" />
       <root url="file://$PROJECT_DIR$/dao/FileVersion-compiled.js" />
+      <root url="file://$PROJECT_DIR$/bin/www.js" />
       <root url="file://$PROJECT_DIR$/dao/User-compiled.js" />
       <root url="file://$PROJECT_DIR$/classes/File-compiled.js" />
       <root url="file://$PROJECT_DIR$/routes/auth-compiled.js" />
+      <root url="file://$PROJECT_DIR$/classes/EditAction-compiled.js" />
+      <root url="file://$PROJECT_DIR$/classes/FileContent-compiled.js" />
+      <root url="file://$PROJECT_DIR$/classes/Node-compiled.js" />
+      <root url="file://$PROJECT_DIR$/classes/ServiceError-compiled.js" />
+      <root url="file://$PROJECT_DIR$/routes/file-compiled.js" />
+      <root url="file://$PROJECT_DIR$/classes/User-compiled.js" />
+      <root url="file://$PROJECT_DIR$/services/UserService-compiled.js" />
+      <root url="file://$PROJECT_DIR$/bin/www-compiled.js" />
     </CLASSES>
     <SOURCES />
   </library>
