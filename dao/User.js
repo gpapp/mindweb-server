@@ -1,9 +1,14 @@
 import DAOBase from './DAOBase';
 
 export default class User extends DAOBase {
-    getUser(authId, next) {
+    getUserByAuthId(authId, next) {
         var query = 'SELECT id, name, authId, avatarUrl, created, modified FROM mindweb.user WHERE authId=:authId ALLOW FILTERING';
         this.execute(query, {authId: authId}, next);
+    }
+
+    getUserById(id, next) {
+        var query = 'SELECT id, name, authId, avatarUrl, created, modified FROM mindweb.user WHERE id=:id';
+        this.execute(query, {id: id}, next);
     }
 
     createUser(userId, authId, name, avatarUrl, next) {

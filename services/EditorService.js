@@ -12,7 +12,7 @@ function findNodeById (node, nodeId) {
         if (!node.node.hasOwnProperty(index)) {
             continue;
         }
-        var found = this.findNodeById(node.node[index], nodeId);
+        var found = findNodeById(node.node[index], nodeId);
         if (found) {
             return found;
         }
@@ -21,7 +21,7 @@ function findNodeById (node, nodeId) {
 }
 
 function applyAction (file, action, callback) {
-    var eventNode = this.findNodeById(file.rootNode, action.parent);
+    var eventNode = findNodeById(file.rootNode, action.parent);
     if (!eventNode) {
         callback('Cannot find root node with id:' + action.parent);
         return;

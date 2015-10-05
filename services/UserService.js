@@ -13,13 +13,26 @@ export default class UserService {
         this.fileService = new FileService(connection);
     }
 
-    getUser(authId, next) {
-        this.user.getUser(authId, function (error, result) {
+    getUserByAuthId(authId, next) {
+        this.user.getUserByAuthId(authId, function (error, result) {
             if (error) {
                 return next(error, null);
             }
             if (result.rows.length == 0) {
                 return next(new Error('Cannot find user:' + authId));
+            }
+            var row = result.first();
+            next(null, new User(row['id'], row['name'], row['authId'], row['avatarurl'], row['created'], row['modified']));
+        });
+    }
+
+    getUserById(id, next) {
+        this.user.getUserById(id, function (error, result) {
+            if (error) {
+                return next(error, null);
+            }
+            if (result.rows.length == 0) {
+                return next(new Error('Cannot find user:' + id));
             }
             var row = result.first();
             next(null, new User(row['id'], row['name'], row['authId'], row['avatarurl'], row['created'], row['modified']));
