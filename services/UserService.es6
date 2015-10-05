@@ -19,7 +19,7 @@ export default class UserService {
                 return next(error, null);
             }
             if (result.rows.length == 0) {
-                return next(new Error('Cannot find user:' + authId));
+                return next(null, null);
             }
             var row = result.first();
             next(null, new User(row['id'], row['name'], row['authId'], row['avatarurl'], row['created'], row['modified']));
@@ -41,17 +41,21 @@ export default class UserService {
 
     createUser(authId, name, avatarUrl, next) {
         var parent = this;
-        this.getUser(authId, function (error) {
+        this.getUserByAuthId(authId, function (error, result) {
             if (error) {
+                return next(error);}
+            if (result==null){
                 var userId = Uuid.random();
                 parent.user.createUser(userId, authId, name, avatarUrl, function (error) {
                     if (error) {
+                        console.error(error);
                         return next(error, null);
                     }
                     next(null, {userId: userId});
                 });
             }
             else {
+                console.error("User already exists with authid: " + authId);
                 next("User already exists with authid: " + authId);
             }
         });

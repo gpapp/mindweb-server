@@ -29,6 +29,8 @@ var cassandraOptions = {
     }
 };
 
+require('./db/keyspace.js')(cassandraOptions);
+cassandraOptions.keyspace = "mindweb";
 authRoute.setupDB(cassandraOptions, options.url);
 fileRoute.setupDB(cassandraOptions);
 
