@@ -1,10 +1,10 @@
-import parseString from 'xml2js';
+import * as xml2js from 'xml2js';
 
 const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
 
-function convert(buffer, callback) {
+export function convert(buffer, callback) {
     // XML to JSON
-    parseString(buffer.toString(), {trim: true}, function (err, result) {
+    xml2js.parseString(buffer.toString(), {trim: true}, function (err, result) {
         if (err) {
             return callback(err);
         }
@@ -17,9 +17,9 @@ function convert(buffer, callback) {
         delete result.map.node;
         callback(null, result.map);
     })
-};
+}
 
-function buildMarkdownContent(node) {
+export function buildMarkdownContent(node) {
     if (node.$ && node.$['TEXT']) {
         node.nodeMarkdown = node.$['TEXT'];
     }
@@ -170,5 +170,3 @@ function buildMarkdownContentForNode(node, listType, listPrefix) {
     }
     return retval;
 }
-
-exports.FreeplaneConverterService = convert;

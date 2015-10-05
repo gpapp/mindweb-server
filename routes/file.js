@@ -8,7 +8,7 @@ import multer from 'multer';
 import ServiceError from '../classes/ServiceError.js';
 import FileService from '../services/FileService';
 import EditorService from '../services/EditorService';
-import FreeplaneConverterService from '../services/FreeplaneConverterService'
+import * as FreeplaneConverterService from '../services/FreeplaneConverterService'
 
 var router = express.Router();
 var upload = multer({inMemory: true});
