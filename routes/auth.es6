@@ -44,7 +44,7 @@ router.get('/logout', function (request, response) {
     request.logout();
     response.redirect('/');
 });
-router.setupDB = function (cassandraOptions) {
+router.setupDB = function (cassandraOptions, BASE_URL) {
 
     console.log("Setting up DB connection for authentication");
 
@@ -77,7 +77,7 @@ router.setupDB = function (cassandraOptions) {
             {
                 clientID: '605748769967-s6vb5kqpgpsp41nlbaiu84sbvqid0itg.apps.googleusercontent.com',
                 clientSecret: '7xeJUKt1DiJn8mdGI1l2hHOp',
-                callbackURL: '/auth/google/return'
+                callbackURL: BASE_URL + '/auth/google/return'
             },
             function (accessToken, refreshToken, profile, done) {
                 findOrCreateUser('google:' + profile.id, profile.displayName, profile.photos[0].value, done);
@@ -89,7 +89,7 @@ router.setupDB = function (cassandraOptions) {
             {
                 clientID: '578046905670294',
                 clientSecret: '7109c72ffe7cad58b5a55d52d85dabea',
-                callbackURL: '/auth/facebook/return',
+                callbackURL: BASE_URL + '/auth/facebook/return',
                 profileFields: ['id', 'displayName', 'photos']
             },
             function (accessToken, refreshToken, profile, done) {
@@ -102,7 +102,7 @@ router.setupDB = function (cassandraOptions) {
             {
                 consumerKey: 'fman10LDdbSTEg0ZRlhdnevFJ',
                 consumerSecret: 'tjH5bWIIcuUZa6Ru3E14Bn0alU1RRqUp5aQM3ZjGCbiETXgevM',
-                callbackURL: '/auth/twitter/return'
+                callbackURL: BASE_URL + '/auth/twitter/return'
             },
             function (accessToken, refreshToken, profile, done) {
                 findOrCreateUser('twitter:' + profile.id, profile.displayName, profile._json.profile_image_url_https, done);
@@ -114,7 +114,7 @@ router.setupDB = function (cassandraOptions) {
             {
                 consumerKey: '77d66pdruhn8fm',
                 consumerSecret: '7XK9Ih89pevK1yRm',
-                callbackURL: '/auth/linkedin/return',
+                callbackURL: BASE_URL + '/auth/linkedin/return',
                 profileFields: ['id', 'formatted-name', 'picture-url']
             },
             function (accessToken, refreshToken, profile, done) {

@@ -30,7 +30,7 @@ var cassandraOptions = {
     }
 };
 
-authRoute.setupDB(cassandraOptions);
+authRoute.setupDB(cassandraOptions, options.url);
 fileRoute.setupDB(cassandraOptions);
 
 var app = express();
