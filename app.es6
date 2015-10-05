@@ -1,20 +1,18 @@
-require("babel/register");
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import favicon from 'serve-favicon';
+import logger from 'morgan';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import session from 'express-session';
+import passport from 'passport';
 
-var express = require('express');
-var path = require('path');
-var fs = require('fs');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var session = require('express-session');
-var passport = require('passport');
+import ServiceError from './classes/ServiceError';
 
-var ServiceError = require('./classes/ServiceError');
-
-var routes = require('./routes/index');
-var authRoute = require('./routes/auth');
-var fileRoute = require('./routes/file');
+import routes from './routes/index';
+import authRoute from './routes/auth';
+import fileRoute from './routes/file';
 
 var options = processConfig();
 

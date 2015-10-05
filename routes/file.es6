@@ -7,7 +7,7 @@ import multer from 'multer';
 
 import ServiceError from '../classes/ServiceError.js';
 import FileService from '../services/FileService';
-import EditorService from '../services/EditorService';
+import * as EditorService from '../services/EditorService';
 import * as FreeplaneConverterService from '../services/FreeplaneConverterService'
 
 var router = express.Router();
@@ -162,4 +162,5 @@ function ensureAuthenticated(request, response, next) {
     }
     next(new ServiceError(401, 'The user has no authentication information', "Authentication failed"));
 }
-module.exports = router;
+
+export default router;

@@ -1,7 +1,7 @@
 import EditAction from "../classes/EditAction";
 import FileContent from "../classes/FileContent";
 
-function findNodeById (node, nodeId) {
+export function findNodeById (node, nodeId) {
     if (node.$['ID'] === nodeId) {
         return node;
     }
@@ -20,7 +20,7 @@ function findNodeById (node, nodeId) {
     return null;
 }
 
-function applyAction (file, action, callback) {
+export function applyAction (file, action, callback) {
     var eventNode = findNodeById(file.rootNode, action.parent);
     if (!eventNode) {
         callback('Cannot find root node with id:' + action.parent);
@@ -60,4 +60,3 @@ function applyAction (file, action, callback) {
     }
     callback();
 }
-exports.EditorService = {applyAction };
