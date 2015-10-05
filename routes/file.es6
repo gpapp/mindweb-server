@@ -105,7 +105,7 @@ router
                     );
                 },
                 function (fileVersionId, fileContent, next) {
-                    fileService.updateFileVersion(fileVersionId, fileContent, next);
+                    fileService.updateFileVersion(fileVersionId, JSON.stringify(fileContent), next);
                 }
             ],
             function (error) {
@@ -127,7 +127,7 @@ router
                     if (error) {
                         next(error);
                     }
-                    fileService.createNewVersion(file.originalname, user.id, rawmap, next);
+                    fileService.createNewVersion(file.originalname, user.id, JSON.stringify(rawmap), next);
                 });
             },
             function (err) {

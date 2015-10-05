@@ -86,7 +86,7 @@ export default class FileService {
             }
             var row = result.first();
             if (row != null) {
-                callback(null, {version: row.version, content: row.content});
+                callback(null, {version: row.version, content: JSON.parse(row.content)});
             }
             else {
                 callback('No such file version by that id');
@@ -98,70 +98,71 @@ export default class FileService {
         var fileLocal = this.file;
         var fileVersionLocal = this.fileVersion;
         async.waterfall([
-            function (next) {
-                fileLocal.getFileByUserAndName(userId, fileName, function (error, result) {
-                    var fileId;
-                    var versions;
-                    if (error)
-                        return next(error);
-                    if (result.rows.length > 0) {
-                        fileId = result.rows[0].id;
-                        versions = result.rows[0].versions;
-                    }
-                    else {
-                        fileId = Uuid.random();
-                        versions = [];
-                    }
-                    next(null, fileId, versions);
-                });
-            },
-            function (fileId, versions, seriesCallback) {
-                var newFileVersionId = Uuid.random();
-                if (versions.length > 0) {
-                    var oldFileVersionId = versions[0];
-                    fileVersionLocal.getContent(oldFileVersionId, function (error, result) {
-                        var row = result.first();
-                        if (content == row.content) {
-                            seriesCallback(null, false, fileId, null);
+                function (next) {
+                    fileLocal.getFileByUserAndName(userId, fileName, function (error, result) {
+                        var fileId;
+                        var versions;
+                        if (error)
+                            return next(error);
+                        if (result.rows.length > 0) {
+                            fileId = result.rows[0].id;
+                            versions = result.rows[0].versions;
                         }
                         else {
-                            fileVersionLocal.createNewVersion(newFileVersionId, versions.length + 1, content, function (error) {
-                                if (error) {
-                                    return seriesCallback(error);
-                                }
-                                versions.unshift(newFileVersionId);
-                                seriesCallback(null, true, fileId, versions);
-                            });
+                            fileId = Uuid.random();
+                            versions = [];
                         }
+                        next(null, fileId, versions);
                     });
+                },
+                function (fileId, versions, seriesCallback) {
+                    var newFileVersionId = Uuid.random();
+                    if (versions.length > 0) {
+                        var oldFileVersionId = versions[0];
+                        fileVersionLocal.getContent(oldFileVersionId, function (error, result) {
+                            var row = result.first();
+                            if (content === row.content) {
+                                seriesCallback(null, false, fileId, null);
+                            }
+                            else {
+                                fileVersionLocal.createNewVersion(newFileVersionId, versions.length + 1, content, function (error) {
+                                    if (error) {
+                                        return seriesCallback(error);
+                                    }
+                                    versions.unshift(newFileVersionId);
+                                    seriesCallback(null, true, fileId, versions);
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        fileVersionLocal.createNewVersion(newFileVersionId, versions.length + 1, content, function (error) {
+                            if (error) {
+                                return seriesCallback(error);
+                            }
+                            versions.unshift(newFileVersionId);
+                            seriesCallback(null, true, fileId, versions);
+                        });
+                    }
+                },
+                function (needsSave, fileId, versions) {
+                    if (!needsSave) {
+                        return callback(null, fileId);
+                    }
+                    var isUpdate = versions.length > 1;
+                    if (isUpdate) {
+                        fileLocal.updateFile(fileId, fileName, userId, versions, function (error) {
+                            callback(error, fileId);
+                        });
+                    }
+                    else {
+                        fileLocal.createFile(fileId, fileName, userId, versions, function (error) {
+                            callback(error, fileId);
+                        });
+                    }
                 }
-                else {
-                    fileVersionLocal.createNewVersion(newFileVersionId, versions.length + 1, content, function (error) {
-                        if (error) {
-                            return seriesCallback(error);
-                        }
-                        versions.unshift(newFileVersionId);
-                        seriesCallback(null, true, fileId, versions);
-                    });
-                }
-            },
-            function (needsSave, fileId, versions) {
-                if (!needsSave) {
-                    return callback(null, fileId);
-                }
-                var isUpdate = versions.length > 1;
-                if (isUpdate) {
-                    fileLocal.updateFile(fileId, fileName, userId, versions, function (error) {
-                        callback(error, fileId);
-                    });
-                }
-                else {
-                    fileLocal.createFile(fileId, fileName, userId, versions, function (error) {
-                        callback(error, fileId);
-                    });
-                }
-            }
-        ]);
+            ]
+        );
     }
 
     updateFileVersion(fileId, content, callback) {
