@@ -20,7 +20,6 @@ var cassandraOptions = {
     "contactPoints": [
         options.db.host
     ],
-    "keyspace": "mindweb",
     "protocolOptions": {
         "port": options.db.port
     },
@@ -48,7 +47,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+
 var CassandraStore = require("cassandra-store")(session);
+
 var cassandraStore = new CassandraStore(cassandraOptions);
 app.use(session({
     secret: 'J;SDUKLJDFMAP[M OWIO WRXD/L SDF;KZSDVKXCD;fAdslsd:fop$##o(we)tig]',
