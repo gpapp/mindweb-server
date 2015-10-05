@@ -2,17 +2,19 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/dao/File-compiled.js" />
         <item url="file://$PROJECT_DIR$/routes/file-compiled.js" />
-        <item url="file://$PROJECT_DIR$/dao/FileVersion-compiled.js" />
         <item url="file://$PROJECT_DIR$/bin/www-compiled.js" />
-        <item url="file://$PROJECT_DIR$/dao/User-compiled.js" />
         <item url="file://$PROJECT_DIR$/routes/index-compiled.js" />
         <item url="file://$PROJECT_DIR$/services/FreeplaneConverterService-compiled.js" />
         <item url="file://$PROJECT_DIR$/services/FileService-compiled.js" />
         <item url="file://$PROJECT_DIR$/services/EditorService-compiled.js" />
-        <item url="file://$PROJECT_DIR$/routes/auth-compiled.js" />
         <item url="file://$PROJECT_DIR$/dao/DAOBase-compiled.js" />
+        <item url="file://$PROJECT_DIR$/app-compiled.js" />
+        <item url="file://$PROJECT_DIR$/dao/File-compiled.js" />
+        <item url="file://$PROJECT_DIR$/dao/FileVersion-compiled.js" />
+        <item url="file://$PROJECT_DIR$/dao/User-compiled.js" />
+        <item url="file://$PROJECT_DIR$/classes/File-compiled.js" />
+        <item url="file://$PROJECT_DIR$/routes/auth-compiled.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -20,17 +22,19 @@
       <root url="file://$PROJECT_DIR$/services/UserService-compiled.js" />
       <root url="file://$PROJECT_DIR$/test/fileTest-compiled.js" />
       <root url="file://$PROJECT_DIR$/services/UserService-compiled.js" />
-      <root url="file://$PROJECT_DIR$/dao/File-compiled.js" />
       <root url="file://$PROJECT_DIR$/routes/file-compiled.js" />
-      <root url="file://$PROJECT_DIR$/dao/FileVersion-compiled.js" />
       <root url="file://$PROJECT_DIR$/bin/www-compiled.js" />
-      <root url="file://$PROJECT_DIR$/dao/User-compiled.js" />
       <root url="file://$PROJECT_DIR$/routes/index-compiled.js" />
       <root url="file://$PROJECT_DIR$/services/FreeplaneConverterService-compiled.js" />
       <root url="file://$PROJECT_DIR$/services/FileService-compiled.js" />
       <root url="file://$PROJECT_DIR$/services/EditorService-compiled.js" />
-      <root url="file://$PROJECT_DIR$/routes/auth-compiled.js" />
       <root url="file://$PROJECT_DIR$/dao/DAOBase-compiled.js" />
+      <root url="file://$PROJECT_DIR$/app-compiled.js" />
+      <root url="file://$PROJECT_DIR$/dao/File-compiled.js" />
+      <root url="file://$PROJECT_DIR$/dao/FileVersion-compiled.js" />
+      <root url="file://$PROJECT_DIR$/dao/User-compiled.js" />
+      <root url="file://$PROJECT_DIR$/classes/File-compiled.js" />
+      <root url="file://$PROJECT_DIR$/routes/auth-compiled.js" />
     </CLASSES>
     <SOURCES />
   </library>

@@ -8,6 +8,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var passport = require('passport');
 
 var ServiceError = require('./classes/ServiceError');
 
@@ -59,6 +60,8 @@ app.use(session({
     saveUninitialized: true,
     store: cassandraStore
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/auth', authRoute);
 app.use('/file', authRoute.authorizeMiddleware, fileRoute);

@@ -1,3 +1,4 @@
+import async from 'async';
 import express from 'express';
 import cassandra from 'cassandra-driver';
 import cookieParser from 'cookie-parser';
@@ -40,7 +41,7 @@ router
                 },
                 function (result, next) {
                     var fileInfo = result;
-                    if (!fileInfo.error && fileInfo.canView(user)) {
+                    if (fileInfo.canView(user)) {
                         var lastVersionId = fileInfo.versions[0];
                         fileService.getFileVersion(lastVersionId, function (error, content) {
                             if (error) {
@@ -48,10 +49,8 @@ router
                             }
                             next(null, content);
                         });
-                    } else if (!fileInfo.error) {
-                        next(new ServiceError(401, 'Unauthorized'));
                     } else {
-                        next(new ServiceError(500, fileInfo.error));
+                        next(new ServiceError(401, 'Unauthorized'));
                     }
                 },
                 function (fileContent, next) {
@@ -156,14 +155,9 @@ router.setupDB = function (cassandraOptions) {
     fileService = new FileService(cassandraClient);
 };
 
-// Simple route middleware to ensure user is authenticated.
-//   Use this route middleware on any resource that needs to be protected.  If
-//   the request is authenticated (typically via a persistent login session),
-//   the request will proceed.  Otherwise, the user will be redirected to the
-//   login page.
 function ensureAuthenticated(request, response, next) {
-    if ('mindweb_user' in request.headers) {
-        user = JSON.parse(request.headers.mindweb_user);
+    if (request.session.passport.user) {
+        user = request.session.passport.user;
         return next(null, request, response);
     }
     next(new ServiceError(401, 'The user has no authentication information', "Authentication failed"));
