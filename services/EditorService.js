@@ -1,4 +1,3 @@
-///<reference path='../typings/tsd.d.ts' />
 import EditAction from "../classes/EditAction";
 import FileContent from "../classes/FileContent";
 
@@ -19,7 +18,7 @@ function findNodeById (node, nodeId) {
         }
     }
     return null;
-};
+}
 
 function applyAction (file, action, callback) {
     var eventNode = this.findNodeById(file.rootNode, action.parent);
@@ -60,5 +59,5 @@ function applyAction (file, action, callback) {
             return callback('Unimplemented event: ' + action.event);
     }
     callback();
-};
+}
 exports.EditorService = {applyAction };
