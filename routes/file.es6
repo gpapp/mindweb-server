@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import multer from 'multer';
 
-import ServiceError from '../classes/ServiceError.js';
+import ServiceError from '../classes/ServiceError.es6';
 import FileService from '../services/FileService';
 import * as EditorService from '../services/EditorService';
 import * as FreeplaneConverterService from '../services/FreeplaneConverterService'
@@ -152,7 +152,7 @@ router.setupDB = function (cassandraOptions) {
             throw new Error('Cannot connect to database');
         }
         console.log('Connected to database:' + ok);
-        require('../db/storage_schema.js')(cassandraClient);
+        require('../db/storage_schema.es6')(cassandraClient);
         fileService = new FileService(cassandraClient);
     });
 };

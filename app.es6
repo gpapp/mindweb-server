@@ -29,7 +29,7 @@ var cassandraOptions = {
     }
 };
 
-require('./db/keyspace.js')(cassandraOptions);
+require('./db/keyspace.es6')(cassandraOptions);
 cassandraOptions.keyspace = "mindweb";
 authRoute.setupDB(cassandraOptions, options.url);
 fileRoute.setupDB(cassandraOptions);

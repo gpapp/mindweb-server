@@ -1,4 +1,4 @@
-export default class ServiceError extends Error {
+ export default class ServiceError extends Error {
     constructor(statusCode, message, name) {
         super();
         this.statusCode = statusCode;

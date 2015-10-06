@@ -2,7 +2,7 @@ import express from 'express';
 import cassandra from 'cassandra-driver';
 import passport from 'passport';
 import UserService from '../services/UserService';
-import ServiceError from '../classes/ServiceError.js';
+import ServiceError from '../classes/ServiceError.es6';
 
 var router = express.Router();
 var userService;
@@ -55,7 +55,7 @@ router.setupDB = function (cassandraOptions, BASE_URL) {
             throw new Error('Cannot connect to database');
         }
         console.log('Connected to database:' + ok);
-        require('../db/session_schema.js')(cassandraClient);
+        require('../db/session_schema.es6')(cassandraClient);
         userService = new UserService(cassandraClient);
     });
 
