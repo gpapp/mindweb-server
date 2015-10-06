@@ -64,6 +64,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(nocache);
+
 app.use('/auth', authRoute);
 app.use('/file', authRoute.authorizeMiddleware, fileRoute);
 
@@ -97,6 +99,13 @@ app.use(function (err, req, res, next) {
         error: {}
     });
 });
+
+function nocache(req, res, next) {
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.header('Expires', '-1');
+    res.header('Pragma', 'no-cache');
+    next();
+}
 
 function processConfig() {
     var rawConfig = fs.readFileSync('config/config.json');
