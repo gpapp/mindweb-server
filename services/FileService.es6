@@ -71,6 +71,7 @@ export default class FileService {
 
     renameFile(fileId, newFileName, callback) {
         var fileLocal = this.file;
+        // TODO: Check filename availibility
         fileLocal.renameById(fileId, newFileName, function (error) {
             if (error) {
                 return callback(error);
@@ -94,7 +95,7 @@ export default class FileService {
         });
     }
 
-    createNewVersion(fileName, userId, content, callback) {
+    createNewVersion(userId, fileName, isPublic, viewers, editors, content, callback) {
         var fileLocal = this.file;
         var fileVersionLocal = this.fileVersion;
         async.waterfall([

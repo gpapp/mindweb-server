@@ -10,6 +10,8 @@ import FileService from '../services/FileService';
 import * as EditorService from '../services/EditorService';
 import * as FreeplaneConverterService from '../services/FreeplaneConverterService'
 
+const EMPTY_MAP = {$:{version:"freeplane 1.3.0"},rootNode: {$:{ID:"ID_"+(Math.random()*10000000000).toFixed()},nodeMarkdown: 'New map', open: true}};
+
 var router = express.Router();
 var upload = multer({inMemory: true});
 
@@ -21,19 +23,17 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(cookieParser());
 
 router
-    .get('/files', ensureAuthenticated, function (request, response) {
+    .get('/files', ensureAuthenticated, function (request, response, appCallback) {
         fileService.getFiles(user.id, function (error, result) {
             if (error) {
-                response.statusCode = error.statusCode;
-                response.write(error.message);
-                response.end();
+                appCallback(error);
             } else {
                 response.json(result);
                 response.end();
             }
         });
     })
-    .get('/file/:id', ensureAuthenticated, function (request, response) {
+    .get('/file/:id', ensureAuthenticated, function (request, response, appCallback) {
         async.waterfall(
             [
                 function (next) {
@@ -45,12 +45,12 @@ router
                         var lastVersionId = fileInfo.versions[0];
                         fileService.getFileVersion(lastVersionId, function (error, content) {
                             if (error) {
-                                next(error);
+                                appCallback(error);
                             }
                             next(null, content);
                         });
                     } else {
-                        next(new ServiceError(401, 'Unauthorized'));
+                        appCallback(new ServiceError(401, 'Unauthorized'));
                     }
                 },
                 function (fileContent, next) {
@@ -59,15 +59,88 @@ router
                     next();
                 }],
             function (error) {
-                if (error) {
-                    response.statusCode = error.statusCode;
-                    response.write(error.message);
-                    response.end();
-                }
-            }
-        )
+                if (error) appCallback(error);
+            })
     })
-    .put('/change/:id', ensureAuthenticated, bodyParser.json(), function (request, response) {
+    .delete('/file/:id', ensureAuthenticated, function (request, response, appCallback) {
+        var fileId = request.params.id;
+        async.waterfall(
+            [
+                function (next) {
+                    fileService.getFile(fileId, next);
+                },
+                function (fileInfo, next) {
+                    if (fileInfo.canRemove(user)) {
+                        fileService.deleteFile(fileId, function (error, result) {
+                            if (error) {
+                                return appCallback(error);
+                            }
+                            next();
+                        });
+                    } else {
+                        appCallback(new ServiceError(401, 'Unauthorized'));
+                    }
+                },
+                function (next) {
+                    response.end();
+                    next();
+                }
+            ],
+            function (error) {
+                if (error) appCallback(error);
+            })
+    })
+    .post('/rename/:id', ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+        var fileId = request.params.id;
+        var newName = request.body.newName + '.mm';
+        async.waterfall(
+            [
+                function (next) {
+                    fileService.getFile(fileId, next);
+                },
+                function (fileInfo, next) {
+                    if (fileInfo.canRemove(user)) {
+                        fileService.renameFile(fileId, newName, function (error, result) {
+                            if (error) {
+                                return appCallback(error);
+                            }
+                            next();
+                        });
+                    } else {
+                        appCallback(new ServiceError(401, 'Unauthorized'));
+                    }
+                },
+                function (next) {
+                    response.end();
+                    next();
+                }
+            ],
+            function (error) {
+                if (error) appCallback(error);
+            })
+    })
+    .post('/create', ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+
+        var name = request.body.name + '.mm';
+        var isPublic = request.body.isPublic;
+        var viewers = request.body.viewers;
+        var editors = request.body.editors;
+        async.waterfall(
+            [
+                function (next) {
+                    fileService.createNewVersion(user.id, name, isPublic, viewers, editors, JSON.stringify(EMPTY_MAP), next);
+                },
+                function (fileInfo, next) {
+                    response.json(fileInfo);
+                    response.end();
+                    next();
+                }
+            ],
+            function (error) {
+                if (error) appCallback(error);
+            })
+    })
+    .put('/change/:id', ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
         var fileId = request.params.id;
         var actions = request.body.actions;
         async.waterfall(
@@ -76,18 +149,16 @@ router
                     fileService.getFile(fileId, next);
                 },
                 function (fileInfo, next) {
-                    if (!fileInfo.error && fileInfo.canEdit(user)) {
+                    if (fileInfo.canEdit(user)) {
                         var fileVersionId = fileInfo.versions[fileInfo.versions.length - 1];
                         fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
                             if (error) {
-                                return next(error);
+                                return appCallback(error);
                             }
                             next(null, fileVersionId, fileVersion.content)
                         });
-                    } else if (!fileInfo.error) {
-                        next(new ServiceError(401, 'Unauthorized'));
                     } else {
-                        next(new ServiceError(500, fileInfo.error));
+                        appCallback(new ServiceError(401, 'Unauthorized'));
                     }
                 },
                 function (fileVersionId, fileContent, next) {
@@ -106,42 +177,33 @@ router
                 },
                 function (fileVersionId, fileContent, next) {
                     fileService.updateFileVersion(fileVersionId, JSON.stringify(fileContent), next);
+                },
+                function (result, next) {
+                    response.end();
+                    next();
                 }
             ],
             function (error) {
-                if (error) {
-                    response.statusCode = error.statusCode;
-                    response.write(error.message);
-                } else {
-                    response.statusCode = 200;
-                }
-                response.end();
-            }
-        )
+                if (error) appCallback(error);
+            })
     })
-    .post('/upload', ensureAuthenticated, upload.array('file', 10), function (request, response) {
-        async.forEachOf(request.files,
+    .post('/upload', ensureAuthenticated, upload.array('file', 10), function (request, response, appCallback) {
+        async.forEachOf(
+            request.files,
             function (file, index, next) {
                 console.log("Received request to store file: " + file.originalname + " length:" + file.size);
                 FreeplaneConverterService.convert(file.buffer, function (error, rawmap) {
                     if (error) {
-                        next(error);
+                        appCallback(error);
                     }
-                    fileService.createNewVersion(file.originalname, user.id, JSON.stringify(rawmap), next);
+                    fileService.createNewVersion(user.id, file.originalname, false, null, null, JSON.stringify(rawmap), next);
                 });
             },
-            function (err) {
-                if (err) {
-                    response.status(500);
-                    response.render('error', {error: err});
-                } else {
-                    response.status(200);
-                }
+            function (error) {
+                if (error) appCallback(error);
                 response.end();
-            }
-        );
-    })
-;
+            })
+    });
 
 router.setupDB = function (cassandraOptions) {
     console.log("Setting up DB connection for file service");

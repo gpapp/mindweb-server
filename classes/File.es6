@@ -47,4 +47,9 @@ export default class File {
         }
         return false;
     }
+
+    canRemove(user) {
+        if (this.owner.toString() === user.id) return true;
+        return false;
+    }
 }

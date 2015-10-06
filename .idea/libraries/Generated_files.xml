@@ -2,18 +2,19 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/db/storage_schema.js" />
-        <item url="file://$PROJECT_DIR$/db/keyspace.js" />
         <item url="file://$PROJECT_DIR$/routes/file.js" />
-        <item url="file://$PROJECT_DIR$/app.js" />
-        <item url="file://$PROJECT_DIR$/db/session_schema.js" />
         <item url="file://$PROJECT_DIR$/routes/auth.js" />
         <item url="file://$PROJECT_DIR$/dao/FileVersion.js" />
-        <item url="file://$PROJECT_DIR$/classes/ServiceError.js" />
         <item url="file://$PROJECT_DIR$/dao/DAOBase.js" />
         <item url="file://$PROJECT_DIR$/services/UserService.js" />
         <item url="file://$PROJECT_DIR$/dao/File.js" />
         <item url="file://$PROJECT_DIR$/services/FileService.js" />
+        <item url="file://$PROJECT_DIR$/db/storage_schema.js" />
+        <item url="file://$PROJECT_DIR$/db/keyspace.js" />
+        <item url="file://$PROJECT_DIR$/app.js" />
+        <item url="file://$PROJECT_DIR$/db/session_schema.js" />
+        <item url="file://$PROJECT_DIR$/classes/File.js" />
+        <item url="file://$PROJECT_DIR$/classes/ServiceError.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -55,6 +56,7 @@
       <root url="file://$PROJECT_DIR$/db/keyspace.js" />
       <root url="file://$PROJECT_DIR$/app.js" />
       <root url="file://$PROJECT_DIR$/db/session_schema.js" />
+      <root url="file://$PROJECT_DIR$/classes/File.js" />
       <root url="file://$PROJECT_DIR$/classes/ServiceError.js" />
     </CLASSES>
     <SOURCES />
