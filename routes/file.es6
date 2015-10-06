@@ -10,7 +10,10 @@ import FileService from '../services/FileService';
 import * as EditorService from '../services/EditorService';
 import * as FreeplaneConverterService from '../services/FreeplaneConverterService'
 
-const EMPTY_MAP = {$:{version:"freeplane 1.3.0"},rootNode: {$:{ID:"ID_"+(Math.random()*10000000000).toFixed()},nodeMarkdown: 'New map', open: true}};
+const EMPTY_MAP = {
+    $: {version: "freeplane 1.3.0"},
+    rootNode: {$: {ID: "ID_" + (Math.random() * 10000000000).toFixed()}, nodeMarkdown: 'New map', open: true}
+};
 
 var router = express.Router();
 var upload = multer({inMemory: true});
@@ -43,11 +46,12 @@ router
                     var fileInfo = result;
                     if (fileInfo.canView(user)) {
                         var lastVersionId = fileInfo.versions[0];
-                        fileService.getFileVersion(lastVersionId, function (error, content) {
+                        fileService.getFileVersion(lastVersionId, function (error, result) {
                             if (error) {
                                 appCallback(error);
                             }
-                            next(null, content);
+                            result.file = fileInfo;
+                            next(null, result);
                         });
                     } else {
                         appCallback(new ServiceError(401, 'Unauthorized'));
@@ -75,13 +79,14 @@ router
                             if (error) {
                                 return appCallback(error);
                             }
-                            next();
+                            next(null, fileInfo);
                         });
                     } else {
                         appCallback(new ServiceError(401, 'Unauthorized'));
                     }
                 },
-                function (next) {
+                function (fileInfo, next) {
+                    response.json(fileInfo);
                     response.end();
                     next();
                 }
@@ -104,13 +109,15 @@ router
                             if (error) {
                                 return appCallback(error);
                             }
-                            next();
+                            next(null, fileInfo);
                         });
                     } else {
                         appCallback(new ServiceError(401, 'Unauthorized'));
                     }
                 },
-                function (next) {
+                function (fileInfo, next) {
+                    fileInfo.name = newName;
+                    response.json(fileInfo);
                     response.end();
                     next();
                 }
