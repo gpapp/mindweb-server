@@ -1,22 +1,18 @@
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
-    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-clean');
 
     grunt.initConfig({
         clean: {
+            gen: {
+                expand: true,
+                cwd: '.',
+                src: ['**/*.js','**/*.js.map','!**/gruntfile.js', '!**/node_modules/**']
+            },
             empty_dirs: {
-                src: ['tmp/**/*'],
+                src: ['.'],
                 filter: function (filepath) {
                     return (grunt.file.isDir(filepath) && require('fs').readdirSync(filepath).length === 0);
-                }
-            },
-            gen: {
-                src: ['*.js'],
-                filter: function (filepath) {
-                    console.log(filepath);
-                    console.log(grunt.file.filename(filepath));
-                    return false;
                 }
             }
         },
@@ -30,7 +26,7 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '.',
                     src: ['**/*.es6'],
-                    dest: 'b',
+                    dest: '.',
                     ext: '.js'
                 }]
             }

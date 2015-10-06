@@ -4,7 +4,8 @@
  * Module dependencies.
  */
 require("babel/register")({
-    extensions: [".es6"]
+    extensions: [".es6"],
+    retainLines: true
 });
 var app = require('../app');
 var debug = require('debug')('server:server');

@@ -51,7 +51,7 @@ export default class UserService {
                         console.error(error);
                         return next(error, null);
                     }
-                    next(null, {userId: userId});
+                    next(null, new User(userId, name, authId, avatarurl, null, null));
                 });
             }
             else {
