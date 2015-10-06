@@ -2,7 +2,7 @@ import DAOBase from './DAOBase';
 
 export default class File extends DAOBase {
     getFiles(userId, next) {
-        var query = 'SELECT id, name, versions, viewers, editors, created, modified ' +
+        var query = 'SELECT id, name, owner, versions, public, viewers, editors, created, modified ' +
             'FROM mindweb.file WHERE owner=:userId ALLOW FILTERING';
         this.execute(query, {userId: userId}, next);
     }

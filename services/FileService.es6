@@ -21,7 +21,7 @@ export default class FileService {
             var retval = new Array(result.rows.length);
             for (var i = 0; i < result.rows.length; i++) {
                 var row = result.rows[i];
-                retval[i] = new File(row.id, row.name, row.owner, row.viewers, row.editors, row.isPublic, row.versions);
+                retval[i] = new File(row.id, row.name, row.owner, row.viewers, row.editors, row['public'], row.versions);
             }
             callback(null, retval);
         });
@@ -36,7 +36,7 @@ export default class FileService {
             if (row == null) {
                 return callback('No such file version by that id', null);
             }
-            callback(null, new File(row.id, row.name, row.owner, row.viewers, row.editors, row.public, row.versions));
+            callback(null, new File(row.id, row.name, row.owner, row.viewers, row.editors, row['public'], row.versions));
         });
     }
 

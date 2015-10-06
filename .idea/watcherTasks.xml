@@ -20,8 +20,8 @@
       <option name="workingDir" value="$FileDir$" />
       <envs />
     </TaskOptions>
-    <TaskOptions isEnabled="false">
-      <option name="arguments" value="--source-maps --out-file $FileNameWithoutExtension$.js $FilePath$" />
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value=" --retain-lines --source-maps --out-file $FileNameWithoutExtension$.js $FilePath$" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" value="Transpiles ECMAScript 6 code to ECMAScript 5" />
       <option name="exitCodeBehavior" value="ERROR" />
