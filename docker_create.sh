@@ -6,11 +6,11 @@ docker create \
     --env DB_PORT=${DB_PORT} \
     --env HTTP_PORT=${HTTP_PORT} \
     --env SERVER_PORT=${SERVER_PORT} \
-    --volume `pwd`/../.config/$TYPE/server:/home/node/config \
+    --volume `pwd`/../.config/$TYPE/server/config:/home/node/config \
     --name mw-server-$TYPE \
     mindweb/server
 
 if [ ! -f  ../.config/$TYPE/server/config.json ]; then 
-  mkdir -p ../.config/$TYPE/server
-  cp config/config.json ../.config/$TYPE/server/config.json
+  mkdir -p ../.config/$TYPE/server/config
+  cp config/config.json ../.config/$TYPE/server/config/config.json
 fi
