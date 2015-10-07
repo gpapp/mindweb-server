@@ -4,6 +4,8 @@
       <sourceFilesUrls>
         <item url="file://$PROJECT_DIR$/routes/file.js" />
         <item url="file://$PROJECT_DIR$/routes/auth.js" />
+        <item url="file://$PROJECT_DIR$/services/ConverterService.js" />
+        <item url="file://$PROJECT_DIR$/services/EditorService.js" />
         <item url="file://$PROJECT_DIR$/dao/FileVersion.js" />
         <item url="file://$PROJECT_DIR$/dao/DAOBase.js" />
         <item url="file://$PROJECT_DIR$/services/UserService.js" />
@@ -15,6 +17,7 @@
         <item url="file://$PROJECT_DIR$/db/session_schema.js" />
         <item url="file://$PROJECT_DIR$/classes/File.js" />
         <item url="file://$PROJECT_DIR$/classes/ServiceError.js" />
+        <item url="file://$PROJECT_DIR$/classes/Node.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -46,6 +49,8 @@
       <root url="file://$PROJECT_DIR$/bin/www-compiled.js" />
       <root url="file://$PROJECT_DIR$/routes/file.js" />
       <root url="file://$PROJECT_DIR$/routes/auth.js" />
+      <root url="file://$PROJECT_DIR$/services/ConverterService.js" />
+      <root url="file://$PROJECT_DIR$/services/EditorService.js" />
       <root url="file://$PROJECT_DIR$/dao/FileVersion.js" />
       <root url="file://$PROJECT_DIR$/dao/DAOBase.js" />
       <root url="file://$PROJECT_DIR$/services/UserService.js" />
@@ -58,6 +63,7 @@
       <root url="file://$PROJECT_DIR$/db/session_schema.js" />
       <root url="file://$PROJECT_DIR$/classes/File.js" />
       <root url="file://$PROJECT_DIR$/classes/ServiceError.js" />
+      <root url="file://$PROJECT_DIR$/classes/Node.js" />
     </CLASSES>
     <SOURCES />
   </library>

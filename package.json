@@ -26,6 +26,8 @@
     "passport-linkedin": "0.x.x",
     "passport-twitter": "1.x.x",
     "serve-favicon": "~2.3.0",
+    "showdown": "~0.3.1",
+    "to-markdown": "^2.0.0",
     "xml2js": "^0.4.12"
   },
   "devDependencies": {

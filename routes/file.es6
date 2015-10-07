@@ -8,7 +8,7 @@ import multer from 'multer';
 import ServiceError from '../classes/ServiceError.es6';
 import FileService from '../services/FileService';
 import * as EditorService from '../services/EditorService';
-import * as FreeplaneConverterService from '../services/FreeplaneConverterService'
+import * as ConverterService from '../services/ConverterService'
 
 const EMPTY_MAP = {
     $: {version: "freeplane 1.3.0"},
@@ -28,12 +28,10 @@ router.use(cookieParser());
 router
     .get('/files', ensureAuthenticated, function (request, response, appCallback) {
         fileService.getFiles(user.id, function (error, result) {
-            if (error) {
-                appCallback(error);
-            } else {
-                response.json(result);
-                response.end();
-            }
+            if (error) return appCallback(error);
+
+            response.json(result);
+            response.end();
         });
     })
     .get('/file/:id', ensureAuthenticated, function (request, response, appCallback) {
@@ -47,9 +45,7 @@ router
                     if (fileInfo.canView(user)) {
                         var lastVersionId = fileInfo.versions[0];
                         fileService.getFileVersion(lastVersionId, function (error, result) {
-                            if (error) {
-                                appCallback(error);
-                            }
+                            if (error) return appCallback(error);
                             result.file = fileInfo;
                             next(null, result);
                         });
@@ -76,9 +72,7 @@ router
                 function (fileInfo, next) {
                     if (fileInfo.canRemove(user)) {
                         fileService.deleteFile(fileId, function (error, result) {
-                            if (error) {
-                                return appCallback(error);
-                            }
+                            if (error) return appCallback(error);
                             next(null, fileInfo);
                         });
                     } else {
@@ -106,9 +100,7 @@ router
                 function (fileInfo, next) {
                     if (fileInfo.canRemove(user)) {
                         fileService.renameFile(fileId, newName, function (error, result) {
-                            if (error) {
-                                return appCallback(error);
-                            }
+                            if (error) return appCallback(error);
                             next(null, fileInfo);
                         });
                     } else {
@@ -157,11 +149,9 @@ router
                 },
                 function (fileInfo, next) {
                     if (fileInfo.canEdit(user)) {
-                        var fileVersionId = fileInfo.versions[fileInfo.versions.length - 1];
+                        var fileVersionId = fileInfo.versions[0];
                         fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
-                            if (error) {
-                                return appCallback(error);
-                            }
+                            if (error) return appCallback(error);
                             next(null, fileVersionId, fileVersion.content)
                         });
                     } else {
@@ -194,20 +184,49 @@ router
                 if (error) appCallback(error);
             })
     })
+    .get('/convert/freeplane/:id', ensureAuthenticated, function (request, response, appCallback) {
+        var fileId = request.params.id;
+        async.waterfall(
+            [
+                function (next) {
+                    fileService.getFile(fileId, next);
+                },
+                function (fileInfo, next) {
+                    if (fileInfo.canView(user)) {
+                        var fileVersionId = fileInfo.versions[0];
+                        fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
+                            if (error) return appCallback(error);
+                            next(null, fileInfo, fileVersion)
+                        });
+                    } else {
+                        appCallback(new ServiceError(401, 'Unauthorized'));
+                    }
+                },
+                function (fileInfo, fileVersion, next) {
+                    ConverterService.toFreeplane(fileVersion.content, function (error, result) {
+                        if (error) return appCallback(error);
+
+                        response.write(result);
+                        response.end();
+                    });
+                }],
+            function (error) {
+                if (error) appCallback(error);
+            });
+    })
     .post('/upload', ensureAuthenticated, upload.array('file', 10), function (request, response, appCallback) {
         async.forEachOf(
             request.files,
             function (file, index, next) {
                 console.log("Received request to store file: " + file.originalname + " length:" + file.size);
-                FreeplaneConverterService.convert(file.buffer, function (error, rawmap) {
-                    if (error) {
-                        appCallback(error);
-                    }
+                ConverterService.fromFreeplane(file.buffer, function (error, rawmap) {
+                    if (error) return appCallback(error);
+
                     fileService.createNewVersion(user.id, file.originalname, false, null, null, JSON.stringify(rawmap), next);
                 });
             },
             function (error) {
-                if (error) appCallback(error);
+                if (error) return appCallback(error);
                 response.end();
             })
     });
