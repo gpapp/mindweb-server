@@ -58,6 +58,24 @@ describe('UserDAO userCreate', function () {
             }
         });
     });
+    it("recreates a user in the database", function (done) {
+        userService.createUser("TestID 1", "Test User 11", "test1@a.com", "Test Avatar 11", function (error, result) {
+            try {
+                assert(error != null, "Should throw error");
+                assert(result, "Result is empty");
+                assert(result.persona.length === 1, "Persona length is not 1");
+                assert(result.persona[0] === 'TestID 1', "Auth id mismatch");
+                assert(result.id, "Result userId is empty");
+                assert(result.email, "test@a.com");
+                assert(result.name, "Test User 1");
+                assert(result.avatarUrl, "Test Avatar 1");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
 });
 describe('UserDAO getUser', function () {
     it("finds a user from the database", function (done) {
@@ -158,6 +176,24 @@ describe('UserDAO Persona test', function () {
             }
         });
     });
+    it("adds selects another main persona for the first user", function (done) {
+        userService.selectMainPersona(userId1, "TestID 3", function (error, result) {
+            try {
+                assert(error == null, "Cannot add new persona: " + error);
+                assert(result, "Result is empty");
+                assert(result.persona.length === 2, "Persona length is not 2");
+                assert(result.persona[1] === 'TestID 3', "Auth id mismatch");
+                assert(result.id, "Result userId is empty");
+                assert(result.email, "test@c.com");
+                assert(result.name, "Test name 3");
+                assert(result.avatarUrl, "Test Avatar 3");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
     it("adds an existing persona to second user", function (done) {
         userService.addPersona(userId2, "TestID 3", 'Test name 3', 'test@c.com', 'Test Avatar 3', function (error, result) {
             try {
@@ -173,7 +209,7 @@ describe('UserDAO Persona test', function () {
     it("remove existing persona from first user", function (done) {
         userService.removePersona(userId1, "TestID 3", function (error, result) {
             try {
-                assert(error==null, "Error removing persona: " + error);
+                assert(error == null, "Error removing persona: " + error);
                 assert(result, "Result is empty");
                 assert(result.persona.length === 1, "Persona length is not 1");
                 assert(result.persona[0] === 'TestID 1', "Auth id mismatch");

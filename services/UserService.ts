@@ -3,6 +3,7 @@ import * as cassandra from 'cassandra-driver';
 
 import File from '../classes/File';
 import User from '../classes/User';
+import Persona from '../classes/Persona';
 import UserDAO from '../dao/User';
 import UserPersonaDAO from '../dao/UserPersona';
 import FileService from './FileService';
@@ -162,7 +163,39 @@ export default class UserService {
         });
     }
 
-    public removePersona(userId:string|cassandra.types.Uuid, authId:string, callback:Function):void {
+    public selectMainPersona(userId:string|cassandra.types.Uuid, authId:string, next:Function) {
+        var parent = this;
+        this.getUserByAuthId(authId, function (error, user:User) {
+                if (error) {
+                    return next(error);
+                }
+                if (user == null) {
+                    next(new ServiceError(500, "User doesn't exist:" + authId, "Main persona selection error"));
+                }
+
+                parent.persona.getPersona(authId, function (error, result) {
+                    if (error) return next(error);
+                    if (result.rows.length == 0) {
+                        return next(new ServiceError(500, 'Cannot find persona:' + authId, "Main persona selection error"));
+                    }
+                    var row = result.first();
+
+                    var persona = new Persona(authId, row['name'], row['email'], row['avatarurl'], null, null);
+                    parent.user.createUser(userId, user.persona, persona.name, persona.email, persona.avatarUrl, function (error) {
+                        if (error) {
+                            console.error(error);
+                            return next(error);
+                        }
+                        parent.getUserByAuthId(authId, function (error, result:User) {
+                            next(null, result);
+                        });
+                    });
+                });
+            }
+        );
+    }
+
+    public removePersona(userId:string | cassandra.types.Uuid, authId:string, callback:Function):void {
         var parent = this;
         async.waterfall([
             function (next) {
