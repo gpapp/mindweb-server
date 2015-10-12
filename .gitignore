@@ -1,6 +1,10 @@
 # Ignore npm modules
 node_modules
 
+# Ignore Typescript generated files
+**/*.js
+**/*.js.map
+
 # Ignore Typescript generated definitions
 **/*.d.ts
 
