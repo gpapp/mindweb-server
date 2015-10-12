@@ -1,1 +1,8 @@
+# Ignore npm modules
 node_modules
+
+# Ignore Typescript generated definitions
+**/*.d.ts
+
+# Unignore handmade typescript definitions
+!/typings/**/*.d.ts
