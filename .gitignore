@@ -4,9 +4,11 @@ node_modules
 # Ignore Typescript generated files
 **/*.js
 **/*.js.map
+!gruntfile.js
 
 # Ignore Typescript generated definitions
 **/*.d.ts
 
 # Unignore handmade typescript definitions
 !/typings/**/*.d.ts
+.tscache
