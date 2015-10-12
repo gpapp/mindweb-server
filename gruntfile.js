@@ -27,7 +27,7 @@ module.exports = function (grunt) {
                 src: ['**/*.ts', '!**/typings/**', '!**/node_modules/**'],
                 dest: '.',
                 options: {
-                    module: 'amd', //or commonjs
+                    module: 'commonjs', //or commonjs
                     target: 'es5', //or es3
                     sourceMap: true,
                     declaration: false
