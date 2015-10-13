@@ -81,7 +81,7 @@ export default class UserService {
                         parent.persona.deletePersona(personaId, eachNext);
                     }, function (error) {
                         if (error) return callback(error);
-                        parent.user.deleteUser(userId, function (error,result){
+                        parent.user.deleteUser(userId, function (error, result) {
                             if (error) return callback(error);
                             callback()
                         });
@@ -140,9 +140,7 @@ export default class UserService {
                     return callback(null, user);
                 });
             }
-        ], function (error) {
-            callback(error);
-        });
+        ]);
     }
 
     public selectMainPersona(userId:string|cassandra.types.Uuid, authId:string, callback:Function) {
@@ -151,9 +149,6 @@ export default class UserService {
             function (next) {
                 parent.getUserByAuthId(authId, function (error, user:User) {
                     if (error) return callback(error);
-                    if (user == null) {
-                        return callback(new ServiceError(500, "User doesn't exist:" + authId, "Main persona selection error"));
-                    }
                     next(null, user);
                 });
             }, function (user:User, next) {

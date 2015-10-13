@@ -38,8 +38,8 @@ before(function (next) {
         next();
     });
 });
-var userService = new UserService(cassandraClient);
 describe('UserDAO userCreate', function () {
+    var userService = new UserService(cassandraClient);
     it("creates a user in the database", function (done) {
         userService.createUser("TestID 1", "Test User 1", "test@a.com", "Test Avatar 1", function (error, result) {
             try {
@@ -78,6 +78,7 @@ describe('UserDAO userCreate', function () {
     });
 });
 describe('UserDAO getUser', function () {
+    var userService = new UserService(cassandraClient);
     it("finds a user from the database", function (done) {
         userService.getUserByAuthId("TestID 1", function (error, result) {
             try {
@@ -98,6 +99,7 @@ describe('UserDAO getUser', function () {
     });
 });
 describe('UserDAO Persona test', function () {
+    var userService = new UserService(cassandraClient);
     var userId1;
     var userId2;
     it("finds a user from the database", function (done) {
@@ -198,7 +200,7 @@ describe('UserDAO Persona test', function () {
         userService.selectMainPersona('00000000-0000-0000-0000-000000000000', "TestID 3", function (error, result) {
             try {
                 assert(error, "Should fail");
-                assert(result==null, "Should not have result");
+                assert(result == null, "Should not have result");
                 done();
             }
             catch (e) {
@@ -210,7 +212,7 @@ describe('UserDAO Persona test', function () {
         userService.selectMainPersona(userId1, "TestID X", function (error, result) {
             try {
                 assert(error, "Should fail");
-                assert(result==null, "Should not have result");
+                assert(result == null, "Should not have result");
                 done();
             }
             catch (e) {
@@ -289,9 +291,16 @@ describe('UserDAO Persona test', function () {
 });
 describe('UserDAO userDelete', function () {
     var userId;
+    var userService = new UserService(cassandraClient);
+    var fileService = new FileService(cassandraClient);
     before(function (next) {
         userService.getUserByAuthId("TestID 1", function (error, result) {
             userId = result.id;
+            next();
+        });
+    });
+    before(function (next) {
+        fileService.createNewVersion(userId, "Test fajl 1", false, null, null, "Test Content", function (error, result:File) {
             next();
         });
     });

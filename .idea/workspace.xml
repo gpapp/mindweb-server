@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/typescript-compiler.xml" afterPath="$PROJECT_DIR$/.idea/typescript-compiler.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/classes/File.ts" afterPath="$PROJECT_DIR$/classes/File.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dao/File.ts" afterPath="$PROJECT_DIR$/dao/File.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gruntfile.js" afterPath="$PROJECT_DIR$/gruntfile.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/services/FileService.ts" afterPath="$PROJECT_DIR$/services/FileService.ts" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/services/UserService.ts" afterPath="$PROJECT_DIR$/services/UserService.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/file/fileTest.ts" afterPath="$PROJECT_DIR$/test/file/fileTest.ts" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/user/userTest.ts" afterPath="$PROJECT_DIR$/test/user/userTest.ts" />
     </list>
     <ignored path="server.iws" />
@@ -32,11 +25,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="fileTest.ts" pinned="false" current-in-tab="true">
+      <file leaf-file-name="fileTest.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/file/fileTest.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-1.2462562">
-              <caret line="261" column="0" selection-start-line="261" selection-start-column="0" selection-end-line="262" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="102" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -52,11 +45,51 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FileService.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/services/FileService.ts">
+      <file leaf-file-name="UserService.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/services/UserService.ts">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="202" column="26" selection-start-line="202" selection-start-column="26" selection-end-line="202" selection-end-column="26" />
+              <caret line="151" column="0" selection-start-line="151" selection-start-column="0" selection-end-line="151" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FileService.ts" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/services/FileService.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.26497006">
+              <caret line="31" column="35" selection-start-line="31" selection-start-column="35" selection-end-line="31" selection-end-column="35" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FileVersion.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dao/FileVersion.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Friend.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dao/Friend.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="File.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dao/File.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-7.6491227">
+              <caret line="63" column="119" selection-start-line="63" selection-start-column="119" selection-end-line="63" selection-end-column="119" />
               <folding />
             </state>
           </provider>
@@ -65,8 +98,8 @@
       <file leaf-file-name="File.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/classes/File.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="56" column="4" selection-start-line="56" selection-start-column="4" selection-end-line="56" selection-end-column="4" />
+            <state vertical-scroll-proportion="-1.8421053">
+              <caret line="7" column="38" selection-start-line="7" selection-start-column="38" selection-end-line="7" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -76,17 +109,7 @@
         <entry file="file://$PROJECT_DIR$/test/user/userTest.ts">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="178" column="4" selection-start-line="178" selection-start-column="4" selection-end-line="178" selection-end-column="4" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="UserService.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/services/UserService.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="175" column="148" selection-start-line="175" selection-start-column="40" selection-end-line="175" selection-end-column="148" />
+              <caret line="304" column="0" selection-start-line="304" selection-start-column="0" selection-end-line="304" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -145,12 +168,12 @@
         <option value="$PROJECT_DIR$/tsconfig.json" />
         <option value="$PROJECT_DIR$/gruntfile.js" />
         <option value="$PROJECT_DIR$/package.json" />
-        <option value="$PROJECT_DIR$/classes/File.ts" />
+        <option value="$PROJECT_DIR$/test/file/fileTest.ts" />
+        <option value="$PROJECT_DIR$/services/FileService.ts" />
         <option value="$PROJECT_DIR$/dao/File.ts" />
+        <option value="$PROJECT_DIR$/classes/File.ts" />
         <option value="$PROJECT_DIR$/test/user/userTest.ts" />
         <option value="$PROJECT_DIR$/services/UserService.ts" />
-        <option value="$PROJECT_DIR$/services/FileService.ts" />
-        <option value="$PROJECT_DIR$/test/file/fileTest.ts" />
       </list>
     </option>
   </component>
@@ -270,6 +293,28 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="file" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fileTest.ts" />
+              <option name="myItemType" value="com.intellij.lang.typescript.compiler.ui.projectView.TypeScriptNestingTreeNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -840,39 +885,51 @@
       <option name="project" value="LOCAL" />
       <updated>1444692696331</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Added share/unshare functionality and tests&#10;NEW: Added code coverage support">
+      <created>1444725938217</created>
+      <option name="number" value="00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1444725938217</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Added better code coverage">
+      <created>1444727461421</created>
+      <option name="number" value="00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1444727461421</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="All_tests - 2015.10.13 at 10h 44m 38s.xml">
+    <history-entry file="All_tests - 2015.10.13 at 10h 55m 54s.xml">
       <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 31m 03s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 10h 56m 46s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 34m 16s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 00m 37s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 34m 52s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 01m 16s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 35m 45s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 08m 57s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 40m 03s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 10m 38s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 40m 33s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 14m 09s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 41m 00s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 15m 00s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 42m 47s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 17m 32s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="File_tests - 2015.10.13 at 10h 44m 25s.xml">
-      <configuration name="File tests" configurationId="mocha-javascript-test-runner" />
+    <history-entry file="All_tests - 2015.10.13 at 11h 18m 52s.xml">
+      <configuration name="All tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -886,15 +943,15 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1280" height="1028" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296582" sideWeight="0.49722" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="TypeScript Compiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23178808" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TypeScript Compiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23178808" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28366446" sideWeight="0.5146942" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24861" sideWeight="0.5214626" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32671082" sideWeight="0.49722" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30573952" sideWeight="0.48768863" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30573952" sideWeight="0.48768863" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32671082" sideWeight="0.49245432" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24861" sideWeight="0.47338128" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Grunt " active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24861" sideWeight="0.52729887" order="0" side_tool="true" content_ui="tabs" />
@@ -925,8 +982,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
-    <MESSAGE value="Moved session initialization to front" />
-    <MESSAGE value="Fixed request referece" />
     <MESSAGE value="Fixed authentication" />
     <MESSAGE value="Re-added authentication check" />
     <MESSAGE value="FIX: /file/id" />
@@ -950,14 +1005,16 @@
     <MESSAGE value="Added testsuit for friends&#10;Added missing libs" />
     <MESSAGE value="Moved to commonjs modules" />
     <MESSAGE value="Added test step to npm" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added test step to npm" />
+    <MESSAGE value="Added share/unshare functionality and tests&#10;NEW: Added code coverage support" />
+    <MESSAGE value="Added better code coverage" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added better code coverage" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="246" />
+      <option name="time" value="252" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1194,14 +1251,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dao/Friend.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.09983361">
-          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33505154">
@@ -1214,14 +1263,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.21477664">
           <caret line="49" column="42" selection-start-line="49" selection-start-column="42" selection-end-line="49" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dao/UserPersona.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.15463917">
-          <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
           <folding />
         </state>
       </provider>
@@ -1258,14 +1299,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dao/FileVersion.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.12479201">
-          <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/services/FriendService.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1274,42 +1307,58 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dao/User.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40996784">
-          <caret line="17" column="11" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dao/File.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7106109">
-          <caret line="62" column="11" selection-start-line="62" selection-start-column="11" selection-end-line="62" selection-end-column="11" />
+        <state vertical-scroll-proportion="-7.6491227">
+          <caret line="63" column="119" selection-start-line="63" selection-start-column="119" selection-end-line="63" selection-end-column="119" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/classes/File.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="56" column="4" selection-start-line="56" selection-start-column="4" selection-end-line="56" selection-end-column="4" />
+        <state vertical-scroll-proportion="-1.8421053">
+          <caret line="7" column="38" selection-start-line="7" selection-start-column="38" selection-end-line="7" selection-end-column="38" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/services/FileService.ts">
+    <entry file="file://$PROJECT_DIR$/dao/FileVersion.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="202" column="26" selection-start-line="202" selection-start-column="26" selection-end-line="202" selection-end-column="26" />
+          <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/services/UserService.ts">
+    <entry file="file://$PROJECT_DIR$/dao/Friend.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="175" column="148" selection-start-line="175" selection-start-column="40" selection-end-line="175" selection-end-column="148" />
+          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dao/UserPersona.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.14975041">
+          <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dao/User.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.42429283">
+          <caret line="17" column="11" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/file/fileTest.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="102" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1317,15 +1366,23 @@
     <entry file="file://$PROJECT_DIR$/test/user/userTest.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="178" column="4" selection-start-line="178" selection-start-column="4" selection-end-line="178" selection-end-column="4" />
+          <caret line="304" column="0" selection-start-line="304" selection-start-column="0" selection-end-line="304" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/file/fileTest.ts">
+    <entry file="file://$PROJECT_DIR$/services/UserService.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.2462562">
-          <caret line="261" column="0" selection-start-line="261" selection-start-column="0" selection-end-line="262" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="151" column="0" selection-start-line="151" selection-start-column="0" selection-end-line="151" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/services/FileService.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.26497006">
+          <caret line="31" column="35" selection-start-line="31" selection-start-column="35" selection-end-line="31" selection-end-column="35" />
           <folding />
         </state>
       </provider>
