@@ -185,8 +185,8 @@ export default class FileService {
 
     public shareFile(fileId:string|cassandra.types.Uuid,
                      isPublic:boolean,
-                     viewers:string[]|cassandra.types.Uuid[],
-                     editors:string[]|cassandra.types.Uuid[],
+                     viewers:(string|cassandra.types.Uuid)[],
+                     editors:(string|cassandra.types.Uuid)[],
                      callback:Function) {
         var parent = this;
         async.waterfall([
@@ -200,6 +200,22 @@ export default class FileService {
                     });
                 },
                 function (file:File, next) {
+                    if (viewers) {
+                        viewers=viewers.filter(uniqueFilter);
+                    }
+                    if (editors) {
+                        editors=editors.filter(uniqueFilter);
+                    }
+                    if (viewers && editors) {
+                        for (var i in viewers) {
+                            var curV = viewers[i].toString();
+                            for (var j in editors) {
+                                if (editors[j].toString() === curV) {
+                                    viewers.splice(i, 1);
+                                }
+                            }
+                        }
+                    }
                     parent.file.shareFile(fileId, isPublic, viewers, editors, function (error) {
                         if (error) return callback(error);
                         parent.getFile(fileId, callback);
@@ -208,4 +224,7 @@ export default class FileService {
             ]
         );
     }
+}
+function uniqueFilter(value, index, array){
+    return array.indexOf(value) === index;
 }

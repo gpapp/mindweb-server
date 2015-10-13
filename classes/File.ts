@@ -6,17 +6,17 @@ export default class File {
     id:string|cassandra.types.Uuid;
     name:string;
     owner:string|cassandra.types.Uuid;
-    viewers:string[]|cassandra.types.Uuid[];
-    editors:string[]|cassandra.types.Uuid[];
+    viewers:(string|cassandra.types.Uuid)[];
+    editors:(string|cassandra.types.Uuid)[];
     isPublic:boolean;
-    versions:string[]|cassandra.types.Uuid[];
+    versions:(string|cassandra.types.Uuid)[];
 
     public constructor(id:string|cassandra.types.Uuid,
                        name:string, owner:string|cassandra.types.Uuid,
-                       viewers:string[]|cassandra.types.Uuid[],
-                       editors:string[]|cassandra.types.Uuid[],
+                       viewers:(string|cassandra.types.Uuid)[],
+                       editors:(string|cassandra.types.Uuid)[],
                        isPublic:boolean,
-                       versions:string[]|cassandra.types.Uuid[]) {
+                       versions:(string|cassandra.types.Uuid)[]) {
         this.id = id;
         this.name = name;
         this.owner = owner;
@@ -33,10 +33,12 @@ export default class File {
             return true;
         }
 
-        // TODO: Known issue: viewers is a Uuid[] user.id is a string
         if (this.viewers != null) {
-            if (strUserId in this.viewers) {
-                return true;
+            for (var i in this.viewers) {
+                var strViewer = this.viewers[i].toString();
+                if (strUserId === strViewer) {
+                    return true;
+                }
             }
         }
         return false;
@@ -47,10 +49,12 @@ export default class File {
         if (this.canRemove(userId)) {
             return true;
         }
-        // TODO: Known issue: viewers is a Uuid[] user.id is a string
         if (this.editors != null) {
-            if (strUserId in this.editors) {
-                return true;
+            for (var i in this.editors) {
+                var strEditor = this.editors[i].toString();
+                if (strUserId === strEditor) {
+                    return true;
+                }
             }
         }
         return false;

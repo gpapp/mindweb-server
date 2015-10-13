@@ -15,8 +15,8 @@ export default class File extends DAOBase {
     }
 
     public createFile(fileId:string|cassandra.types.Uuid, fileName:string, userId:string|cassandra.types.Uuid,
-                      isPublic:boolean, viewers:string[]|cassandra.types.Uuid[], editors:string[]|cassandra.types.Uuid[],
-                      versions:string[]|cassandra.types.Uuid[], next:Function) {
+                      isPublic:boolean, viewers:(string|cassandra.types.Uuid)[], editors:(string|cassandra.types.Uuid)[],
+                      versions:(string|cassandra.types.Uuid)[], next:Function) {
         var query = 'INSERT INTO mindweb.file (id, name, owner, public, viewers, editors, versions, created, modified)' +
             'VALUES (:fileId,:fileName,:userId, :isPublic, :viewers, :editors,:versions,dateOf(now()),dateOf(now()))';
         this.execute(query, {
@@ -31,8 +31,8 @@ export default class File extends DAOBase {
     }
 
     public updateFile(fileId:string|cassandra.types.Uuid, fileName:string,
-                      isPublic:boolean, viewers:string[]|cassandra.types.Uuid[], editors:string[]|cassandra.types.Uuid[],
-                      versions:string[]|cassandra.types.Uuid[], next:Function) {
+                      isPublic:boolean, viewers:(string|cassandra.types.Uuid)[], editors:(string|cassandra.types.Uuid)[],
+                      versions:(string|cassandra.types.Uuid)[], next:Function) {
         var query = 'INSERT INTO mindweb.file (id, name, public, viewers, editors, versions, modified)' +
             'VALUES (:fileId,:fileName, :isPublic, :viewers, :editors, :versions,dateOf(now()))';
         this.execute(query, {
@@ -61,7 +61,7 @@ export default class File extends DAOBase {
     }
 
     public shareFile(fileId:string|cassandra.types.Uuid,
-                     isPublic:boolean, viewers:string[]|cassandra.types.Uuid[], editors:string[]|cassandra.types.Uuid[],
+                     isPublic:boolean, viewers:(string|cassandra.types.Uuid)[], editors:(string|cassandra.types.Uuid)[],
                      next:Function) {
         var query = 'UPDATE mindweb.file set public=:isPublic, viewers=:viewers, editors=:editors WHERE id = :fileId';
         this.execute(query, {fileId: fileId, isPublic: isPublic, viewers: viewers, editors: editors}, next);

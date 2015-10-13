@@ -213,11 +213,11 @@ describe('FileDAO file create', function () {
         });
     });
     it("Shares a file to a viewer", function (done) {
-        fileService.shareFile(testFileId, true, [userId2], null, function (error, result) {
+        fileService.shareFile(testFileId, false, [userId2], null, function (error, result) {
             try {
                 assert(error == null, "Cannot unshare test file: " + error);
                 assert(result, "Result is empty");
-                assert(result.isPublic, "File is not public");
+                assert(!result.isPublic, "File is public");
                 assert(result.viewers, "Viewers is null");
                 assert(result.viewers.length==1, "Viewers is not 1 long");
                 assert(result.viewers[0].toString() ===userId2.toString(), "User doesn't match");
@@ -236,11 +236,11 @@ describe('FileDAO file create', function () {
         });
     });
     it("Shares a file to an existing viewer", function (done) {
-        fileService.shareFile(testFileId, true, [userId2], null, function (error, result) {
+        fileService.shareFile(testFileId, false, [userId2], null, function (error, result) {
             try {
                 assert(error == null, "Cannot unshare test file: " + error);
                 assert(result, "Result is empty");
-                assert(result.isPublic, "File is not public");
+                assert(!result.isPublic, "File is public");
                 assert(result.viewers, "Viewers is null");
                 assert(result.viewers.length==1, "Viewers is not 1 long");
                 assert(result.viewers[0].toString() ===userId2.toString(), "User doesn't match");
@@ -250,6 +250,75 @@ describe('FileDAO file create', function () {
                 assert(result.canRemove(userId1), "Remove rights missing");
                 assert(result.canView(userId2), "Missing view rights");
                 assert(!result.canEdit(userId2), "Bogus edit rights");
+                assert(!result.canRemove(userId2), "Bogus remove rights");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Shares a file to an editor ", function (done) {
+        fileService.shareFile(testFileId, false, null,[userId2], function (error, result) {
+            try {
+                assert(error == null, "Cannot unshare test file: " + error);
+                assert(result, "Result is empty");
+                assert(!result.isPublic, "File is public");
+                assert(result.viewers === null, "Viewers  is not null");
+                assert(result.editors, "Editors is null");
+                assert(result.editors.length==1, "Editors is not 1 long");
+                assert(result.editors[0].toString() ===userId2.toString(), "User doesn't match");
+                assert(result.canView(userId1), "View rights missing");
+                assert(result.canEdit(userId1), "Edit rights missing");
+                assert(result.canRemove(userId1), "Remove rights missing");
+                assert(result.canView(userId2), "Missing view rights");
+                assert(result.canEdit(userId2), "Missing edit rights");
+                assert(!result.canRemove(userId2), "Bogus remove rights");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Shares a file to an existing editor", function (done) {
+        fileService.shareFile(testFileId, true, null,[userId2], function (error, result) {
+            try {
+                assert(error == null, "Cannot unshare test file: " + error);
+                assert(result, "Result is empty");
+                assert(result.isPublic, "File is not public");
+                assert(result.viewers === null, "Viewers  is not null");
+                assert(result.editors, "Editors is null");
+                assert(result.editors.length==1, "Editors is not 1 long");
+                assert(result.editors[0].toString() ===userId2.toString(), "User doesn't match");
+                assert(result.canView(userId1), "View rights missing");
+                assert(result.canEdit(userId1), "Edit rights missing");
+                assert(result.canRemove(userId1), "Remove rights missing");
+                assert(result.canView(userId2), "Missing view rights");
+                assert(result.canEdit(userId2), "Missing edit rights");
+                assert(!result.canRemove(userId2), "Bogus remove rights");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Shares a file to both viewer and editor", function (done) {
+        fileService.shareFile(testFileId, true, [userId2,userId2,userId2],[userId2,userId2,userId2], function (error, result) {
+            try {
+                assert(error == null, "Cannot unshare test file: " + error);
+                assert(result, "Result is empty");
+                assert(result.isPublic, "File is not public");
+                assert(result.viewers === null, "Viewers  is not null");
+                assert(result.editors, "Editors is null");
+                assert(result.editors.length==1, "Editors is not 1 long");
+                assert(result.editors[0].toString() ===userId2.toString(), "User doesn't match");
+                assert(result.canView(userId1), "View rights missing");
+                assert(result.canEdit(userId1), "Edit rights missing");
+                assert(result.canRemove(userId1), "Remove rights missing");
+                assert(result.canView(userId2), "Missing view rights");
+                assert(result.canEdit(userId2), "Missing edit rights");
                 assert(!result.canRemove(userId2), "Bogus remove rights");
                 done();
             }
