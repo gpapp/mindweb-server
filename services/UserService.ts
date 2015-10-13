@@ -48,60 +48,42 @@ export default class UserService {
         });
     }
 
-    public createUser(authId:string, name:string, email:string, avatarUrl:string, next:Function) {
+    public createUser(authId:string, name:string, email:string, avatarUrl:string, callback:Function) {
         var parent = this;
         this.getUserByAuthId(authId, function (error, result:User) {
-            if (error) {
-                return next(error);
+            if (error) return callback(error);
+            if (result != null) {
+                return callback(new ServiceError(500, "User already exists with authid: " + authId, "User creation error"), result);
             }
-            if (result == null) {
-                var userId = Uuid.random();
-                parent.persona.createPersona(authId, name, email, avatarUrl, function (error, result) {
-                    if (error) {
-                        return next(error);
-                    }
-                    parent.user.createUser(userId, [authId], name, email, avatarUrl, function (error) {
-                        if (error) {
-                            console.error(error);
-                            return next(error);
-                        }
-                        parent.getUserByAuthId(authId, function (error, result:User) {
-                            next(null, result);
-                        });
-                    });
+            var userId = Uuid.random();
+            parent.persona.createPersona(authId, name, email, avatarUrl, function (error, result) {
+                if (error) return callback(error);
+                parent.user.createUser(userId, [authId], name, email, avatarUrl, function (error) {
+                    if (error) return callback(error);
+                    parent.getUserByAuthId(authId, callback);
                 });
-            }
-            else {
-                console.error("User already exists with authid: " + authId);
-                next(new ServiceError(500, "User already exists with authid: " + authId, "User creation error"), result);
-            }
+            });
         });
     }
 
     public deleteUser(userId:string|cassandra.types.Uuid, callback:Function) {
         var parent = this;
         this.fileService.getFiles(userId, function (error, result:File[]) {
-            if (error) {
-                return callback(error);
-            }
+            if (error) return callback(error);
+
             async.each(result, function (rec:File, eachNext) {
                 parent.fileService.deleteFile(rec.id, eachNext);
             }, function (error) {
-                if (error) {
-                    return callback(error);
-                }
+                if (error) return callback(error);
                 parent.getUserById(userId, function (error, result) {
-                    if (error) {
-                        return callback(error);
-                    }
+                    if (error) return callback(error);
                     async.each(result.persona, function (personaId:string, eachNext) {
                         parent.persona.deletePersona(personaId, eachNext);
                     }, function (error) {
-                        parent.user.deleteUser(userId, function (error, result) {
-                            if (error) {
-                                return callback(error);
-                            }
-                            callback();
+                        if (error) return callback(error);
+                        parent.user.deleteUser(userId, function (error,result){
+                            if (error) return callback(error);
+                            callback()
                         });
                     });
                 })
@@ -163,36 +145,46 @@ export default class UserService {
         });
     }
 
-    public selectMainPersona(userId:string|cassandra.types.Uuid, authId:string, next:Function) {
+    public selectMainPersona(userId:string|cassandra.types.Uuid, authId:string, callback:Function) {
         var parent = this;
-        this.getUserByAuthId(authId, function (error, user:User) {
-                if (error) {
-                    return next(error);
-                }
-                if (user == null) {
-                    next(new ServiceError(500, "User doesn't exist:" + authId, "Main persona selection error"));
-                }
-
+        async.waterfall([
+            function (next) {
+                parent.getUserByAuthId(authId, function (error, user:User) {
+                    if (error) return callback(error);
+                    if (user == null) {
+                        return callback(new ServiceError(500, "User doesn't exist:" + authId, "Main persona selection error"));
+                    }
+                    next(null, user);
+                });
+            }, function (user:User, next) {
                 parent.persona.getPersona(authId, function (error, result) {
-                    if (error) return next(error);
+                    if (error) return callback(error);
                     if (result.rows.length == 0) {
-                        return next(new ServiceError(500, 'Cannot find persona:' + authId, "Main persona selection error"));
+                        return callback(new ServiceError(500, 'Cannot find persona:' + authId, "Main persona selection error"));
                     }
                     var row = result.first();
+                    next(null, user, new Persona(authId, row['name'], row['email'], row['avatarurl'], null, null));
+                });
 
-                    var persona = new Persona(authId, row['name'], row['email'], row['avatarurl'], null, null);
-                    parent.user.createUser(userId, user.persona, persona.name, persona.email, persona.avatarUrl, function (error) {
-                        if (error) {
-                            console.error(error);
-                            return next(error);
-                        }
-                        parent.getUserByAuthId(authId, function (error, result:User) {
-                            next(null, result);
-                        });
-                    });
+            }, function (attachedUser:User, persona:Persona, next) {
+                parent.getUserById(userId, function (error, targetUser:User) {
+                    if (error) return callback(error);
+                    if (targetUser == null) {
+                        return callback(new ServiceError(500, 'Non-existing target user:' + userId, "Main persona selection error"));
+                    }
+                    if (targetUser.id.toString() != attachedUser.id.toString()) {
+                        return callback(new ServiceError(500, 'Trying to reattach to invalid target user:' + userId, "Main persona selection error"));
+                    }
+                    next(null, attachedUser, targetUser, persona);
+                });
+            }, function (attachedUser:User, targetUser:User, persona:Persona, next) {
+                parent.user.createUser(userId, targetUser.persona, persona.name, persona.email, persona.avatarUrl, function (error) {
+                    parent.getUserById(userId, callback);
                 });
             }
-        );
+        ], function (error) {
+            callback(error);
+        });
     }
 
     public removePersona(userId:string | cassandra.types.Uuid, authId:string, callback:Function):void {

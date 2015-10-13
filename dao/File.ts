@@ -14,16 +14,35 @@ export default class File extends DAOBase {
         this.execute(query, {fileId: fileId}, next);
     }
 
-    public createFile(fileId:string|cassandra.types.Uuid, fileName:string, userId:string|cassandra.types.Uuid, versions:string[]|cassandra.types.Uuid[], next:Function) {
-        var query = 'INSERT INTO mindweb.file (id, name, owner, versions, created, modified)' +
-            'VALUES (:fileId,:fileName,:userId,:versions,dateOf(now()),dateOf(now()))';
-        this.execute(query, {fileId: fileId, fileName: fileName, userId: userId, versions: versions}, next);
+    public createFile(fileId:string|cassandra.types.Uuid, fileName:string, userId:string|cassandra.types.Uuid,
+                      isPublic:boolean, viewers:string[]|cassandra.types.Uuid[], editors:string[]|cassandra.types.Uuid[],
+                      versions:string[]|cassandra.types.Uuid[], next:Function) {
+        var query = 'INSERT INTO mindweb.file (id, name, owner, public, viewers, editors, versions, created, modified)' +
+            'VALUES (:fileId,:fileName,:userId, :isPublic, :viewers, :editors,:versions,dateOf(now()),dateOf(now()))';
+        this.execute(query, {
+            fileId: fileId,
+            fileName: fileName,
+            userId: userId,
+            isPublic: isPublic,
+            viewers: viewers,
+            editors: editors,
+            versions: versions
+        }, next);
     }
 
-    public updateFile(fileId:string|cassandra.types.Uuid, fileName:string, userId:string|cassandra.types.Uuid, versions:string[]|cassandra.types.Uuid[], next:Function) {
-        var query = 'INSERT INTO mindweb.file (id, name, owner, versions, modified)' +
-            'VALUES (:fileId,:fileName,:userId,:versions,dateOf(now()))';
-        this.execute(query, {fileId: fileId, fileName: fileName, userId: userId, versions: versions}, next);
+    public updateFile(fileId:string|cassandra.types.Uuid, fileName:string,
+                      isPublic:boolean, viewers:string[]|cassandra.types.Uuid[], editors:string[]|cassandra.types.Uuid[],
+                      versions:string[]|cassandra.types.Uuid[], next:Function) {
+        var query = 'INSERT INTO mindweb.file (id, name, public, viewers, editors, versions, modified)' +
+            'VALUES (:fileId,:fileName, :isPublic, :viewers, :editors, :versions,dateOf(now()))';
+        this.execute(query, {
+            fileId: fileId,
+            fileName: fileName,
+            isPublic: isPublic,
+            viewers: viewers,
+            editors: editors,
+            versions: versions
+        }, next);
     }
 
     public getFileByUserAndName(userId:string|cassandra.types.Uuid, fileName:string, next:Function) {
@@ -41,7 +60,9 @@ export default class File extends DAOBase {
         this.execute(query, {fileId: fileId, newName: newName}, next);
     }
 
-    public shareFile(fileId:string|cassandra.types.Uuid, isPublic:boolean, editors:string[]|cassandra.types.Uuid[], viewers:string[]|cassandra.types.Uuid[], next:Function) {
+    public shareFile(fileId:string|cassandra.types.Uuid,
+                     isPublic:boolean, viewers:string[]|cassandra.types.Uuid[], editors:string[]|cassandra.types.Uuid[],
+                     next:Function) {
         var query = 'UPDATE mindweb.file set public=:isPublic, viewers=:viewers, editors=:editors WHERE id = :fileId';
         this.execute(query, {fileId: fileId, isPublic: isPublic, viewers: viewers, editors: editors}, next);
     }

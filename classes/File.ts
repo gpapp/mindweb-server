@@ -26,38 +26,37 @@ export default class File {
         this.versions = versions;
     }
 
-    public canView(user:User):boolean {
-        if (this.owner.toString() === user.id) return true;
+    public canView(userId:string|cassandra.types.Uuid):boolean {
+        var strUserId = userId.toString();
         if (this.isPublic) return true;
+        if (this.canEdit(userId)) {
+            return true;
+        }
 
         // TODO: Known issue: viewers is a Uuid[] user.id is a string
         if (this.viewers != null) {
-            if (user.id.toString() in this.viewers) {
-                return true;
-            }
-        }
-        // TODO: Known issue: viewers is a Uuid[] user.id is a string
-        if (this.editors != null) {
-            if (user.id.toString() in this.editors) {
+            if (strUserId in this.viewers) {
                 return true;
             }
         }
         return false;
     }
 
-    public canEdit(user:User):boolean {
-        if (this.owner.toString() === user.id) return true;
+    public canEdit(userId:string|cassandra.types.Uuid):boolean {
+        var strUserId = userId.toString();
+        if (this.canRemove(userId)) {
+            return true;
+        }
         // TODO: Known issue: viewers is a Uuid[] user.id is a string
         if (this.editors != null) {
-            if (user.id.toString() in this.editors) {
+            if (strUserId in this.editors) {
                 return true;
             }
         }
         return false;
     }
 
-    public canRemove(user:User):boolean {
-        if (this.owner.toString() === user.id) return true;
-        return false;
+    public canRemove(userId:string|cassandra.types.Uuid):boolean {
+        return this.owner.toString() === userId.toString();
     }
 }

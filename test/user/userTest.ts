@@ -176,7 +176,7 @@ describe('UserDAO Persona test', function () {
             }
         });
     });
-    it("adds selects another main persona for the first user", function (done) {
+    it("selects another main persona for the first user", function (done) {
         userService.selectMainPersona(userId1, "TestID 3", function (error, result) {
             try {
                 assert(error == null, "Cannot add new persona: " + error);
@@ -187,6 +187,30 @@ describe('UserDAO Persona test', function () {
                 assert(result.email, "test@c.com");
                 assert(result.name, "Test name 3");
                 assert(result.avatarUrl, "Test Avatar 3");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("selects another main persona for non-existing user", function (done) {
+        userService.selectMainPersona('00000000-0000-0000-0000-000000000000', "TestID 3", function (error, result) {
+            try {
+                assert(error, "Should fail");
+                assert(result==null, "Should not have result");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("selects another main persona for non-existing persona", function (done) {
+        userService.selectMainPersona(userId1, "TestID X", function (error, result) {
+            try {
+                assert(error, "Should fail");
+                assert(result==null, "Should not have result");
                 done();
             }
             catch (e) {

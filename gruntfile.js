@@ -2,25 +2,20 @@ module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-ts');
+    grunt.loadNpmTasks('grunt-mocha-test');
 
     grunt.initConfig({
         clean: {
             gen: {
                 expand: true,
                 cwd: '.',
-                src: ['**/*.js', '**/*.js.map', '!**/gruntfile.js', '!**/node_modules/**']
+                src: ['**/*.js',
+                    '**/*.js.map',
+                    '!**/gruntfile.js',
+                    '**/*.d.ts',
+                    '!**/typings/**',
+                    '!**/node_modules/**']
             },
-            gen_def: {
-                expand: true,
-                cwd: '.',
-                src: ['**/*.d.ts', '!**/node_modules/**', '!**/typings/**']
-            },
-            empty_dirs: {
-                src: ['.'],
-                filter: function (filepath) {
-                    return (grunt.file.isDir(filepath) && require('fs').readdirSync(filepath).length === 0);
-                }
-            }
         },
         ts: {
             default: {
@@ -32,6 +27,14 @@ module.exports = function (grunt) {
                     sourceMap: true,
                     declaration: false
                 }
+            }
+        },
+        mochaTest: {
+            default: {
+                options: {
+
+                },
+                src: ['test/**/*.js']
             }
         },
         babel: {
@@ -50,5 +53,5 @@ module.exports = function (grunt) {
             }
         }
     });
-    grunt.registerTask('default', ['clean', 'ts', 'babel']);
+    grunt.registerTask('default', ['clean', 'ts', 'mochaTest']);
 }

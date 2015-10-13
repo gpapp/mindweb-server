@@ -2,7 +2,6 @@
 <project version="4">
   <component name="TypeScriptCompiler">
     <option name="isCompilerEnabled" value="true" />
-    <option name="typeScriptCompilerParams" value="-t ES6" />
-    <option name="useConfig" value="true" />
+    <option name="typeScriptCompilerParams" value="-t ES5 -m commonjs" />
   </component>
 </project>
