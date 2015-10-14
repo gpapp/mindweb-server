@@ -65,6 +65,7 @@ function friendsTable(next) {
         'owner uuid,' +
         'alias text,' +
         'linked_user uuid,' +
+        'tags set<text>,' +
         'created timestamp,' +
         'modified timestamp);',
         function (err, res) {
@@ -75,6 +76,8 @@ function friendsTable(next) {
                         client.execute('CREATE INDEX IF NOT EXISTS friends_owner ON mindweb.friends (owner);', nextI);
                     }, function (nextI) {
                         client.execute('CREATE INDEX IF NOT EXISTS friends_linkeduser ON mindweb.friends (linked_user);', nextI);
+                    }, function (nextI) {
+                        client.execute('CREATE INDEX IF NOT EXISTS friends_tags ON mindweb.friends (tags);', nextI);
                     }
                 ], next
             );
@@ -91,12 +94,16 @@ function fileTable(next) {
         'versions list<uuid>,' +
         'viewers list<uuid>,' +
         'editors list<uuid>,' +
+        'tags set<text>,' +
         'created timestamp,' +
         'modified timestamp);',
         function (err, res) {
             async.parallel([
                     function (nextI) {
                         client.execute('CREATE INDEX IF NOT EXISTS file_owner ON mindweb.file (owner);', nextI);
+                    },
+                    function (nextI) {
+                        client.execute('CREATE INDEX IF NOT EXISTS file_tags ON mindweb.file (tags);', nextI);
                     },
                     function (nextI) {
                         client.execute('CREATE INDEX IF NOT EXISTS file_name ON mindweb.file (name);', nextI);

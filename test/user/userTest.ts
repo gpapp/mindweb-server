@@ -292,12 +292,12 @@ describe('UserDAO userDelete', function () {
         });
     });
     before(function (next) {
-        friendService.createFriend(userId1, "Alias User  1-2", userId2, function (error, result:File) {
+        friendService.createFriend(userId1, "Alias User  1-2", userId2, [], function (error, result:File) {
             next();
         });
     });
     before(function (next) {
-        friendService.createFriend(userId2, "Alias User  2-1", userId1, function (error, result:File) {
+        friendService.createFriend(userId2, "Alias User  2-1", userId1, [], function (error, result:File) {
             next();
         });
     });

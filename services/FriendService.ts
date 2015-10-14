@@ -40,7 +40,7 @@ export default class FriendService {
                 return callback(new ServiceError(500, 'Cannot find friend', 'Error in friend lookup'));
             }
             var row = result.first();
-            callback(null, new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['created'], row['modified']));
+            callback(null, new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['tags'], row['created'], row['modified']));
         });
     }
 
@@ -50,7 +50,7 @@ export default class FriendService {
             var retval:Friend[] = [];
             for (var i = 0; i < result.rows.length; i++) {
                 var row = result.rows[i];
-                retval.push(new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['created'], row['modified']));
+                retval.push(new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['tags'], row['created'], row['modified']));
             }
             callback(null, retval);
         });
@@ -62,7 +62,7 @@ export default class FriendService {
             var retval:Friend[] = [];
             for (var i = 0; i < result.rows.length; i++) {
                 var row = result.rows[i];
-                retval.push(new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['created'], row['modified']));
+                retval.push(new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['tags'], row['created'], row['modified']));
             }
             callback(null, retval);
         });
@@ -79,9 +79,9 @@ export default class FriendService {
             }]);
     }
 
-    public createFriend(userId:string|cassandra.types.Uuid, alias:string, linkedUserId:string|cassandra.types.Uuid, callback:Function) {
+    public createFriend(userId:string|cassandra.types.Uuid, alias:string, linkedUserId:string|cassandra.types.Uuid, tags:string[], callback:Function) {
         if (userId.toString() === linkedUserId.toString()) {
-            callback(new ServiceError(500, 'You cannot befriend yoursef', 'Error in friend creation'));
+            return callback(new ServiceError(500, 'You cannot befriend yoursef', 'Error in friend creation'));
         }
         var parent = this;
         async.waterfall([
@@ -89,7 +89,12 @@ export default class FriendService {
                 parent.friend.getExactFriendById(userId, linkedUserId, function (error, result) {
                     if (error) return callback(error);
                     if (result.rows.length > 0) {
-                        callback(new ServiceError(500, 'Alias already exists', 'Error in friend creation'));
+                        var row = result.first();
+                        parent.friend.updateFriend(row['id'], alias, tags, function (error, result) {
+                            if (error) return callback(error);
+                            parent.getFriendById(row['id'], callback);
+                        });
+                        return;
                     }
                     next();
                 })
@@ -98,7 +103,9 @@ export default class FriendService {
                 parent.friend.getExactFriendByAlias(userId, alias, function (error, result) {
                     if (error) return callback(error);
                     if (result.rows.length > 0) {
-                        callback(new ServiceError(500, 'Alias already exists', 'Error in friend creation'));
+                        var row = result.first();
+                        return callback(new ServiceError(500, 'Alias already exists ' + alias, 'Error in friend creation'),
+                            new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['tags'], row['created'], row['modified']));
                     }
                     next();
                 })
@@ -115,10 +122,64 @@ export default class FriendService {
                 })
             }, function (user, linkedUser, next) {
                 var newId = Uuid.random();
-                parent.friend.createFriend(newId, userId, alias, linkedUserId, function (error, result) {
+                parent.friend.createFriend(newId, userId, alias, linkedUserId, tags, function (error, result) {
+                    if (error) return callback(error);
                     parent.getFriendById(newId, callback);
                 });
             },
+        ]);
+    }
+
+    public tagFriend(friendId:string|cassandra.types.Uuid, tag:string, callback:Function) {
+        var parent = this;
+        async.waterfall([
+            function (next) {
+                parent.getFriendById(friendId, function (error, result:Friend) {
+                    if (error) return callback(error);
+                    next(null, result)
+                })
+            },
+            function (friend:Friend, next) {
+                if (tag == null) {
+                    return callback(new ServiceError(500, 'Cannot add null tag', 'Error friend tagging'));
+                }
+                var tags;
+                if (friend.tags == null) {
+                    tags = [tag];
+                } else {
+                    tags = [tag].concat(friend.tags).filter(function (value, index, array) {
+                        return array.indexOf(value) == index;
+                    });
+                }
+                parent.friend.updateFriend(friendId, friend.alias, tags, function (error, result) {
+                    if (error) return callback(error);
+                    parent.getFriendById(friendId, callback);
+                })
+            }
+        ]);
+    }
+
+    public untagFriend(friendId:string|cassandra.types.Uuid, tag:string, callback:Function) {
+        var parent = this;
+        async.waterfall([
+            function (next) {
+                parent.getFriendById(friendId, function (error, result:Friend) {
+                    if (error) return callback(error);
+                    next(null, result)
+                })
+            },
+            function (friend:Friend, next) {
+                if (tag == null) {
+                    return callback(new ServiceError(500, 'Cannot remove null tag', 'Error friend untagging'));
+                }
+                var tags = friend.tags.filter(function (value, index, array) {
+                    return (array.indexOf(value) == index && value != tag);
+                });
+                parent.friend.updateFriend(friendId, friend.alias, tags, function (error, result) {
+                    if (error) return callback(error);
+                    parent.getFriendById(friendId, callback);
+                })
+            }
         ]);
     }
 }
