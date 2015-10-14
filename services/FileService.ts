@@ -41,7 +41,7 @@ export default class FileService {
             var retval = new Array(result.rows.length);
             for (var i = 0; i < result.rows.length; i++) {
                 var row = result.rows[i];
-                retval[i] = new File(row.id, row.name, row.owner, row.viewers, row.editors, row['public'], row.versions);
+                retval[i] = fileFromRow(row);
             }
             callback(null, retval);
         });
@@ -56,7 +56,7 @@ export default class FileService {
             if (row == null) {
                 return callback('No such file version by that id', null);
             }
-            callback(null, new File(row.id, row.name, row.owner, row.viewers, row.editors, row['public'], row.versions));
+            callback(null, fileFromRow(row));
         });
     }
 
@@ -120,6 +120,7 @@ export default class FileService {
                             isPublic:boolean,
                             viewers:string[]|cassandra.types.Uuid[],
                             editors:string[]|cassandra.types.Uuid[],
+                            tags:string[],
                             content:string,
                             callback:Function) {
         var parent = this;
@@ -172,12 +173,12 @@ export default class FileService {
                 function (fileId:string|cassandra.types.Uuid, versions:string[]|cassandra.types.Uuid[], next:Function) {
                     var isUpdate = versions.length > 1;
                     if (isUpdate) {
-                        parent.file.updateFile(fileId, fileName, isPublic, viewers, editors, versions, function (error) {
+                        parent.file.updateFile(fileId, fileName, isPublic, viewers, editors, versions, tags, function (error) {
                             next(error, fileId);
                         });
                     }
                     else {
-                        parent.file.createFile(fileId, fileName, userId, isPublic, viewers, editors, versions, function (error) {
+                        parent.file.createFile(fileId, fileName, userId, isPublic, viewers, editors, versions, tags, function (error) {
                             next(error, fileId);
                         });
                     }
@@ -238,6 +239,63 @@ export default class FileService {
             ]
         );
     }
+
+    public tagFile(fileId:string|cassandra.types.Uuid, tag:string, callback:Function) {
+        var parent = this;
+        async.waterfall([
+            function (next) {
+                parent.getFile(fileId, function (error, result:File) {
+                    if (error) return callback(error);
+                    next(null, result)
+                })
+            },
+            function (file:File, next) {
+                if (tag == null) {
+                    return callback(new ServiceError(500, 'Cannot add null tag', 'Error File tagging'));
+                }
+                var tags;
+                if (file.tags == null) {
+                    tags = [tag];
+                } else {
+                    tags = [tag].concat(file.tags).filter(function (value, index, array) {
+                        return array.indexOf(value) == index;
+                    });
+                }
+                parent.file.updateFile(fileId, file.name, file.isPublic, file.viewers, file.editors, file.versions, tags, function (error, result) {
+                    if (error) return callback(error);
+                    parent.getFile(fileId, callback);
+                })
+            }
+        ]);
+    }
+
+    public untagFile(fileId:string|cassandra.types.Uuid, tag:string, callback:Function) {
+        var parent = this;
+        async.waterfall([
+            function (next) {
+                parent.getFile(fileId, function (error, result:File) {
+                    if (error) return callback(error);
+                    next(null, result)
+                })
+            },
+            function (file:File, next) {
+                if (tag == null) {
+                    return callback(new ServiceError(500, 'Cannot remove null tag', 'Error File untagging'));
+                }
+                var tags = file.tags.filter(function (value, index, array) {
+                    return (array.indexOf(value) == index && value != tag);
+                });
+                parent.file.updateFile(fileId, file.name, file.isPublic, file.viewers, file.editors, file.versions, tags, function (error, result) {
+                    if (error) return callback(error);
+                    parent.getFile(fileId, callback);
+                })
+            }
+        ]);
+    }
+}
+
+function fileFromRow(row) {
+    return new File(row['id'], row['name'], row['owner'], row['viewers'], row['editors'], row['public'], row['versions'], row['tags']);
 }
 function uniqueFilter(value, index, array) {
     return array.indexOf(value) === index;

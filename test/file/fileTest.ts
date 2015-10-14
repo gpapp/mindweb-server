@@ -80,7 +80,7 @@ describe('FileDAO file create', function () {
         });
     });
     it("creates a file in the database", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", false, null, null, "Test Content", function (error, result:File) {
+        fileService.createNewVersion(userId1, "Test fajl 1", false, null, null, ['tag1', 'tag2'], "Test Content", function (error, result:File) {
             try {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -102,7 +102,7 @@ describe('FileDAO file create', function () {
         });
     });
     it("Saves a file with identical content (no new version)", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", true, null, null, "Test Content", function (error, result:File) {
+        fileService.createNewVersion(userId1, "Test fajl 1", true, null, null, ['tag1', 'tag2'], "Test Content", function (error, result:File) {
             try {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -124,7 +124,7 @@ describe('FileDAO file create', function () {
         });
     });
     it("Saves a new version of a file with changed content (new version)", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", true, null, null, "Test Content changed", function (error, result) {
+        fileService.createNewVersion(userId1, "Test fajl 1", true, null, null, ['tag1', 'tag2'], "Test Content changed", function (error, result) {
             try {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -409,6 +409,125 @@ describe('FileDAO file create', function () {
             }
             console.log("User removed:" + userId2);
             next();
+        });
+    });
+});
+
+
+describe('File taging', function () {
+    var fileService = new FileService(cassandraClient);
+    var userService = new UserService(cassandraClient);
+    var user;
+    var fileId;
+    before(function (done) {
+        userService.createUser("FileTagTest:ID", "Test File Tag ", "test@Filetag.com", "Test File Tag Avatar ", function (error, result) {
+            if (error) console.error(error.message);
+            user = result;
+            done();
+        });
+    });
+    before(function (done) {
+        fileService.createNewVersion(user.id, "FileTagText", false, null, null, null, "File tagging content", function (error, result) {
+            if (error) console.error(error.message);
+            fileId = result.id;
+            done();
+        });
+    });
+    it("tags a File with new tag", function (done) {
+        fileService.tagFile(fileId, 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result.tags);
+                assert.equal(1, result.tags.length);
+                assert.notEqual(-1, result.tags.indexOf('TAG-TEST1'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        })
+    });
+    it("tags a File with new tag 2", function (done) {
+        fileService.tagFile(fileId, 'TAG-TEST2', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result.tags);
+                assert.equal(2, result.tags.length);
+                assert.notEqual(-1, result.tags.indexOf('TAG-TEST1'));
+                assert.notEqual(-1, result.tags.indexOf('TAG-TEST2'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("tags a File with existing tag", function (done) {
+        fileService.tagFile(fileId, 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result.tags);
+                assert.equal(2, result.tags.length);
+                assert.notEqual(-1, result.tags.indexOf('TAG-TEST1'));
+                assert.notEqual(-1, result.tags.indexOf('TAG-TEST2'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("removes existing tag", function (done) {
+        fileService.untagFile(fileId, 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result.tags);
+                assert.equal(1, result.tags.length);
+                assert.equal(-1, result.tags.indexOf('TAG-TEST1'));
+                assert.notEqual(-1, result.tags.indexOf('TAG-TEST2'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("removes missing tag", function (done) {
+        fileService.untagFile(fileId, 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result.tags);
+                assert.equal(1, result.tags.length);
+                assert.equal(-1, result.tags.indexOf('TAG-TEST1'));
+                assert.notEqual(-1, result.tags.indexOf('TAG-TEST2'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("tags invalid File", function (done) {
+        fileService.tagFile('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNotNull(error);
+                assert.isUndefined(result);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("untags invalid File", function (done) {
+        fileService.tagFile('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNotNull(error);
+                assert.isUndefined(result);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    after(function (done) {
+        userService.deleteUser(user.id, function (error) {
+            if (error) console.error(error);
+            done();
         });
     });
 });

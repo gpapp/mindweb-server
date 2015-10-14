@@ -287,7 +287,7 @@ describe('UserDAO userDelete', function () {
         });
     });
     before(function (next) {
-        fileService.createNewVersion(userId1, "Test fajl 1", false, null, null, "Test Content", function (error, result:File) {
+        fileService.createNewVersion(userId1, "Test fajl 1", false, null, null, ['tag1','tag2'], "Test Content", function (error, result:File) {
             next();
         });
     });

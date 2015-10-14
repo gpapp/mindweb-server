@@ -6,17 +6,19 @@ export default class File {
     id:string|cassandra.types.Uuid;
     name:string;
     owner:string|cassandra.types.Uuid;
+    isPublic:boolean;
     viewers:(string|cassandra.types.Uuid)[];
     editors:(string|cassandra.types.Uuid)[];
-    isPublic:boolean;
-    versions:(string|cassandra.types.Uuid)[];
+    versions:(string|cassandra.types.Uuid)[]
+    tags:string[];
 
     public constructor(id:string|cassandra.types.Uuid,
                        name:string, owner:string|cassandra.types.Uuid,
                        viewers:(string|cassandra.types.Uuid)[],
                        editors:(string|cassandra.types.Uuid)[],
                        isPublic:boolean,
-                       versions:(string|cassandra.types.Uuid)[]) {
+                       versions:(string|cassandra.types.Uuid)[],
+                       tags:string[]) {
         this.id = id;
         this.name = name;
         this.owner = owner;
@@ -24,6 +26,7 @@ export default class File {
         this.editors = editors;
         this.isPublic = isPublic;
         this.versions = versions;
+        this.tags = tags;
     }
 
     public canView(userId:string|cassandra.types.Uuid):boolean {
