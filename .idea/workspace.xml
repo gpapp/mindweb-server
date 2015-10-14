@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/typings/markdown/markdown.d.ts" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/typings/showdown/showdown.d.ts" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.ts" afterPath="$PROJECT_DIR$/app.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/BaseRouter.ts" afterPath="$PROJECT_DIR$/routes/BaseRouter.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/file.ts" afterPath="$PROJECT_DIR$/routes/file.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/friend.ts" afterPath="$PROJECT_DIR$/routes/friend.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/services/ConverterService.ts" afterPath="$PROJECT_DIR$/services/ConverterService.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typings/tsd.d.ts" afterPath="$PROJECT_DIR$/typings/tsd.d.ts" />
     </list>
     <ignored path="server.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -948,7 +939,13 @@
       <option name="project" value="LOCAL" />
       <updated>1444849094651</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="Markdown issues fixed&#10;Showdown replaced with markdown">
+      <created>1444865995681</created>
+      <option name="number" value="00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1444865995681</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -998,6 +995,7 @@
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32923076" sideWeight="0.49722" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="TypeScript Compiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23076923" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32615384" sideWeight="0.5152416" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39076924" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23271376" sideWeight="0.53196347" order="4" side_tool="true" content_ui="tabs" />
@@ -1010,7 +1008,6 @@
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5446154" sideWeight="0.4853058" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -1057,7 +1054,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
-    <MESSAGE value="Fixed startup issues" />
     <MESSAGE value="Added base url to config" />
     <MESSAGE value="Added DB initialization scripts. Brute force!" />
     <MESSAGE value="FIX: Schema creation&#10;FIX: User creation" />
@@ -1082,7 +1078,8 @@
     <MESSAGE value="Added friend tagging service" />
     <MESSAGE value="Added file tagging service" />
     <MESSAGE value="Exposed friend and tagging services" />
-    <option name="LAST_COMMIT_MESSAGE" value="Exposed friend and tagging services" />
+    <MESSAGE value="Markdown issues fixed&#10;Showdown replaced with markdown" />
+    <option name="LAST_COMMIT_MESSAGE" value="Markdown issues fixed&#10;Showdown replaced with markdown" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1321,6 +1318,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.788162">
           <caret line="32" column="23" selection-start-line="32" selection-start-column="23" selection-end-line="32" selection-end-column="23" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1336,6 +1334,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.5609756">
           <caret line="18" column="43" selection-start-line="18" selection-start-column="43" selection-end-line="18" selection-end-column="43" />
+          <folding />
         </state>
       </provider>
     </entry>
