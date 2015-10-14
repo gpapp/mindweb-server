@@ -10,6 +10,7 @@ import DbKeyspace from './db/keyspace'
 import routes from './routes/index';
 import AuthRoute from './routes/auth';
 import FileRoute from './routes/file';
+import FriendRoute from './routes/friend';
 
 // Let's go oldschool with some imports
 import * as session from 'express-session';
@@ -24,6 +25,7 @@ var cassandraOptions:cassandra.client.Options;
 var app = express();
 var authRoute;
 var fileRoute;
+var friendRoute;
 
 async.waterfall([
     function (next) {
@@ -57,6 +59,9 @@ async.waterfall([
         fileRoute = new FileRoute(cassandraOptions, next);
     },
     function (next) {
+        friendRoute = new FriendRoute(cassandraOptions, next);
+    },
+    function (next) {
         // view engine setup
         app.set('views', path.join(__dirname, 'views'));
         app.set('view engine', 'jade');
@@ -82,10 +87,10 @@ async.waterfall([
 
         app.use(nocache);
 
-
         app.use('/', routes);
         app.use('/auth', authRoute.getRouter());
         app.use('/file', AuthRoute.authorizeMiddleware, fileRoute.getRouter());
+        app.use('/friend', AuthRoute.authorizeMiddleware, friendRoute.getRouter());
 
         // catch 404 and forward to error handler
         app.use(function (req, res, next) {

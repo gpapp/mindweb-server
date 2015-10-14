@@ -130,6 +130,37 @@ export default class FriendService {
         ]);
     }
 
+
+    //TODO NEW: Add unit test
+    public updateFriend(friendId:string|cassandra.types.Uuid, alias:string, tags:string[], callback:Function) {
+        var parent = this;
+        async.waterfall([
+            function (next) {
+                parent.getFriendById(friendId, function (error, result:Friend) {
+                    if (error) return callback(error);
+                    next(null, result)
+                })
+            },
+            function (friend:Friend, next) {
+                parent.friend.getExactFriendByAlias(friend.owner, alias, function (error, result) {
+                    if (error) return callback(error);
+                    if (result.rows.length > 0) {
+                        var row = result.first();
+                        return callback(new ServiceError(500, 'Alias already exists ' + alias, 'Error in update'),
+                            new Friend(row['id'], row['owner'], row['alias'], row['linked_user'], row['tags'], row['created'], row['modified']));
+                    }
+                    next();
+                })
+            },
+            function (friend:Friend, next) {
+                parent.friend.updateFriend(friendId, alias, tags, function (error, result) {
+                    if (error) return callback(error);
+                    parent.getFriendById(friendId, callback);
+                })
+            }
+        ]);
+    }
+
     public tagFriend(friendId:string|cassandra.types.Uuid, tag:string, callback:Function) {
         var parent = this;
         async.waterfall([

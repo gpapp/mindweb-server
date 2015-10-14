@@ -1,12 +1,15 @@
 /// <reference path="../typings/tsd.d.ts" />
 import * as async from 'async';
 import * as bodyParser from 'body-parser';
-import * as express from 'express';
 import * as cassandra from 'cassandra-driver';
 
+import File from '../classes/File';
 import ServiceError from '../classes/ServiceError';
 import EditAction from "../classes/EditAction";
+
 import StorageSchema from '../db/storage_schema';
+
+import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
 import * as EditorService from '../services/EditorService';
 import * as ConverterService from '../services/ConverterService'
@@ -21,11 +24,10 @@ const EMPTY_MAP = {
 const upload = multer({inMemory: true});
 
 var fileService;
-export default class FileRouter {
-    private router;
+export default class FileRouter extends BaseRouter {
 
     constructor(cassandraOptions:cassandra.client.Options, next:Function) {
-        this.router = express.Router();
+        super();
 
         console.log("Setting up DB connection for file service");
         var cassandraClient = new cassandra.Client(cassandraOptions);
@@ -35,12 +37,12 @@ export default class FileRouter {
                 throw new Error('Cannot connect to database');
             }
             console.log('Connected to database:' + ok);
-            StorageSchema(cassandraClient,next);
+            StorageSchema(cassandraClient, next);
             fileService = new FileService(cassandraClient);
         });
 
         this.router
-            .get('/files', FileRouter.ensureAuthenticated, function (request, response, appCallback) {
+            .get('/files', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
                 fileService.getFiles(request.session.passport.user.id, function (error, result) {
                     if (error) return appCallback(error);
 
@@ -48,7 +50,7 @@ export default class FileRouter {
                     response.end();
                 });
             })
-            .get('/file/:id', FileRouter.ensureAuthenticated, function (request, response, appCallback) {
+            .get('/file/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
                 async.waterfall(
                     [
                         function (next) {
@@ -76,7 +78,7 @@ export default class FileRouter {
                         if (error) appCallback(error);
                     })
             })
-            .delete('/file/:id', FileRouter.ensureAuthenticated, function (request, response, appCallback) {
+            .delete('/file/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
                 var fileId = request.params.id;
                 async.waterfall(
                     [
@@ -103,7 +105,7 @@ export default class FileRouter {
                         if (error) appCallback(error);
                     })
             })
-            .post('/rename/:id', FileRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+            .post('/rename/:id', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
                 var fileId = request.params.id;
                 var newName = request.body.newName + '.mm';
                 async.waterfall(
@@ -112,7 +114,7 @@ export default class FileRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canRemove(request.session.passport.user)) {
+                            if (fileInfo.canRemove(request.session.passport.user.id)) {
                                 fileService.renameFile(fileId, newName, function (error, result) {
                                     if (error) return appCallback(error);
                                     next(null, fileInfo);
@@ -132,7 +134,7 @@ export default class FileRouter {
                         if (error) appCallback(error);
                     })
             })
-            .post('/create', FileRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+            .post('/create', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
 
                 var name = request.body.name + '.mm';
                 var isPublic = request.body.isPublic;
@@ -153,7 +155,7 @@ export default class FileRouter {
                         if (error) appCallback(error);
                     })
             })
-            .put('/change/:id', FileRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+            .put('/change/:id', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
                 var fileId = request.params.id;
                 var actions = request.body.actions;
                 async.waterfall(
@@ -162,7 +164,7 @@ export default class FileRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canEdit(request.session.passport.user)) {
+                            if (fileInfo.canEdit(request.session.passport.user.id)) {
                                 var fileVersionId = fileInfo.versions[0];
                                 fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
                                     if (error) return appCallback(error);
@@ -198,7 +200,61 @@ export default class FileRouter {
                         if (error) appCallback(error);
                     })
             })
-            .get('/convert/freeplane/:id', FileRouter.ensureAuthenticated, function (request, response, appCallback) {
+            .get('/tag/:id/:tag', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
+                var fileId = request.params.id;
+                var tag = request.params.tag;
+                async.waterfall(
+                    [
+                        function (next) {
+                            fileService.getFile(fileId, next);
+                        },
+                        function (fileInfo:File, next) {
+                            if (fileInfo.canEdit(request.session.passport.user.id)) {
+                                next(null, fileInfo)
+                            } else {
+                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                        },
+                        function (fileInfo, fileVersion, next) {
+                            fileService.tagFile(fileId, tag, function (error, result) {
+                                if (error) return appCallback(error);
+
+                                response.write(result);
+                                response.end();
+                            });
+                        }],
+                    function (error) {
+                        if (error) appCallback(error);
+                    });
+            })
+            .get('/untag/:id/:tag', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
+                var fileId = request.params.id;
+                var tag = request.params.tag;
+                async.waterfall(
+                    [
+                        function (next) {
+                            fileService.getFile(fileId, next);
+                        },
+                        function (fileInfo:File, next) {
+                            if (fileInfo.canEdit(request.session.passport.user.id)) {
+                                next(null, fileInfo)
+                            } else {
+                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                        },
+                        function (fileInfo, fileVersion, next) {
+                            fileService.untagFile(fileId, tag, function (error, result) {
+                                if (error) return appCallback(error);
+
+                                response.write(result);
+                                response.end();
+                            });
+                        }],
+                    function (error) {
+                        if (error) appCallback(error);
+                    });
+            })
+            .get('/convert/freeplane/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
                 var fileId = request.params.id;
                 async.waterfall(
                     [
@@ -206,7 +262,7 @@ export default class FileRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canView(request.session.passport.user)) {
+                            if (fileInfo.canView(request.session.passport.user.id)) {
                                 var fileVersionId = fileInfo.versions[0];
                                 fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
                                     if (error) return appCallback(error);
@@ -228,7 +284,7 @@ export default class FileRouter {
                         if (error) appCallback(error);
                     });
             })
-            .post('/upload', FileRouter.ensureAuthenticated, upload.array('file', 10), function (request, response, appCallback) {
+            .post('/upload', BaseRouter.ensureAuthenticated, upload.array('file', 10), function (request, response, appCallback) {
                 async.forEachOf(
                     request.files,
                     function (file, index, next) {
@@ -244,17 +300,6 @@ export default class FileRouter {
                         response.end();
                     })
             });
-    }
-
-    private static ensureAuthenticated(request, response, next) {
-        if (request.session.passport.user) {
-            return next(null, request, response);
-        }
-        next(new ServiceError(401, 'The user has no authentication information', "Authentication failed"));
-    }
-
-    getRouter() {
-        return this.router;
     }
 }
 
