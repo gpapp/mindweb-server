@@ -12,7 +12,6 @@
 /// <reference path="passport/passport.d.ts" />
 /// <reference path="showdown/showdown.d.ts" />
 /// <reference path="xml2js/xml2js.d.ts" />
-/// <reference path="assert/assert.d.ts" />
 /// <reference path="cassandra-driver/cassandra.d.ts" />
 /// <reference path="mime/mime.d.ts" />
 /// <reference path="morgan/morgan.d.ts" />
