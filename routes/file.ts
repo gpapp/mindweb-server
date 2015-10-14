@@ -56,7 +56,7 @@ export default class FileRouter {
                         },
                         function (result, next) {
                             var fileInfo = result;
-                            if (fileInfo.canView(request.session.passport.user)) {
+                            if (fileInfo.canView(request.session.passport.user.id)) {
                                 var lastVersionId = fileInfo.versions[0];
                                 fileService.getFileVersion(lastVersionId, function (error, result) {
                                     if (error) return appCallback(error);
@@ -84,7 +84,7 @@ export default class FileRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canRemove(request.session.passport.user)) {
+                            if (fileInfo.canRemove(request.session.passport.user.id)) {
                                 fileService.deleteFile(fileId, function (error, result) {
                                     if (error) return appCallback(error);
                                     next(null, fileInfo);
