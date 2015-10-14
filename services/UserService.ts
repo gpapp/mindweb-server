@@ -4,22 +4,50 @@ import * as cassandra from 'cassandra-driver';
 import File from '../classes/File';
 import User from '../classes/User';
 import Persona from '../classes/Persona';
+import Friend from "../classes/Friend";
+import ServiceError from "../classes/ServiceError";
+
 import UserDAO from '../dao/User';
 import UserPersonaDAO from '../dao/UserPersona';
+
 import FileService from './FileService';
-import ServiceError from "../classes/ServiceError";
+import FriendService from "./FriendService";
 
 var Uuid = require('cassandra-driver').types.Uuid;
 
 export default class UserService {
-    private user:UserDAO;
-    private persona:UserPersonaDAO;
-    private fileService:FileService;
+    private connection;
+    private _user:UserDAO;
+    private _persona:UserPersonaDAO;
+    private _friendService:FriendService;
+    private _fileService:FileService;
 
     constructor(connection) {
-        this.user = new UserDAO(connection);
-        this.fileService = new FileService(connection);
-        this.persona = new UserPersonaDAO(connection);
+        this.connection = connection;
+    }
+
+    get user():UserDAO {
+        if (this._user == null)
+            this._user = new UserDAO(this.connection);
+        return this._user;
+    }
+
+    get persona():UserPersonaDAO {
+        if (this._persona == null)
+            this._persona = new UserPersonaDAO(this.connection);
+        return this._persona;
+    }
+
+    get friendService():FriendService {
+        if (this._friendService == null)
+            this._friendService = new FriendService(this.connection);
+        return this._friendService;
+    }
+
+    get fileService():FileService {
+        if (this._fileService == null)
+            this._fileService = new FileService(this.connection);
+        return this._fileService;
     }
 
     public getUserByAuthId(authId:string, next:Function) {
@@ -68,27 +96,59 @@ export default class UserService {
 
     public deleteUser(userId:string|cassandra.types.Uuid, callback:Function) {
         var parent = this;
-        this.fileService.getFiles(userId, function (error, result:File[]) {
-            if (error) return callback(error);
-
-            async.each(result, function (rec:File, eachNext) {
-                parent.fileService.deleteFile(rec.id, eachNext);
-            }, function (error) {
-                if (error) return callback(error);
-                parent.getUserById(userId, function (error, result) {
+        async.waterfall([
+            function (next) {
+                parent.friendService.getFriends(userId, function (error, result:Friend[]) {
                     if (error) return callback(error);
-                    async.each(result.persona, function (personaId:string, eachNext) {
+                    async.each(result, function (rec:Friend, eachNext) {
+                        parent.friendService.deleteFriend(rec.id, eachNext);
+                    }, function (error) {
+                        if (error) return callback(error);
+                        next();
+                    });
+                });
+            },
+            function (next) {
+                parent.friendService.getFriendOfList(userId, function (error, result:Friend[]) {
+                    if (error) return callback(error);
+                    async.each(result, function (rec:Friend, eachNext) {
+                        parent.friendService.deleteFriend(rec.id, eachNext);
+                    }, function (error) {
+                        if (error) return callback(error);
+                        next();
+                    });
+                });
+            },
+            function (next) {
+                parent.fileService.getFiles(userId, function (error, result:File[]) {
+                    if (error) return callback(error);
+
+                    async.each(result, function (rec:File, eachNext) {
+                        parent.fileService.deleteFile(rec.id, eachNext);
+                    }, function (error) {
+                        if (error) return callback(error);
+                        next();
+                    });
+                });
+            },
+            function (next) {
+                parent.getUserById(userId, function (error, user:User) {
+                    if (error) return callback(error);
+                    async.each(user.persona, function (personaId:string, eachNext) {
                         parent.persona.deletePersona(personaId, eachNext);
                     }, function (error) {
                         if (error) return callback(error);
-                        parent.user.deleteUser(userId, function (error, result) {
-                            if (error) return callback(error);
-                            callback()
-                        });
+                        next();
                     });
                 })
-            });
-        });
+            },
+            function (next) {
+                parent.user.deleteUser(userId, function (error, result) {
+                    if (error) return callback(error);
+                    callback();
+                });
+            }
+        ])
     }
 
     public addPersona(userId:string|cassandra.types.Uuid, authId:string, name:string, email:string, avatarUrl:string, callback:Function) {
@@ -198,12 +258,6 @@ export default class UserService {
                     if (user.persona.length == 1) {
                         return callback(new ServiceError(500, 'Cannot remove last persona', 'Remove persona error'));
                     }
-                    for (var i in user.persona) {
-                        if (user.persona[i] === authId) {
-                            user.persona.splice(i, 1);
-                            break;
-                        }
-                    }
                     next(null, user);
                 });
             },
@@ -211,12 +265,23 @@ export default class UserService {
                 parent.persona.deletePersona(authId, function (error, result) {
                     if (error) return callback(error);
                     next(null, user);
-                })
+                });
+            },
+            function (user:User, next:Function) {
+                user.persona = user.persona.filter(function (value, index, array) {
+                    return value != authId;
+                });
+                next(null, user);
             },
             function (user:User, next:Function) {
                 parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error, result) {
+                    next(null, user);
+                });
+            },
+            function (user:User, next:Function) {
+                parent.selectMainPersona(user.id, user.persona[0], function (error, result:User) {
                     if (error) return callback(error);
-                    return callback(null, user);
+                    return callback(null, result);
                 });
             }
         ], function (error) {

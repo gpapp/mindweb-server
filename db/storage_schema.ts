@@ -70,9 +70,9 @@ function friendsTable(next) {
         function (err, res) {
             async.parallel([
                     function (nextI) {
-                        client.execute('CREATE INDEX IF NOT EXISTS friends_alias ON mindweb.friends (alias);', nextI);
+                        client.execute('CREATE INDEX IF NOT EXISTS friends_owner_alias ON mindweb.friends (owner,alias);', nextI);
                     }, function (nextI) {
-                        client.execute('CREATE INDEX IF NOT EXISTS friends_linkeduser ON mindweb.friends (linked_user);', nextI);
+                        client.execute('CREATE INDEX IF NOT EXISTS friends_owner_linked_user ON mindweb.friends (owner,linked_user);', nextI);
                     }
                 ], next
             );

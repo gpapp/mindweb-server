@@ -21,4 +21,6 @@
 /// <reference path="showdown/showdown.d.ts" />
 /// <reference path="xml2js/xml2js.d.ts" />
 /// <reference path="mocha/mocha.d.ts" />
+/// <reference path="assertion-error/assertion-error.d.ts" />
+/// <reference path="chai/chai.d.ts" />
 

@@ -1,13 +1,15 @@
 /// <reference path="../../typings/tsd.d.ts" />
 import * as mocha from 'mocha';
-import * as assert from 'assert';
+import * as chai from 'chai';
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
 
 import * as fs from 'fs';
 import FileService from '../../services/FileService';
 import UserService from '../../services/UserService';
+import FriendService from "../../services/FriendService";
 
+var assert = chai.assert;
 
 var rawConfig = fs.readFileSync('config/config.json');
 var config = rawConfig.toString();
@@ -43,14 +45,14 @@ describe('UserDAO userCreate', function () {
     it("creates a user in the database", function (done) {
         userService.createUser("TestID 1", "Test User 1", "test@a.com", "Test Avatar 1", function (error, result) {
             try {
-                assert(error == null, "Cannot create test user: " + error);
-                assert(result, "Result is empty");
-                assert(result.persona.length === 1, "Persona length is not 1");
-                assert(result.persona[0] === 'TestID 1', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.email, "test@a.com");
-                assert(result.name, "Test User 1");
-                assert(result.avatarUrl, "Test Avatar 1");
+                assert.isNull(error, "Cannot create test user: " + error);
+                assert.isNotNull(result, "Result is empty");
+                assert.equal(result.persona.length, 1, "Persona length is not 1");
+                assert.equal(result.persona[0], 'TestID 1', "Auth id mismatch");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.email, "test@a.com");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.avatarUrl, "Test Avatar 1");
                 done();
             }
             catch (e) {
@@ -61,14 +63,14 @@ describe('UserDAO userCreate', function () {
     it("recreates a user in the database", function (done) {
         userService.createUser("TestID 1", "Test User 11", "test1@a.com", "Test Avatar 11", function (error, result) {
             try {
-                assert(error != null, "Should throw error");
-                assert(result, "Result is empty");
-                assert(result.persona.length === 1, "Persona length is not 1");
-                assert(result.persona[0] === 'TestID 1', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.email, "test@a.com");
-                assert(result.name, "Test User 1");
-                assert(result.avatarUrl, "Test Avatar 1");
+                chai.assert(error != null, "Should throw error");
+                assert.isNotNull(result, "Result is empty");
+                assert.equal(result.persona.length, 1, "Persona length is not 1");
+                assert.equal(result.persona[0], 'TestID 1', "Auth id mismatch");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.email, "test@a.com");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.avatarUrl, "Test Avatar 1");
                 done();
             }
             catch (e) {
@@ -82,14 +84,14 @@ describe('UserDAO getUser', function () {
     it("finds a user from the database", function (done) {
         userService.getUserByAuthId("TestID 1", function (error, result) {
             try {
-                assert(result, "Cannot find user");
-                assert(result.persona.length === 1, "Persona length is not 1");
-                assert(result.persona[0] === 'TestID 1', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.name, "Test User 1");
-                assert(result.email, "test@a.com");
-                assert(result.name, "Test User 1");
-                assert(result.avatarUrl, "Test Avatar 1");
+                assert.isNotNull(result, "Cannot find user");
+                assert.equal(result.persona.length, 1, "Persona length is not 1");
+                assert.equal(result.persona[0], 'TestID 1', "Auth id mismatch");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.email, "test@a.com");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.avatarUrl, "Test Avatar 1");
                 done();
             }
             catch (e) {
@@ -102,39 +104,24 @@ describe('UserDAO Persona test', function () {
     var userService = new UserService(cassandraClient);
     var userId1;
     var userId2;
+    before(function (done) {
+        userService.createUser("TestID 2", "Test User 2", "test@b.com", "Test Avatar 2", function (error, result) {
+            userId2 = result.id;
+            done();
+        });
+    });
     it("finds a user from the database", function (done) {
         userService.getUserByAuthId("TestID 1", function (error, result) {
             try {
-                assert(result, "Cannot find user");
+                assert.isNotNull(result, "Cannot find user");
                 userId1 = result.id;
-                assert(result.persona.length === 1, "Persona length is not 1");
-                assert(result.persona[0] === 'TestID 1', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.name, "Test User 1");
-                assert(result.email, "test@a.com");
-                assert(result.name, "Test User 1");
-                assert(result.avatarUrl, "Test Avatar 1");
-                done();
-            }
-            catch (e) {
-                done(e);
-            }
-        });
-    });
-    it("adds another user for cross link testing", function (done) {
-        userService.createUser("TestID 2", "Test User 2", "test@b.com", "Test Avatar 2", function (error, result) {
-            try {
-                if (result) {
-                    userId2 = result.id;
-                }
-                assert(error == null, "Cannot create test user: " + error);
-                assert(result, "Result is empty");
-                assert(result.persona.length === 1, "Persona length is not 1");
-                assert(result.persona[0] === 'TestID 2', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.email, "test@b.com");
-                assert(result.name, "Test User 2");
-                assert(result.avatarUrl, "Test Avatar 2");
+                assert.equal(result.persona.length, 1, "Persona length is not 1");
+                assert.equal(result.persona[0], 'TestID 1', "Auth id mismatch");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.email, "test@a.com");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.avatarUrl, "Test Avatar 1");
                 done();
             }
             catch (e) {
@@ -145,14 +132,14 @@ describe('UserDAO Persona test', function () {
     it("adds a persona to it", function (done) {
         userService.addPersona(userId1, "TestID 3", 'Test name 3', 'test@c.com', 'Test Avatar 3', function (error, result) {
             try {
-                assert(error == null, "Cannot add new persona: " + error);
-                assert(result, "Result is empty");
-                assert(result.persona.length === 2, "Persona length is not 2");
-                assert(result.persona[1] === 'TestID 3', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.email, "test@a.com");
-                assert(result.name, "Test User 1");
-                assert(result.avatarUrl, "Test Avatar 1");
+                assert.isNull(error, "Cannot add new persona: " + error);
+                assert.isNotNull(result, "Result is empty");
+                assert.equal(result.persona.length, 2, "Persona length is not 2");
+                chai.assert(result.persona[1] === 'TestID 3', "Auth id mismatch");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.email, "test@a.com");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.avatarUrl, "Test Avatar 1");
                 done();
             }
             catch (e) {
@@ -163,14 +150,14 @@ describe('UserDAO Persona test', function () {
     it("adds an existing persona to first user", function (done) {
         userService.addPersona(userId1, "TestID 3", 'Test name 3', 'test@c.com', 'Test Avatar 3', function (error, result) {
             try {
-                assert(error == null, "Cannot add new persona: " + error);
-                assert(result, "Result is empty");
-                assert(result.persona.length === 2, "Persona length is not 2");
-                assert(result.persona[1] === 'TestID 3', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.email, "test@a.com");
-                assert(result.name, "Test User 1");
-                assert(result.avatarUrl, "Test Avatar 1");
+                assert.isNull(error, "Cannot add new persona: " + error);
+                assert.isNotNull(result, "Result is empty");
+                assert.equal(result.persona.length, 2, "Persona length is not 2");
+                assert.equal(result.persona[1], 'TestID 3', "Auth id mismatch");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.email, "test@a.com");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.avatarUrl, "Test Avatar 1");
                 done();
             }
             catch (e) {
@@ -181,14 +168,14 @@ describe('UserDAO Persona test', function () {
     it("selects another main persona for the first user", function (done) {
         userService.selectMainPersona(userId1, "TestID 3", function (error, result) {
             try {
-                assert(error == null, "Cannot add new persona: " + error);
-                assert(result, "Result is empty");
-                assert(result.persona.length === 2, "Persona length is not 2");
-                assert(result.persona[1] === 'TestID 3', "Auth id mismatch");
-                assert(result.id, "Result userId is empty");
-                assert(result.email, "test@c.com");
-                assert(result.name, "Test name 3");
-                assert(result.avatarUrl, "Test Avatar 3");
+                assert.isNull(error, "Cannot add new persona: " + error);
+                assert.isNotNull(result, "Result is empty");
+                assert.equal(result.persona.length, 2, "Persona length is not 2");
+                assert.equal(result.persona[1], 'TestID 3', "Auth id mismatch");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.email, "test@c.com");
+                assert.equal(result.name, "Test name 3");
+                assert.equal(result.avatarUrl, "Test Avatar 3");
                 done();
             }
             catch (e) {
@@ -199,8 +186,8 @@ describe('UserDAO Persona test', function () {
     it("selects another main persona for non-existing user", function (done) {
         userService.selectMainPersona('00000000-0000-0000-0000-000000000000', "TestID 3", function (error, result) {
             try {
-                assert(error, "Should fail");
-                assert(result == null, "Should not have result");
+                assert.isNotNull(error, "Should fail");
+                assert.isUndefined(result, "Should not have result");
                 done();
             }
             catch (e) {
@@ -211,8 +198,8 @@ describe('UserDAO Persona test', function () {
     it("selects another main persona for non-existing persona", function (done) {
         userService.selectMainPersona(userId1, "TestID X", function (error, result) {
             try {
-                assert(error, "Should fail");
-                assert(result == null, "Should not have result");
+                assert.isNotNull(error, "Should fail");
+                assert.isUndefined(result, "Should not have result");
                 done();
             }
             catch (e) {
@@ -223,8 +210,8 @@ describe('UserDAO Persona test', function () {
     it("adds an existing persona to second user", function (done) {
         userService.addPersona(userId2, "TestID 3", 'Test name 3', 'test@c.com', 'Test Avatar 3', function (error, result) {
             try {
-                assert(error, "Should not add persona: " + error);
-                assert(result == null, "Result is not empty");
+                assert.isNotNull(error, "Should fail");
+                assert.isUndefined(result, "Should not have result");
                 done();
             }
             catch (e) {
@@ -235,15 +222,15 @@ describe('UserDAO Persona test', function () {
     it("remove existing persona from first user", function (done) {
         userService.removePersona(userId1, "TestID 3", function (error, result) {
             try {
-                assert(error == null, "Error removing persona: " + error);
-                assert(result, "Result is empty");
-                assert(result.persona.length === 1, "Persona length is not 1");
-                assert(result.persona[0] === 'TestID 1', "Auth id mismatch");
+                assert.isNull(error, "Error removing persona: " + error);
+                assert.isNotNull(result, "Result is empty");
+                assert.equal(1, result.persona.length, "Persona length");
+                assert.equal('TestID 1', result.persona[0], "Auth id mismatch");
 
-                assert(result.id, "Result userId is empty");
-                assert(result.email, "test@a.com");
-                assert(result.name, "Test User 1");
-                assert(result.avatarUrl, "Test Avatar 1");
+                assert.isNotNull(result.id, "Result userId is empty");
+                assert.equal(result.email, "test@a.com");
+                assert.equal(result.name, "Test User 1");
+                assert.equal(result.avatarUrl, "Test Avatar 1");
                 done();
             }
             catch (e) {
@@ -254,8 +241,8 @@ describe('UserDAO Persona test', function () {
     it("remove non-existing persona from first user", function (done) {
         userService.removePersona(userId1, "TestID 3", function (error, result) {
             try {
-                assert(error, "Should not remove non-existing persona: " + error);
-                assert(result == null, "Result is not empty");
+                assert.isNotNull(error, "Should fail");
+                assert.isUndefined(result, "Should not have result");
                 done();
             }
             catch (e) {
@@ -266,8 +253,8 @@ describe('UserDAO Persona test', function () {
     it("remove single persona from first user", function (done) {
         userService.removePersona(userId1, "TestID 1", function (error, result) {
             try {
-                assert(error, "Should not remove single persona: " + error);
-                assert(result == null, "Result is not empty");
+                assert.isNotNull(error, "Should fail");
+                assert.isUndefined(result, "Should not have result");
                 done();
             }
             catch (e) {
@@ -275,46 +262,60 @@ describe('UserDAO Persona test', function () {
             }
         });
     });
-    it("removes the second user from the database", function (done) {
+    after(function (done) {
         userService.deleteUser(userId2, function (error, result) {
-            try {
-                assert(error == null, "Cannot remove test user: " + error);
-                console.log("User removed:" + userId2);
-                assert(result === undefined, "Result is not empty");
-                done();
-            }
-            catch (e) {
-                done(e);
-            }
+            done();
         });
     });
 });
 describe('UserDAO userDelete', function () {
-    var userId;
     var userService = new UserService(cassandraClient);
     var fileService = new FileService(cassandraClient);
+    var friendService = new FriendService(cassandraClient);
+    var userId1;
+    var userId2;
     before(function (next) {
         userService.getUserByAuthId("TestID 1", function (error, result) {
-            userId = result.id;
+            userId1 = result.id;
             next();
         });
     });
     before(function (next) {
-        fileService.createNewVersion(userId, "Test fajl 1", false, null, null, "Test Content", function (error, result:File) {
+        userService.createUser("Test User ID2", "Test User 2", "test2@user.com", "Test Avatar 2", function (error, result) {
+            userId2 = result.id;
+            next();
+        });
+    });
+    before(function (next) {
+        fileService.createNewVersion(userId1, "Test fajl 1", false, null, null, "Test Content", function (error, result:File) {
+            next();
+        });
+    });
+    before(function (next) {
+        friendService.createFriend(userId1, "Alias User  1-2", userId2, function (error, result:File) {
+            next();
+        });
+    });
+    before(function (next) {
+        friendService.createFriend(userId2, "Alias User  2-1", userId1, function (error, result:File) {
             next();
         });
     });
     it("removes a user from the database", function (done) {
-        userService.deleteUser(userId, function (error, result) {
+        userService.deleteUser(userId1, function (error, result) {
             try {
-                assert(error == null, "Cannot remove test user: " + error);
-                console.log("User removed:" + userId);
-                assert(result === undefined, "Result is not empty");
+                assert.isUndefined(error, "Cannot remove test user: " + error);
+                assert.isUndefined(result, "Should not have result");
                 done();
             }
             catch (e) {
                 done(e);
             }
+        });
+    });
+    after(function (next) {
+        userService.deleteUser(userId2, function (error, result) {
+            next();
         });
     });
 });

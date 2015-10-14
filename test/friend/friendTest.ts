@@ -1,6 +1,6 @@
 /// <reference path="../../typings/tsd.d.ts" />
 import * as mocha from 'mocha';
-import * as assert from 'assert';
+import * as chai from 'chai';
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
 
@@ -11,6 +11,7 @@ import UserService from '../../services/UserService';
 
 var rawConfig = fs.readFileSync('config/config.json');
 var config = rawConfig.toString();
+var assert = chai.assert;
 
 for (var key in process.env) {
     if (!process.env.hasOwnProperty(key)) {
@@ -32,77 +33,80 @@ var cassandraClient = new cassandra.Client({
     }
 });
 
-cassandraClient.connect(function (error, ok) {
+cassandraClient.connect(function (error) {
     if (error) {
         throw 'Cannot connect to database';
     }
-    console.log('Connected to database:' + ok);
+    console.log('Connected to database');
 });
 
-var friendService = new FriendService(cassandraClient);
-var userService = new UserService(cassandraClient);
 
-var testFileId;
 describe('Friend management', function () {
-    var userId1;
-    var userId2;
-    before(function (next) {
-        userService.createUser("friendTest:ID1", "Test User 1", "test1@friend.com", "Test Avatar 1", function (error, result) {
-            if (error) {
-                userService.getUserByAuthId("friendTest:ID1", function (error, result) {
-                    userId1 = result.id;
-                    console.log("User loaded:" + userId1);
+    var friendService = new FriendService(cassandraClient);
+    var userService = new UserService(cassandraClient);
+    var users = [];
+    var friendIds = [];
+    var createdUsers = 3;
+    before(function (done) {
+        this.timeout(createdUsers * 50);
+        var i = 0;
+        async.whilst(function () {
+                return i < createdUsers;
+            },
+            function (next) {
+                userService.createUser("friendTest:ID" + i, "Test User " + i, "test" + i + "@friend.com", "Test Avatar " + i, function (error, result) {
+                    if (error) console.error(error.message);
+                    users.push(result);
+                    i++;
                     next();
                 });
+            },
+            function (error) {
+                done(error);
             }
-            else {
-                userId1 = result.id;
-                console.log("User created:" + userId1);
+        );
+    });
+    it("creates a friend", function (done) {
+        this.timeout(createdUsers * 50);
+        var i = 1;
+        async.whilst(function () {
+            return i < createdUsers;
+        }, function (next) {
+            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, function (error, result) {
+                if (error) return done(error);
+                friendIds.push(result.id);
+                assert.equal(result.owner.toString(), users[0].id.toString(), 'Owner mismatch');
+                assert.equal(result.linkedUser.toString(), users[i].id.toString(), 'Linkeduser mismatch');
+                assert.equal(result.alias, "Alias 0-" + i, 'Alias mismatch');
+                i++;
                 next();
-            }
+            });
+        }, function () {
+            done();
         });
     });
-    before(function (next) {
-        userService.createUser("friendTest:ID2", "Test User 2", "test2@friend.com", "Test Avatar 2", function (error, result) {
-            if (error) {
-                userService.getUserByAuthId("friendTest:ID2", function (error, result) {
-                    userId2 = result.id;
-                    console.log("User loaded:" + userId2);
-                    next();
-                });
-            }
-            else {
-                userId2 = result.id;
-                console.log("User created:" + userId2);
+    it("creates an existing friend", function (done) {
+        done();
+    });
+    it("find friend by characters", function (done) {
+        done();
+    });
+    it("removes friend", function (done) {
+        done();
+    });
+    after(function (done) {
+        this.timeout(createdUsers * 50);
+        var i = 0;
+        async.whilst(function () {
+            return i < createdUsers;
+        }, function (next) {
+            userService.deleteUser(users[i].id, function (error) {
+                if (error) console.error(error);
+                i++;
                 next();
-            }
-        });
-    });
-    it("creates a file in the database", function (done) {
-        done();
-    });
-    it("Saves a file with identical content (no new version)", function (done) {
-        done();
-    });
-    it("Saves a new version of a file with changed content (new version)", function (done) {
-        done();
-    });
-    after(function (next) {
-        userService.deleteUser(userId1, function (error) {
-            if (error) {
-                next(error);
-            }
-            console.log("User removed:" + userId1);
-            next();
-        });
-    });
-    after(function (next) {
-        userService.deleteUser(userId2, function (error) {
-            if (error) {
-                next(error);
-            }
-            console.log("User removed:" + userId2);
-            next();
+            });
+        }, function () {
+            done();
         });
     });
 });

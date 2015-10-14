@@ -11,12 +11,26 @@ import * as cassandra from 'cassandra-driver';
 var Uuid = require('cassandra-driver').types.Uuid;
 
 export default class FileService {
-    private file:FileDAO;
-    private fileVersion:FileVersionDAO;
+    private connection;
+    private _file:FileDAO;
+    private _fileVersion:FileVersionDAO;
 
     constructor(connection) {
-        this.file = new FileDAO(connection);
-        this.fileVersion = new FileVersionDAO(connection);
+        this.connection = connection
+    }
+
+    get file():FileDAO {
+        if (this._file == null) {
+            this._file = new FileDAO(this.connection);
+        }
+        return this._file;
+    }
+
+    get fileVersion():FileVersionDAO {
+        if (this._fileVersion == null) {
+            this._fileVersion = new FileVersionDAO(this.connection);
+        }
+        return this._fileVersion;
     }
 
     public getFiles(userId:string|cassandra.types.Uuid, callback:Function) {
@@ -201,10 +215,10 @@ export default class FileService {
                 },
                 function (file:File, next) {
                     if (viewers) {
-                        viewers=viewers.filter(uniqueFilter);
+                        viewers = viewers.filter(uniqueFilter);
                     }
                     if (editors) {
-                        editors=editors.filter(uniqueFilter);
+                        editors = editors.filter(uniqueFilter);
                     }
                     if (viewers && editors) {
                         for (var i in viewers) {
@@ -225,6 +239,6 @@ export default class FileService {
         );
     }
 }
-function uniqueFilter(value, index, array){
+function uniqueFilter(value, index, array) {
     return array.indexOf(value) === index;
 }
