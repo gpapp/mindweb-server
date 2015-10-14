@@ -89,14 +89,13 @@ export default class FriendRouter extends BaseRouter {
                             friendService.getFriendById(friendId, next);
                         },
                         function (friend:Friend, next) {
-                            if (friend.owner.toString() === request.session.passport.user.id.toString()) {
-                                friendService.updateFriend(friendId, alias, tags, function (error, result) {
-                                    if (error) return appCallback(error);
-                                    next(null, result);
-                                });
-                            } else {
-                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            friendService.updateFriend(friendId, alias, tags, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, result);
+                            });
                         },
                         function (friend:Friend, next) {
                             response.json(friend);
@@ -106,13 +105,61 @@ export default class FriendRouter extends BaseRouter {
                     ],
                     function (error) {
                         if (error) appCallback(error);
-                    })
+                    });
             })
-            .get('/tag/:id/:tag', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                appCallback(new ServiceError(500, 'Unsupported', 'Unsupported'))
+            .put('/tag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+                var friendId = request.body.id;
+                var tag = request.body.tag;
+                async.waterfall(
+                    [
+                        function (next) {
+                            friendService.getFriendById(friendId, next);
+                        },
+                        function (friend:Friend, next) {
+                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                            friendService.tagFriend(friendId, tag, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, result);
+                            });
+                        },
+                        function (friend:Friend, next) {
+                            response.json(friend);
+                            response.end();
+                            next();
+                        }
+                    ],
+                    function (error) {
+                        if (error) appCallback(error);
+                    });
             })
-            .get('/untag/:id/:tag', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                appCallback(new ServiceError(500, 'Unsupported', 'Unsupported'))
+            .put('/untag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+                var friendId = request.body.id;
+                var tag = request.body.tag;
+                async.waterfall(
+                    [
+                        function (next) {
+                            friendService.getFriendById(friendId, next);
+                        },
+                        function (friend:Friend, next) {
+                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                            friendService.untagFriend(friendId, tag, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, result);
+                            });
+                        },
+                        function (friend:Friend, next) {
+                            response.json(friend);
+                            response.end();
+                            next();
+                        }
+                    ],
+                    function (error) {
+                        if (error) appCallback(error);
+                    });
             })
             .delete('/remove/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
                 var friendId = request.params.id;

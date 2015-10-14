@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="Exposed">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/routes/BaseRouter.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/routes/friend.ts" />
+    <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.ts" afterPath="$PROJECT_DIR$/app.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/auth.ts" afterPath="$PROJECT_DIR$/routes/auth.ts" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/file.ts" afterPath="$PROJECT_DIR$/routes/file.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/services/FriendService.ts" afterPath="$PROJECT_DIR$/services/FriendService.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/friend.ts" afterPath="$PROJECT_DIR$/routes/friend.ts" />
     </list>
     <ignored path="server.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -32,8 +28,8 @@
       <file leaf-file-name="friend.ts" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/routes/friend.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4051447">
-              <caret line="73" column="55" selection-start-line="73" selection-start-column="55" selection-end-line="73" selection-end-column="55" />
+            <state vertical-scroll-proportion="0.6028939">
+              <caret line="134" column="23" selection-start-line="134" selection-start-column="23" selection-end-line="134" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -43,7 +39,7 @@
         <entry file="file://$PROJECT_DIR$/routes/file.ts">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="11" column="26" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -113,11 +109,11 @@
         <option value="$PROJECT_DIR$/test/user/userTest.ts" />
         <option value="$PROJECT_DIR$/app.ts" />
         <option value="$PROJECT_DIR$/routes/BaseRoute.ts" />
-        <option value="$PROJECT_DIR$/routes/file.ts" />
         <option value="$PROJECT_DIR$/routes/auth.ts" />
         <option value="$PROJECT_DIR$/routes/BaseRouter.ts" />
         <option value="$PROJECT_DIR$/services/FriendService.ts" />
         <option value="$PROJECT_DIR$/routes/friend.ts" />
+        <option value="$PROJECT_DIR$/routes/file.ts" />
       </list>
     </option>
   </component>
@@ -847,7 +843,13 @@
       <option name="project" value="LOCAL" />
       <updated>1444835185270</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="Exposed friend and tagging services">
+      <created>1444839351723</created>
+      <option name="number" value="00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1444839351723</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -932,7 +934,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
-    <MESSAGE value="Fixed serialization issues" />
     <MESSAGE value="Fixed startup issues" />
     <MESSAGE value="Added base url to config" />
     <MESSAGE value="Added DB initialization scripts. Brute force!" />
@@ -957,7 +958,8 @@
     <MESSAGE value="Fixed testsuite dependencies" />
     <MESSAGE value="Added friend tagging service" />
     <MESSAGE value="Added file tagging service" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added file tagging service" />
+    <MESSAGE value="Exposed friend and tagging services" />
+    <option name="LAST_COMMIT_MESSAGE" value="Exposed friend and tagging services" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1286,14 +1288,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/services/FileService.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.06666667">
-          <caret line="272" column="26" selection-start-line="272" selection-start-column="26" selection-end-line="272" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/file/fileTest.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="16.913044">
@@ -1350,18 +1344,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/services/FileService.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33279744">
+          <caret line="49" column="11" selection-start-line="49" selection-start-column="11" selection-end-line="49" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/routes/file.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="26" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/friend.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4051447">
-          <caret line="73" column="55" selection-start-line="73" selection-start-column="55" selection-end-line="73" selection-end-column="55" />
+        <state vertical-scroll-proportion="0.6028939">
+          <caret line="134" column="23" selection-start-line="134" selection-start-column="23" selection-end-line="134" selection-end-column="23" />
           <folding />
         </state>
       </provider>

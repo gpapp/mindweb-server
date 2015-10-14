@@ -56,18 +56,16 @@ export default class FileRouter extends BaseRouter {
                         function (next) {
                             fileService.getFile(request.params.id, next);
                         },
-                        function (result, next) {
-                            var fileInfo = result;
-                            if (fileInfo.canView(request.session.passport.user.id)) {
-                                var lastVersionId = fileInfo.versions[0];
-                                fileService.getFileVersion(lastVersionId, function (error, result) {
-                                    if (error) return appCallback(error);
-                                    result.file = fileInfo;
-                                    next(null, result);
-                                });
-                            } else {
-                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                        function (fileInfo:File, next) {
+                            if (!fileInfo.canView(request.session.passport.user.id)) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            var lastVersionId = fileInfo.versions[0];
+                            fileService.getFileVersion(lastVersionId, function (error, result) {
+                                if (error) return appCallback(error);
+                                result.file = fileInfo;
+                                next(null, result);
+                            });
                         },
                         function (fileContent, next) {
                             response.json(fileContent);
@@ -78,6 +76,60 @@ export default class FileRouter extends BaseRouter {
                         if (error) appCallback(error);
                     })
             })
+            .put('/tag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+                var fileId = request.body.id;
+                var tag = request.body.tag;
+                async.waterfall(
+                    [
+                        function (next) {
+                            fileService.getFile(fileId, next);
+                        },
+                        function (friend:File, next) {
+                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                            fileService.tagFriend(fileId, tag, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, result);
+                            });
+                        },
+                        function (friend:File, next) {
+                            response.json(friend);
+                            response.end();
+                            next();
+                        }
+                    ],
+                    function (error) {
+                        if (error) appCallback(error);
+                    });
+            })
+            .put('/untag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+                var fileId = request.body.id;
+                var tag = request.body.tag;
+                async.waterfall(
+                    [
+                        function (next) {
+                            fileService.getFile(fileId, next);
+                        },
+                        function (friend:File, next) {
+                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                            fileService.untagFriend(fileId, tag, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, result);
+                            });
+                        },
+                        function (friend:File, next) {
+                            response.json(friend);
+                            response.end();
+                            next();
+                        }
+                    ],
+                    function (error) {
+                        if (error) appCallback(error);
+                    });
+            })
             .delete('/file/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
                 var fileId = request.params.id;
                 async.waterfall(
@@ -86,14 +138,13 @@ export default class FileRouter extends BaseRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canRemove(request.session.passport.user.id)) {
-                                fileService.deleteFile(fileId, function (error, result) {
-                                    if (error) return appCallback(error);
-                                    next(null, fileInfo);
-                                });
-                            } else {
-                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            if (!fileInfo.canRemove(request.session.passport.user.id)) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            fileService.deleteFile(fileId, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, fileInfo);
+                            });
                         },
                         function (fileInfo, next) {
                             response.json(fileInfo);
@@ -114,14 +165,13 @@ export default class FileRouter extends BaseRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canRemove(request.session.passport.user.id)) {
-                                fileService.renameFile(fileId, newName, function (error, result) {
-                                    if (error) return appCallback(error);
-                                    next(null, fileInfo);
-                                });
-                            } else {
-                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            if (!fileInfo.canRemove(request.session.passport.user.id)) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            fileService.renameFile(fileId, newName, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, fileInfo);
+                            });
                         },
                         function (fileInfo, next) {
                             fileInfo.name = newName;
@@ -164,15 +214,14 @@ export default class FileRouter extends BaseRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canEdit(request.session.passport.user.id)) {
-                                var fileVersionId = fileInfo.versions[0];
-                                fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
-                                    if (error) return appCallback(error);
-                                    next(null, fileVersionId, fileVersion.content)
-                                });
-                            } else {
-                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            if (!fileInfo.canEdit(request.session.passport.user.id)) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            var fileVersionId = fileInfo.versions[0];
+                            fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
+                                if (error) return appCallback(error);
+                                next(null, fileVersionId, fileVersion.content)
+                            });
                         },
                         function (fileVersionId, fileContent, next) {
                             async.each(
@@ -209,11 +258,10 @@ export default class FileRouter extends BaseRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo:File, next) {
-                            if (fileInfo.canEdit(request.session.passport.user.id)) {
-                                next(null, fileInfo)
-                            } else {
+                            if (!fileInfo.canEdit(request.session.passport.user.id)) {
                                 appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            next(null, fileInfo)
                         },
                         function (fileInfo, fileVersion, next) {
                             fileService.tagFile(fileId, tag, function (error, result) {
@@ -236,11 +284,10 @@ export default class FileRouter extends BaseRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo:File, next) {
-                            if (fileInfo.canEdit(request.session.passport.user.id)) {
-                                next(null, fileInfo)
-                            } else {
-                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            if (!fileInfo.canEdit(request.session.passport.user.id)) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            next(null, fileInfo)
                         },
                         function (fileInfo, fileVersion, next) {
                             fileService.untagFile(fileId, tag, function (error, result) {
@@ -262,15 +309,14 @@ export default class FileRouter extends BaseRouter {
                             fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
-                            if (fileInfo.canView(request.session.passport.user.id)) {
-                                var fileVersionId = fileInfo.versions[0];
-                                fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
-                                    if (error) return appCallback(error);
-                                    next(null, fileInfo, fileVersion)
-                                });
-                            } else {
-                                appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            if (!fileInfo.canView(request.session.passport.user.id)) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
+                            var fileVersionId = fileInfo.versions[0];
+                            fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
+                                if (error) return appCallback(error);
+                                next(null, fileInfo, fileVersion)
+                            });
                         },
                         function (fileInfo, fileVersion, next) {
                             ConverterService.toFreeplane(fileVersion.content, function (error, result) {
