@@ -1,12 +1,13 @@
 /// <reference path="../typings/tsd.d.ts" />
 import * as xml2js from 'xml2js';
-import * as Showdown from 'showdown';
+import * as markdown from 'markdown';
+
 import MapNode from '../classes/MapNode';
 import FileContent from "../classes/FileContent";
 
+
 const mapBuilder = new xml2js.Builder({rootName: 'map', headless: true, renderOpts: {pretty: true}});
 const htmlBuilder = new xml2js.Builder({rootName: 'html', headless: true, renderOpts: {pretty: true}});
-const converter = new Showdown.converter();
 const toMarkdown = require('to-markdown');
 
 export function fromFreeplane(buffer:Buffer, callback:Function) {
@@ -70,7 +71,7 @@ function buildMarkdownContent(node:MapNode):void {
 
 function buildMarkdownContentForNode(node:MapNode) {
     var buildObject = htmlBuilder.buildObject(node['html'][0]);
-    return toMarkdown(buildObject);
+    return toMarkdown(buildObject, {gfm: true});
 }
 
 export function toFreeplane(content:FileContent, callback:Function) {
@@ -132,8 +133,13 @@ function removeMarkdown(nodes:MapNode[]) {
 
 
 function markdownToHTML(content:string) {
-    var retval = converter.makeHtml(content);
+    var retval = markdown.parse(content);
     xml2js.parseString('<body>' + retval + '</body>', {trim: true, async: false}, function (error, result) {
+        if (error) {
+            console.error(content);
+            console.error(retval);
+            console.error(error);
+        }
         retval = result;
     });
     return {

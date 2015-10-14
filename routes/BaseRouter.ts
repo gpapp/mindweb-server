@@ -13,18 +13,11 @@ export default class BaseRouter {
         this._router = express.Router();
     }
 
-    protected static ensureAuthenticated(request, response, next) {
-        if (request.session.passport.user) {
-            return next(null, request, response);
-        }
-        next(new ServiceError(401, 'The user has no authentication information', "Authentication failed"));
-    }
-
-    public static authorizeMiddleware(request, response, next) {
+    public static ensureAuthenticated(request, response, next) {
         if (!request.isAuthenticated()) {
-            next(new ServiceError(401, 'User is not authenticated', 'Unauthenticated user'));
+            next(new ServiceError(401, 'The user has no authentication information', "Authentication failed"));
         }
-        next();
+        return next(null, request, response);
     }
 
     public getRouter():express.Router {

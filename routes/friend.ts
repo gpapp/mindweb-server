@@ -25,11 +25,12 @@ export default class FriendRouter extends BaseRouter {
             }
             console.log('Connected to database:' + ok);
             friendService = new FriendService(cassandraClient);
+            next();
         });
 
         this.router
             .get('/list', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                friendService.getFriends(request.session.passport.user.id, function (error, result) {
+                friendService.getFriends(request.user.id, function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -43,7 +44,7 @@ export default class FriendRouter extends BaseRouter {
                         function (next) {
                             friendService.getFriendById(fileId, function (error, result:Friend) {
                                 if (error) return appCallback(error);
-                                if (result.owner.toString() != request.session.passport.user.id.toString()) {
+                                if (result.owner.toString() != request.user.id.toString()) {
                                     return appCallback(401, 'This is not your friend', 'Getting friend')
                                 }
                                 next(null, result);
@@ -65,7 +66,7 @@ export default class FriendRouter extends BaseRouter {
                 async.waterfall(
                     [
                         function (next) {
-                            friendService.createFriend(request.session.passport.user.id.toString(), alias, linkedUserId, tags, function (error, result) {
+                            friendService.createFriend(request.user.id.toString(), alias, linkedUserId, tags, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
@@ -89,7 +90,7 @@ export default class FriendRouter extends BaseRouter {
                             friendService.getFriendById(friendId, next);
                         },
                         function (friend:Friend, next) {
-                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                            if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             friendService.updateFriend(friendId, alias, tags, function (error, result) {
@@ -116,7 +117,7 @@ export default class FriendRouter extends BaseRouter {
                             friendService.getFriendById(friendId, next);
                         },
                         function (friend:Friend, next) {
-                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                            if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             friendService.tagFriend(friendId, tag, function (error, result) {
@@ -143,7 +144,7 @@ export default class FriendRouter extends BaseRouter {
                             friendService.getFriendById(friendId, next);
                         },
                         function (friend:Friend, next) {
-                            if (friend.owner.toString() != request.session.passport.user.id.toString()) {
+                            if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             friendService.untagFriend(friendId, tag, function (error, result) {
@@ -169,7 +170,7 @@ export default class FriendRouter extends BaseRouter {
                             friendService.getFriendById(friendId, next);
                         },
                         function (friend:Friend, next) {
-                            if (friend.owner.toString() === request.session.passport.user.id.toString()) {
+                            if (friend.owner.toString() === request.user.id.toString()) {
                                 friendService.deleteFriend(friendId, function (error, result) {
                                     if (error) return appCallback(error);
                                     next(null, friend);

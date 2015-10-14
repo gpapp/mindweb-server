@@ -1,4 +1,8 @@
 /// <reference path="typings/tsd.d.ts" />
+import * as session from 'express-session';
+import * as express from 'express';
+import * as passport from 'passport';
+import * as logger from 'morgan';
 import * as async from 'async';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -7,16 +11,12 @@ import * as cassandra from 'cassandra-driver';
 import ServiceError from './classes/ServiceError';
 import DbKeyspace from './db/keyspace'
 
+import BaseRouter from "./routes/BaseRouter";
 import routes from './routes/index';
 import AuthRoute from './routes/auth';
 import FileRoute from './routes/file';
 import FriendRoute from './routes/friend';
 
-// Let's go oldschool with some imports
-import * as session from 'express-session';
-import * as express from 'express';
-import * as passport from 'passport';
-import * as logger from 'morgan';
 
 var options;
 var cassandraOptions:cassandra.client.Options;
@@ -89,8 +89,8 @@ async.waterfall([
 
         app.use('/', routes);
         app.use('/auth', authRoute.getRouter());
-        app.use('/file', AuthRoute.authorizeMiddleware, fileRoute.getRouter());
-        app.use('/friend', AuthRoute.authorizeMiddleware, friendRoute.getRouter());
+        app.use('/file', BaseRouter.ensureAuthenticated, fileRoute.getRouter());
+        app.use('/friend', BaseRouter.ensureAuthenticated, friendRoute.getRouter());
 
         // catch 404 and forward to error handler
         app.use(function (req, res, next) {
