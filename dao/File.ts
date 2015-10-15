@@ -35,17 +35,34 @@ export default class File extends DAOBase {
     public updateFile(fileId:string|cassandra.types.Uuid, fileName:string,
                       isPublic:boolean, viewers:(string|cassandra.types.Uuid)[], editors:(string|cassandra.types.Uuid)[],
                       versions:(string|cassandra.types.Uuid)[], tags:string[], next:Function) {
-        var query = 'INSERT INTO mindweb.file (id, name, public, viewers, editors, versions, tags, modified)' +
-            'VALUES (:fileId,:fileName, :isPublic, :viewers, :editors, :versions, :tags, dateOf(now()))';
+        var query = 'UPDATE mindweb.file SET' +
+            ' name = :name,' +
+            ' public = :isPublic,' +
+            ' viewers = :viewers,' +
+            ' editors = :editors,' +
+            ' versions = :versions,' +
+            ' tags = :tags,' +
+            ' modified = dateOf(now())' +
+            ' WHERE id = :fileId';
         this.execute(query, {
             fileId: fileId,
-            fileName: fileName,
+            name: fileName,
             isPublic: isPublic,
             viewers: viewers,
             editors: editors,
             versions: versions,
             tags: tags
         }, next);
+    }
+
+    public tagFile(fileId:string|cassandra.types.Uuid, tag:string, next:Function) {
+        var query = 'UPDATE mindweb.file SET tags = tags + :tag WHERE id = :fileId';
+        this.execute(query, {fileId: fileId, tag: [tag]}, next);
+    }
+
+    public untagFile(fileId:string|cassandra.types.Uuid, tag:string, next:Function) {
+        var query = 'UPDATE mindweb.file SET tags = tags - :tag WHERE id = :fileId';
+        this.execute(query, {fileId: fileId, tag: [tag]}, next);
     }
 
     public getFileByUserAndName(userId:string|cassandra.types.Uuid, fileName:string, next:Function) {
@@ -68,5 +85,11 @@ export default class File extends DAOBase {
                      next:Function) {
         var query = 'UPDATE mindweb.file set public=:isPublic, viewers=:viewers, editors=:editors WHERE id = :fileId';
         this.execute(query, {fileId: fileId, isPublic: isPublic, viewers: viewers, editors: editors}, next);
+    }
+
+    public tagQuery(userId:string|cassandra.types.Uuid, next:Function) {
+        var query;
+        query = 'SELECT tags from mindweb.file WHERE owner = :userId';
+        this.execute(query, {userId: userId}, next);
     }
 }

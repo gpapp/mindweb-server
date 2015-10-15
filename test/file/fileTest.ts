@@ -418,7 +418,8 @@ describe('File taging', function () {
     var fileService = new FileService(cassandraClient);
     var userService = new UserService(cassandraClient);
     var user;
-    var fileId;
+    var fileId1;
+    var fileId2;
     before(function (done) {
         userService.createUser("FileTagTest:ID", "Test File Tag ", "test@Filetag.com", "Test File Tag Avatar ", function (error, result) {
             if (error) console.error(error.message);
@@ -429,12 +430,19 @@ describe('File taging', function () {
     before(function (done) {
         fileService.createNewVersion(user.id, "FileTagText", false, null, null, null, "File tagging content", function (error, result) {
             if (error) console.error(error.message);
-            fileId = result.id;
+            fileId1 = result.id;
+            done();
+        });
+    });
+    before(function (done) {
+        fileService.createNewVersion(user.id, "FileTagText2", false, null, null, ['TAG-TEST1', 'TAG-TEST2', 'TAG-TEST3', 'TAG-TEST4'], "File tagging content2", function (error, result) {
+            if (error) console.error(error.message);
+            fileId2 = result.id;
             done();
         });
     });
     it("tags a File with new tag", function (done) {
-        fileService.tagFile(fileId, 'TAG-TEST1', function (error, result) {
+        fileService.tagFile(fileId1, 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -447,7 +455,7 @@ describe('File taging', function () {
         })
     });
     it("tags a File with new tag 2", function (done) {
-        fileService.tagFile(fileId, 'TAG-TEST2', function (error, result) {
+        fileService.tagFile(fileId1, 'TAG-TEST2', function (error, result) {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -461,7 +469,7 @@ describe('File taging', function () {
         });
     });
     it("tags a File with existing tag", function (done) {
-        fileService.tagFile(fileId, 'TAG-TEST1', function (error, result) {
+        fileService.tagFile(fileId1, 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -474,8 +482,64 @@ describe('File taging', function () {
             }
         });
     });
+    it("Full query tags with existing tag and no file", function (done) {
+        fileService.tagQuery(user.id, null, 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result);
+                assert.equal(1, result.length);
+                assert.notEqual(-1, result.indexOf('TAG-TEST1'));
+                assert.equal(-1, result.indexOf('TAG-TEST2'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Full query tags with existing tag and file", function (done) {
+        fileService.tagQuery(user.id, fileId1, 'TAG-TEST1', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result);
+                assert.equal(0, result.length);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Partial query tags with existing tag no file", function (done) {
+        fileService.tagQuery(user.id, null, 'TAG-TEST', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result);
+                assert.equal(4, result.length);
+                assert.notEqual(-1, result.indexOf('TAG-TEST1'));
+                assert.notEqual(-1, result.indexOf('TAG-TEST2'));
+                assert.notEqual(-1, result.indexOf('TAG-TEST3'));
+                assert.notEqual(-1, result.indexOf('TAG-TEST4'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Partial query tags with existing tag and file", function (done) {
+        fileService.tagQuery(user.id, fileId1, 'TAG-TEST', function (error, result) {
+            try {
+                assert.isNull(error);
+                assert.isNotNull(result);
+                assert.equal(2, result.length);
+                assert.notEqual(-1, result.indexOf('TAG-TEST3'));
+                assert.notEqual(-1, result.indexOf('TAG-TEST4'));
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    });
     it("removes existing tag", function (done) {
-        fileService.untagFile(fileId, 'TAG-TEST1', function (error, result) {
+        fileService.untagFile(fileId1, 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -489,7 +553,7 @@ describe('File taging', function () {
         });
     });
     it("removes missing tag", function (done) {
-        fileService.untagFile(fileId, 'TAG-TEST1', function (error, result) {
+        fileService.untagFile(fileId1, 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);

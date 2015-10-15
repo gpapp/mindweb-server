@@ -127,10 +127,9 @@ export default class FileService {
         async.waterfall([
                 function (next) {
                     parent.file.getFileByUserAndName(userId, fileName, function (error, result) {
+                        if (error) return callback(error);
                         var fileId;
                         var versions;
-                        if (error)
-                            return next(error);
                         if (result.rows.length > 0) {
                             fileId = result.rows[0].id;
                             versions = result.rows[0].versions;
@@ -147,15 +146,14 @@ export default class FileService {
                     if (versions.length > 0) {
                         var oldFileVersionId = versions[0];
                         parent.fileVersion.getContent(oldFileVersionId, function (error, result) {
+                            if (error) return callback(error);
                             var row = result.first();
                             if (content === row.content) {
                                 next(null, fileId, versions);
                             }
                             else {
                                 parent.fileVersion.createNewVersion(newFileVersionId, versions.length + 1, content, function (error) {
-                                    if (error) {
-                                        return next(error);
-                                    }
+                                    if (error) return callback(error);
                                     versions.unshift(newFileVersionId);
                                     next(null, fileId, versions);
                                 });
@@ -164,7 +162,7 @@ export default class FileService {
                     }
                     else {
                         parent.fileVersion.createNewVersion(newFileVersionId, versions.length + 1, content, function (error) {
-                            if (error) return next(error);
+                            if (error) return callback(error);
                             versions.unshift(newFileVersionId);
                             next(null, fileId, versions);
                         });
@@ -174,12 +172,14 @@ export default class FileService {
                     var isUpdate = versions.length > 1;
                     if (isUpdate) {
                         parent.file.updateFile(fileId, fileName, isPublic, viewers, editors, versions, tags, function (error) {
-                            next(error, fileId);
+                            if (error) return callback(error);
+                            next(null, fileId);
                         });
                     }
                     else {
                         parent.file.createFile(fileId, fileName, userId, isPublic, viewers, editors, versions, tags, function (error) {
-                            next(error, fileId);
+                            if (error) return callback(error);
+                            next(null, fileId);
                         });
                     }
                 },
@@ -240,8 +240,45 @@ export default class FileService {
         );
     }
 
+    public tagQuery(userId:string|cassandra.types.Uuid,
+                    fileId:string|cassandra.types.Uuid,
+                    query:string,
+                    callback:Function) {
+        var parent = this;
+        async.waterfall([
+            function (next) {
+                if (fileId == null) {
+                    return next(null, null);
+                }
+                parent.getFile(fileId, function (error, result:File) {
+                    if (error) return next(null, null);
+                    next(null, result);
+                });
+            },
+            function (file:File, next) {
+                parent.file.tagQuery(userId, function (error, result) {
+                    if (error) return callback(error);
+                    var retval:string[] = [];
+                    for (var i = 0; i < result.rows.length; i++) {
+                        retval = retval.concat(result.rows[i]['tags']);
+                    }
+                    next(null, retval, file);
+                })
+            },
+            function (tags:string[], file:File, next) {
+                if (file != null && file.tags != null) {
+                    tags = tags.filter(exceptFilter(file.tags));
+                }
+                callback(null, tags.filter(uniqueFilter).filter(queryFilter(query)));
+            },
+        ]);
+    }
+
     public tagFile(fileId:string|cassandra.types.Uuid, tag:string, callback:Function) {
         var parent = this;
+        if (tag == null) {
+            return callback(new ServiceError(500, 'Cannot add null tag', 'Error File tagging'));
+        }
         async.waterfall([
             function (next) {
                 parent.getFile(fileId, function (error, result:File) {
@@ -250,27 +287,18 @@ export default class FileService {
                 })
             },
             function (file:File, next) {
-                if (tag == null) {
-                    return callback(new ServiceError(500, 'Cannot add null tag', 'Error File tagging'));
-                }
-                var tags;
-                if (file.tags == null) {
-                    tags = [tag];
-                } else {
-                    tags = [tag].concat(file.tags).filter(function (value, index, array) {
-                        return array.indexOf(value) == index;
-                    });
-                }
-                parent.file.updateFile(fileId, file.name, file.isPublic, file.viewers, file.editors, file.versions, tags, function (error, result) {
+                parent.file.tagFile(fileId, tag, function (error, result) {
                     if (error) return callback(error);
                     parent.getFile(fileId, callback);
                 })
-            }
-        ]);
+            }]);
     }
 
     public untagFile(fileId:string|cassandra.types.Uuid, tag:string, callback:Function) {
         var parent = this;
+        if (tag == null) {
+            return callback(new ServiceError(500, 'Cannot remove null tag', 'Error File untagging'));
+        }
         async.waterfall([
             function (next) {
                 parent.getFile(fileId, function (error, result:File) {
@@ -279,24 +307,33 @@ export default class FileService {
                 })
             },
             function (file:File, next) {
-                if (tag == null) {
-                    return callback(new ServiceError(500, 'Cannot remove null tag', 'Error File untagging'));
-                }
-                var tags = file.tags.filter(function (value, index, array) {
-                    return (array.indexOf(value) == index && value != tag);
-                });
-                parent.file.updateFile(fileId, file.name, file.isPublic, file.viewers, file.editors, file.versions, tags, function (error, result) {
+                parent.file.untagFile(fileId, tag, function (error, result) {
                     if (error) return callback(error);
                     parent.getFile(fileId, callback);
                 })
-            }
-        ]);
+            }]);
     }
 }
 
 function fileFromRow(row) {
     return new File(row['id'], row['name'], row['owner'], row['viewers'], row['editors'], row['public'], row['versions'], row['tags']);
 }
+
 function uniqueFilter(value, index, array) {
     return array.indexOf(value) === index;
+}
+
+function exceptFilter(toFilter:string[]) {
+    return function (value:string, index:number, array:any[]) {
+        return toFilter.indexOf(value) == -1;
+    }
+}
+
+function queryFilter(query:string) {
+    var rex:RegExp;
+    rex = new RegExp('.*' + query.toLowerCase() + '.*');
+    return function (value:string, index:number, array:any[]) {
+        if (value == null) return false;
+        return rex.test(value.toLowerCase());
+    }
 }

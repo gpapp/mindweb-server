@@ -76,9 +76,15 @@ export default class FileRouter extends BaseRouter {
                         if (error) appCallback(error);
                     })
             })
-            .put('/tag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+            .put('/tagQuery', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
                 var fileId = request.body.id;
-                var tag = request.body.tag;
+                var query = request.body.query;
+                if (undefined == fileId) {
+                    return appCallback(new ServiceError(400, 'File not specified', 'Tag query file'));
+                }
+                if (undefined == query) {
+                    return appCallback(new ServiceError(400, 'Query not specified', 'Tag query file'));
+                }
                 async.waterfall(
                     [
                         function (next) {
@@ -88,7 +94,44 @@ export default class FileRouter extends BaseRouter {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.tagFriend(fileId, tag, function (error, result) {
+                            fileService.tagQuery(request.user.id, fileId, query, function (error, result) {
+                                if (error) return appCallback(error);
+                                next(null, result);
+                            });
+                        },
+                        function (tags:string[], next) {
+                            var retval = [];
+                            for (var i = 0; i < tags.length; i++) {
+                                retval.push({text: tags[i]});
+                            }
+                            response.json(retval);
+                            response.end();
+                            next();
+                        }
+                    ],
+                    function (error) {
+                        if (error) appCallback(error);
+                    });
+            })
+            .put('/tag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+                var fileId = request.body.id;
+                var tag = request.body.tag;
+                if (undefined == fileId) {
+                    return appCallback(new ServiceError(400, 'File not specified', 'Tag file'));
+                }
+                if (undefined == tag) {
+                    return appCallback(new ServiceError(400, 'Tag not specified', 'Tag file'));
+                }
+                async.waterfall(
+                    [
+                        function (next) {
+                            fileService.getFile(fileId, next);
+                        },
+                        function (friend:File, next) {
+                            if (friend.owner.toString() != request.user.id.toString()) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                            fileService.tagFile(fileId, tag, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
@@ -106,6 +149,12 @@ export default class FileRouter extends BaseRouter {
             .put('/untag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
                 var fileId = request.body.id;
                 var tag = request.body.tag;
+                if (undefined == fileId) {
+                    return appCallback(new ServiceError(400, 'File not specified', 'Untag file'));
+                }
+                if (undefined == tag) {
+                    return appCallback(new ServiceError(400, 'Tag not specified', 'Untag file'));
+                }
                 async.waterfall(
                     [
                         function (next) {
@@ -115,7 +164,7 @@ export default class FileRouter extends BaseRouter {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.untagFriend(fileId, tag, function (error, result) {
+                            fileService.untagFile(fileId, tag, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
