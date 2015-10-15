@@ -10,7 +10,7 @@ docker create \
     --name mw-server-$TYPE \
     mindweb/server
 
-if [ ! -f  ../.config/$TYPE/server/config.json ]; then 
+if [ ! -f  ../.config/$TYPE/server/config/config.json ]; then 
   mkdir -p ../.config/$TYPE/server/config
   cp config/config.json ../.config/$TYPE/server/config/config.json
 fi
