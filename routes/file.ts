@@ -239,10 +239,11 @@ export default class FileRouter extends BaseRouter {
                 var isPublic = request.body.isPublic;
                 var viewers = request.body.viewers;
                 var editors = request.body.editors;
+                var tags = request.body.tags;
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.createNewVersion(request.user.id, name, isPublic, viewers, editors, JSON.stringify(EMPTY_MAP), next);
+                            fileService.createNewVersion(request.user.id, name, isPublic, viewers, editors, tags, JSON.stringify(EMPTY_MAP), next);
                         },
                         function (fileInfo, next) {
                             response.json(fileInfo);
