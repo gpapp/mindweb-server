@@ -53,5 +53,6 @@ module.exports = function (grunt) {
             }
         }
     });
-    grunt.registerTask('default', ['clean', 'ts', 'mochaTest']);
+    grunt.registerTask('default', ['clean', 'ts']);
+    grunt.registerTask('dev', ['clean', 'ts', 'mochatest']);
 }
