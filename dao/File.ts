@@ -9,6 +9,18 @@ export default class File extends DAOBase {
         this.execute(query, {userId: userId}, next);
     }
 
+    public getSharedFilesForEdit(userId:string|cassandra.types.Uuid, next:Function) {
+        var query = 'SELECT id, name, owner, versions, public, viewers, editors, tags, created, modified ' +
+            'FROM mindweb.file WHERE editors CONTAINS :userId ALLOW FILTERING';
+        this.execute(query, {userId: userId}, next);
+    }
+
+    public getSharedFilesForView(userId:string|cassandra.types.Uuid, next:Function) {
+        var query = 'SELECT id, name, owner, versions, public, viewers, editors, tags, created, modified ' +
+            'FROM mindweb.file WHERE viewers CONTAINS :userId ALLOW FILTERING';
+        this.execute(query, {userId: userId}, next);
+    }
+
     public getFile(fileId:string|cassandra.types.Uuid, next:Function) {
         var query = 'SELECT id, name, owner, public, viewers, editors, versions, tags, created, modified ' +
             'FROM mindweb.file WHERE id=:fileId';

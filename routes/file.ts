@@ -50,6 +50,14 @@ export default class FileRouter extends BaseRouter {
                     response.end();
                 });
             })
+            .get('/sharedfiles', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
+                fileService.getSharedFiles(request.user.id, function (error, result) {
+                    if (error) return appCallback(error);
+
+                    response.json(result);
+                    response.end();
+                });
+            })
             .get('/file/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
                 async.waterfall(
                     [

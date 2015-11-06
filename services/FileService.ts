@@ -47,6 +47,39 @@ export default class FileService {
         });
     }
 
+    public getSharedFiles(userId:string|cassandra.types.Uuid, callback:Function) {
+        var parent:FileService = this;
+        var retval = [];
+        async.parallel([
+            function (next:Function) {
+                parent.file.getSharedFilesForEdit(userId, function (error, result) {
+                    if (error) {
+                        return callback(error, null);
+                    }
+                    for (var i = 0; i < result.rows.length; i++) {
+                        retval.push(fileFromRow(result.rows[i]));
+                    }
+
+                    next();
+                })
+            },
+            function (next:Function) {
+                parent.file.getSharedFilesForView(userId, function (error, result) {
+                    if (error) {
+                        return callback(error, null);
+                    }
+                    for (var i = 0; i < result.rows.length; i++) {
+                        retval.push(fileFromRow(result.rows[i]));
+                    }
+
+                    next();
+                })
+            },
+        ], function () {
+            callback(null, retval);
+        });
+    }
+
     public getFile(fileId:string|cassandra.types.Uuid, callback:Function) {
         this.file.getFile(fileId, function (error, result) {
             if (error) {

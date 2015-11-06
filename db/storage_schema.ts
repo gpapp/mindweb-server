@@ -107,6 +107,15 @@ function fileTable(next) {
                     },
                     function (nextI) {
                         client.execute('CREATE INDEX IF NOT EXISTS file_name ON mindweb.file (name);', nextI);
+                    },
+                    function (nextI) {
+                        client.execute('CREATE INDEX IF NOT EXISTS file_viewers ON mindweb.file (viewers);', nextI);
+                    },
+                    function (nextI) {
+                        client.execute('CREATE INDEX IF NOT EXISTS file_editors ON mindweb.file (editors);', nextI);
+                    },
+                    function (nextI) {
+                        client.execute('CREATE INDEX IF NOT EXISTS file_name ON mindweb.file (name);', nextI);
                     }
                 ], next
             );
