@@ -66,4 +66,5 @@ export default class File {
     public canRemove(userId:string|cassandra.types.Uuid):boolean {
         return this.owner.toString() === userId.toString();
     }
+
 }

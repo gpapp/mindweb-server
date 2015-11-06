@@ -106,6 +106,9 @@ function fileTable(next) {
                         client.execute('CREATE INDEX IF NOT EXISTS file_tags ON mindweb.file (tags);', nextI);
                     },
                     function (nextI) {
+                        client.execute('CREATE INDEX IF NOT EXISTS file_public ON mindweb.file (public);', nextI);
+                    },
+                    function (nextI) {
                         client.execute('CREATE INDEX IF NOT EXISTS file_name ON mindweb.file (name);', nextI);
                     },
                     function (nextI) {

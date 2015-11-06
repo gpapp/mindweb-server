@@ -33,6 +33,91 @@ export default class FileService {
         return this._fileVersion;
     }
 
+    // TODO: this is ugly, all tags are collected from the entire DB, and then collected in JS
+    public getPublicFileTags(query:string,
+                             callback:Function) {
+        this.file.getPublicFileTags(function (error, result) {
+            if (error) return callback(error);
+            var tags:string[] = [];
+            for (var i = 0; i < result.rows.length; i++) {
+                tags = tags.concat(result.rows[i]['tags']);
+            }
+            tags = tags.filter(queryFilter(query));
+            var tagCloud = {};
+            for (var i = 0; i < tags.length; i++) {
+                tagCloud[tags[i]] = (tagCloud[tags[i]] == undefined ? 1 : tagCloud[tags[i]] + 1);
+            }
+            callback(null, tagCloud);
+        })
+    }
+
+    public getPublicFilesForTags(query:string, tags:string[], callback:Function) {
+        var parent:FileService = this;
+        async.waterfall ([
+            function (waterNext:Function) {
+                if (tags.length == 0) {
+                    parent.file.getPublicFiles(function (error, result) {
+                        if (error) {
+                            return callback(error, null);
+                        }
+                        var retval:File[] = [];
+                        for (var i = 0; i < result.rows.length; i++) {
+                            retval.push(fileFromRow(result.rows[i]));
+                        }
+                        waterNext(null, retval);
+                    });
+                } else {
+                    var retval:File[] = [];
+                    async.each(tags, function (tag:string, next:Function) {
+                            parent.file.getPublicFilesForTag(tag, function (error, result) {
+                                if (error) {
+                                    return callback(error, null);
+                                }
+                                for (var i = 0; i < result.rows.length; i++) {
+                                    var row = result.rows[i];
+                                    var fileFrom:File = fileFromRow(row);
+                                    if (fileFrom.isPublic) {
+                                        retval.push(fileFrom);
+                                    }
+                                }
+                                next();
+                            });
+                        },
+                        function (error) {
+                            if (error) return callback(error);
+                            waterNext(null, retval);
+                        }
+                    )
+                }
+            },
+            function (retval:File[], next) {
+                retval =
+                    retval
+                        .filter(uniqueFilterFile)
+                        .filter(queryFilterFile(query))
+                        .filter(function (v:File) {
+                            if (v.tags.length < tags.length) {
+                                return false;
+                            }
+                            for (var i = 0; i < tags.length; i++) {
+                                var found = false;
+                                for (var j = 0; j < v.tags.length; j++) {
+                                    if (v.tags[j].toLowerCase() === tags[i].toLowerCase()) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        });
+                callback(null, retval);
+            }
+        ]);
+    }
+
     public getFiles(userId:string|cassandra.types.Uuid, callback:Function) {
         this.file.getFiles(userId, function (error, result) {
             if (error) {
@@ -368,5 +453,23 @@ function queryFilter(query:string) {
     return function (value:string, index:number, array:any[]) {
         if (value == null) return false;
         return rex.test(value.toLowerCase());
+    }
+}
+
+function uniqueFilterFile(value:File, index:number, array:File[]) {
+    for (var i = 0; i < index; i++) {
+        if (array[i].id.toString() === value.id.toString()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function queryFilterFile(query:string) {
+    var rex:RegExp;
+    rex = new RegExp('.*' + query.toLowerCase() + '.*');
+    return function (value:File, index:number, array:File[]) {
+        if (value == null) return false;
+        return rex.test(value.name.toLowerCase());
     }
 }
