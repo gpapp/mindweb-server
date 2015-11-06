@@ -20,7 +20,6 @@
         <item url="file://$PROJECT_DIR$/db/session_schema.js" />
         <item url="file://$PROJECT_DIR$/classes/File.js" />
         <item url="file://$PROJECT_DIR$/classes/ServiceError.js" />
-        <item url="file://$PROJECT_DIR$/classes/Node.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>

@@ -8,7 +8,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Node.js v4.1.1 Core Modules" level="application" />
     <orderEntry type="library" name="server node_modules" level="project" />
   </component>
 </module>

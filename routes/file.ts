@@ -268,6 +268,32 @@ export default class FileRouter extends BaseRouter {
                         if (error) appCallback(error);
                     })
             })
+            .put('/share', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
+                var fileId = request.body.fileId;
+                var isPublic = request.body.isPublic;
+                var viewers = request.body.viewers;
+                var editors = request.body.editors;
+                async.waterfall(
+                    [
+                        function (next) {
+                            fileService.getFile(fileId, next);
+                        },
+                        function (fileInfo, next) {
+                            if (!fileInfo.canRemove(request.user.id)) {
+                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            }
+                            fileService.shareFile(fileId, isPublic, viewers, editors, next);
+                        },
+                        function (fileInfo, next) {
+                            response.json(fileInfo);
+                            response.end();
+                            next();
+                        }
+                    ],
+                    function (error) {
+                        if (error) appCallback(error);
+                    })
+            })
             .post('/create', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
 
                 var name = request.body.name + '.mm';
