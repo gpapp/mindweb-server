@@ -56,6 +56,16 @@ export function applyAction(file:FileContent, action:EditAction, callback:Functi
             break;
         case 'deleteNode':
             //TODO delete eventNode;
+            for (var i=0;i<eventNode.node.length;i++){
+                if (eventNode.node[i].$['ID']===action.payload){
+                    eventNode.node.splice(i,1);
+                    break;
+                }
+            }
+            if (eventNode.node.length==0){
+                delete eventNode.node;
+                delete eventNode.open;
+            }
             break;
         default:
             return callback('Unimplemented event: ' + action.event);
