@@ -390,6 +390,7 @@ export default class FileService {
                 if (file != null && file.tags != null) {
                     tags = tags.filter(exceptFilter(file.tags));
                 }
+                tags.unshift(query);
                 callback(null, tags.filter(uniqueFilter).filter(queryFilter(query)));
             },
         ]);
