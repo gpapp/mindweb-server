@@ -58,59 +58,6 @@ export default class FileRouter extends BaseRouter {
                     response.end();
                 });
             })
-            .get('/publicFileTags/', function (request, response, appCallback) {
-                fileService.getPublicFileTags('', function (error, result) {
-                    if (error) return appCallback(error);
-
-                    response.json(result);
-                    response.end();
-                });
-            })
-            .get('/publicFileTags/:query', function (request, response, appCallback) {
-                var query = request.params.query;
-                fileService.getPublicFileTags(query, function (error, result) {
-                    if (error) return appCallback(error);
-
-                    response.json(result);
-                    response.end();
-                });
-            })
-            .put('/publicFilesForTags', bodyParser.json(), function (request, response, appCallback) {
-                var query:string = request.body.query;
-                var tags:string[] = request.body.tags;
-                fileService.getPublicFilesForTags(query, tags, function (error, result) {
-                    if (error) return appCallback(error);
-
-                    response.json(result);
-                    response.end();
-                });
-            })
-            .get('/file/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                async.waterfall(
-                    [
-                        function (next) {
-                            fileService.getFile(request.params.id, next);
-                        },
-                        function (fileInfo:File, next) {
-                            if (!fileInfo.canView(request.user.id)) {
-                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
-                            }
-                            var lastVersionId = fileInfo.versions[0];
-                            fileService.getFileVersion(lastVersionId, function (error, result) {
-                                if (error) return appCallback(error);
-                                result.file = fileInfo;
-                                next(null, result);
-                            });
-                        },
-                        function (fileContent, next) {
-                            response.json(fileContent);
-                            response.end();
-                            next();
-                        }],
-                    function (error) {
-                        if (error) appCallback(error);
-                    })
-            })
             .put('/tagQuery', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
                 var fileId = request.body.id;
                 var query = request.body.query;

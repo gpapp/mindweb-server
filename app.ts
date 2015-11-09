@@ -15,6 +15,7 @@ import BaseRouter from "./routes/BaseRouter";
 import routes from './routes/index';
 import AuthRoute from './routes/auth';
 import FileRoute from './routes/file';
+import PublicRoute from './routes/public';
 import FriendRoute from './routes/friend';
 
 
@@ -24,6 +25,7 @@ var cassandraOptions:cassandra.client.Options;
 
 var app = express();
 var authRoute;
+var publicRoute;
 var fileRoute;
 var friendRoute;
 
@@ -54,6 +56,9 @@ async.waterfall([
     },
     function (next) {
         authRoute = new AuthRoute(cassandraOptions, options.url, next);
+    },
+    function (next) {
+        publicRoute = new PublicRoute(cassandraOptions, next);
     },
     function (next) {
         fileRoute = new FileRoute(cassandraOptions, next);
@@ -89,6 +94,7 @@ async.waterfall([
 
         app.use('/', routes);
         app.use('/auth', authRoute.getRouter());
+        app.use('/public', publicRoute.getRouter());
         app.use('/file', BaseRouter.ensureAuthenticated, fileRoute.getRouter());
         app.use('/friend', BaseRouter.ensureAuthenticated, friendRoute.getRouter());
 
