@@ -96,6 +96,9 @@ export default class FileService {
                         .filter(uniqueFilterFile)
                         .filter(queryFilterFile(query))
                         .filter(function (v:File) {
+                            if (v.tags==null){
+                                return tags.length==0;
+                            }
                             if (v.tags.length < tags.length) {
                                 return false;
                             }

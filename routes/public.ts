@@ -28,6 +28,7 @@ export default class PublicRouter extends BaseRouter {
                 throw new Error('Cannot connect to database');
             }
             fileService = new FileService(cassandraClient);
+            next();
         });
 
         this.router
@@ -65,8 +66,10 @@ export default class PublicRouter extends BaseRouter {
                             fileService.getFile(request.params.id, next);
                         },
                         function (fileInfo:File, next) {
-                            if (!fileInfo.canView(request.user.id)) {
-                                return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                            if (!fileInfo.isPublic){
+                                if (!fileInfo.canView(request.user.id)) {
+                                    return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
+                                }
                             }
                             var lastVersionId = fileInfo.versions[0];
                             fileService.getFileVersion(lastVersionId, function (error, result) {
