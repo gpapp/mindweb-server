@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="FIX: Adding tags, that start with an already existing tag">
+    <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/services/EditorService.ts" afterPath="$PROJECT_DIR$/services/EditorService.ts" />
     </list>
@@ -34,21 +34,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EditorService.ts" pinned="false" current-in-tab="false">
+      <file leaf-file-name="EditorService.ts" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/services/EditorService.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="58" column="17" selection-start-line="58" selection-start-column="17" selection-end-line="58" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EditorService.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/services/EditorService.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.33333334">
-              <caret line="56" column="46" selection-start-line="56" selection-start-column="46" selection-end-line="56" selection-end-column="46" />
+            <state vertical-scroll-proportion="0.5762712">
+              <caret line="81" column="29" selection-start-line="81" selection-start-column="29" selection-end-line="81" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -310,8 +300,8 @@
         <option value="$PROJECT_DIR$/routes/public.ts" />
         <option value="$PROJECT_DIR$/services/FileService.js" />
         <option value="$PROJECT_DIR$/services/FileService.ts" />
-        <option value="$PROJECT_DIR$/services/EditorService.ts" />
         <option value="$PROJECT_DIR$/services/EditorService.js" />
+        <option value="$PROJECT_DIR$/services/EditorService.ts" />
       </list>
     </option>
   </component>
@@ -859,12 +849,6 @@
       <option name="number" value="Default" />
       <updated>1444032436323</updated>
     </task>
-    <task id="LOCAL-00005" summary="Fixed request referece">
-      <created>1444062615527</created>
-      <option name="number" value="00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1444062615527</updated>
-    </task>
     <task id="LOCAL-00006" summary="Fixed authentication">
       <created>1444064483601</created>
       <option name="number" value="00006" />
@@ -1153,7 +1137,13 @@
       <option name="project" value="LOCAL" />
       <updated>1447085134894</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="FIX: delete node errors fixed">
+      <created>1447107770779</created>
+      <option name="number" value="00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1447107770779</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1262,7 +1252,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
-    <MESSAGE value="Added grunt-cli" />
     <MESSAGE value="Added return values to functions, so it can be handled better on the client-side" />
     <MESSAGE value="Added proper html to markdown import&#10;Added proper markdown to hmtl conversion&#10;Added convert to Freeplane" />
     <MESSAGE value="NEW: Refactored to use Typescript ES5 instead of ES6&#10;NEW: Refactored to allow multiple authentication methods/user&#10;NEW: Fixed and completed mocha testsuite&#10;NEW: Added tables for friends support" />
@@ -1287,7 +1276,8 @@
     <MESSAGE value="REFACTOR: Show public files, allow opening public files for viewing" />
     <MESSAGE value="FIX: null error, when a file is untagged" />
     <MESSAGE value="FIX: Adding tags, that start with an already existing tag" />
-    <option name="LAST_COMMIT_MESSAGE" value="FIX: Adding tags, that start with an already existing tag" />
+    <MESSAGE value="FIX: delete node errors fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="FIX: delete node errors fixed" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1315,7 +1305,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="479" />
+      <option name="time" value="480" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="mocha-javascript-test-runner">
@@ -1325,13 +1315,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test/file/fileTest.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="516" column="8" selection-start-line="516" selection-start-column="8" selection-end-line="516" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dao/User.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1831,18 +1814,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/services/EditorService.ts">
+    <entry file="file://$PROJECT_DIR$/services/EditorService.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="58" column="17" selection-start-line="58" selection-start-column="17" selection-end-line="58" selection-end-column="17" />
+        <state vertical-scroll-proportion="0.5338983">
+          <caret line="74" column="0" selection-start-line="67" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/services/EditorService.js">
+    <entry file="file://$PROJECT_DIR$/classes/MapNode.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33333334">
-          <caret line="56" column="46" selection-start-line="56" selection-start-column="46" selection-end-line="56" selection-end-column="46" />
+        <state vertical-scroll-proportion="0.042372882">
+          <caret line="1" column="21" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/services/EditorService.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5762712">
+          <caret line="81" column="29" selection-start-line="81" selection-start-column="29" selection-end-line="81" selection-end-column="29" />
           <folding />
         </state>
       </provider>

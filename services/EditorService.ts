@@ -2,6 +2,7 @@
 import EditAction from "../classes/EditAction";
 import FileContent from "../classes/FileContent";
 import MapNode from "../classes/MapNode";
+import MapNode from "../classes/MapNode";
 
 export function findNodeById(node:MapNode, nodeId:string) {
     if (node.$['ID'] === nodeId) {
@@ -66,6 +67,26 @@ export function applyAction(file:FileContent, action:EditAction, callback:Functi
                 delete eventNode.node;
                 delete eventNode.open;
             }
+            break;
+        case 'nodeMove':
+            var elementId:string = action.payload['elementId'];
+            var fromIndex:number = action.payload['fromIndex'];
+            var toParentId:string = action.payload['toParentId'];
+            var toIndex:number = action.payload['toIndex'];
+            var element:MapNode = findNodeById(eventNode,elementId);
+            if (!element){
+                return callback('Cannot find element to move: ' + elementId);
+            }
+            var toParent:MapNode = findNodeById(file.rootNode,toParentId);
+            if (!toParent){
+                return callback('Cannot find element to move to: ' + toParentId);
+            }
+            eventNode.node.splice(fromIndex,1);
+            if (eventNode.node.length==0){
+                delete eventNode.node;
+                delete eventNode.open;
+            }
+            toParent.node.splice(toIndex,0,element);
             break;
         default:
             return callback('Unimplemented event: ' + action.event);
