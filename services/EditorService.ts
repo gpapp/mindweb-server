@@ -2,7 +2,6 @@
 import EditAction from "../classes/EditAction";
 import FileContent from "../classes/FileContent";
 import MapNode from "../classes/MapNode";
-import MapNode from "../classes/MapNode";
 
 export function findNodeById(node:MapNode, nodeId:string) {
     if (node.$['ID'] === nodeId) {
