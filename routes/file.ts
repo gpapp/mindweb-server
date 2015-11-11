@@ -11,8 +11,8 @@ import StorageSchema from '../db/storage_schema';
 
 import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
-import * as EditorService from '../services/EditorService';
-import * as ConverterService from '../services/ConverterService'
+import * as EditorService from 'EditorHelper.ts';
+import * as ConverterService from 'ConverterHelper.ts'
 
 var multer = require('multer');
 

@@ -513,7 +513,8 @@ describe('File taging', function () {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result);
-                assert.equal(4, result.length);
+                assert.equal(5, result.length);
+                assert.notEqual(-1, result.indexOf('TAG-TEST'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST1'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST2'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST3'));

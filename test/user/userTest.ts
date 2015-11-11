@@ -3,8 +3,11 @@ import * as mocha from 'mocha';
 import * as chai from 'chai';
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
-
 import * as fs from 'fs';
+
+import File from "../../classes/File";
+import FileVersion from "../../classes/FileVersion";
+import ServiceError from "../../classes/ServiceError";
 import FileService from '../../services/FileService';
 import UserService from '../../services/UserService';
 import FriendService from "../../services/FriendService";
@@ -287,7 +290,8 @@ describe('UserDAO userDelete', function () {
         });
     });
     before(function (next) {
-        fileService.createNewVersion(userId1, "Test fajl 1", false, null, null, ['tag1','tag2'], "Test Content", function (error, result:File) {
+        fileService.createNewVersion(userId1, "Test fajl 1", false, null, null, ['tag1','tag2'], "Test Content",
+            function (error:ServiceError, result:File) {
             next();
         });
     });

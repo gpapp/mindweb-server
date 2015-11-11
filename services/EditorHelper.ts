@@ -2,6 +2,7 @@
 import EditAction from "../classes/EditAction";
 import FileContent from "../classes/FileContent";
 import MapNode from "../classes/MapNode";
+import ServiceError from "../classes/ServiceError";
 
 export function findNodeById(node:MapNode, nodeId:string) {
     if (node.$['ID'] === nodeId) {
@@ -22,10 +23,10 @@ export function findNodeById(node:MapNode, nodeId:string) {
     return null;
 }
 
-export function applyAction(file:FileContent, action:EditAction, callback:Function) {
-    var eventNode = findNodeById(file.rootNode, action.parent);
+export function applyAction(file:FileContent, action:EditAction, callback:(error?:ServiceError)=>void) {
+    var eventNode:MapNode = findNodeById(file.rootNode, action.parent);
     if (!eventNode) {
-        callback('Cannot find root node with id:' + action.parent);
+        callback(new ServiceError(403,'Cannot find root node with id:' + action.parent,'applyAction'));
         return;
     }
     switch (action.event) {
@@ -74,11 +75,11 @@ export function applyAction(file:FileContent, action:EditAction, callback:Functi
             var toIndex:number = action.payload['toIndex'];
             var element:MapNode = findNodeById(eventNode,elementId);
             if (!element){
-                return callback('Cannot find element to move: ' + elementId);
+                return callback(new ServiceError(403,'Cannot find element to move: ' + elementId,'applyAction'));
             }
             var toParent:MapNode = findNodeById(file.rootNode,toParentId);
             if (!toParent){
-                return callback('Cannot find element to move to: ' + toParentId);
+                return callback(new ServiceError(403,'Cannot find element to move to: ' + toParentId,'applyAction'));
             }
             eventNode.node.splice(fromIndex,1);
             if (eventNode.node.length==0){
@@ -88,7 +89,7 @@ export function applyAction(file:FileContent, action:EditAction, callback:Functi
             toParent.node.splice(toIndex,0,element);
             break;
         default:
-            return callback('Unimplemented event: ' + action.event);
+            return callback(new ServiceError(403,'Unimplemented event: ' + action.event,'applyAction'));
     }
     callback();
 }

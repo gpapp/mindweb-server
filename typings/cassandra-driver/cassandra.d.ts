@@ -30,4 +30,10 @@ declare module "cassandra-driver" {
         execute(query:string, options:any, callback:Function);
         execute(query:string, params:any, options:any, callback:Function);
     }
+
+    export class ExecuteResult {
+        rows: any[];
+
+        first():any;
+    }
 }

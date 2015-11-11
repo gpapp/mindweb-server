@@ -6,21 +6,22 @@ import * as cassandra from 'cassandra-driver';
 import File from '../classes/File';
 import ServiceError from '../classes/ServiceError';
 import EditAction from "../classes/EditAction";
+import FileVersion from "../classes/FileVersion";
 
 import StorageSchema from '../db/storage_schema';
 
 import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
-import * as ConverterService from '../services/ConverterService'
+import * as ConverterService from 'ConverterHelper.ts'
 
 
-var fileService;
+var fileService:FileService;
 export default class PublicRouter extends BaseRouter {
 
     constructor(cassandraOptions:cassandra.client.Options, next:Function) {
         super();
 
-        console.log("Setting up DB connection for file service");
+        console.log("Setting up DB connection for public service");
         var cassandraClient = new cassandra.Client(cassandraOptions);
         cassandraClient.connect(function (error, ok) {
             if (error) {
@@ -72,7 +73,7 @@ export default class PublicRouter extends BaseRouter {
                                 }
                             }
                             var lastVersionId = fileInfo.versions[0];
-                            fileService.getFileVersion(lastVersionId, function (error, result) {
+                            fileService.getFileVersion(lastVersionId, function (error:ServiceError, result:FileVersion) {
                                 if (error) return appCallback(error);
                                 result.file = fileInfo;
                                 next(null, result);

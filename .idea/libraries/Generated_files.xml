@@ -52,8 +52,8 @@
       <root url="file://$PROJECT_DIR$/routes/file.js" />
       <root url="file://$PROJECT_DIR$/routes/index.js" />
       <root url="file://$PROJECT_DIR$/routes/auth.js" />
-      <root url="file://$PROJECT_DIR$/services/ConverterService.js" />
-      <root url="file://$PROJECT_DIR$/services/EditorService.js" />
+      <root url="file://$PROJECT_DIR$/services/ConverterHelper.js" />
+      <root url="file://$PROJECT_DIR$/services/EditorHelper.js" />
       <root url="file://$PROJECT_DIR$/dao/FileVersion.js" />
       <root url="file://$PROJECT_DIR$/dao/DAOBase.js" />
       <root url="file://$PROJECT_DIR$/services/UserService.js" />
