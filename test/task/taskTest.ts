@@ -46,46 +46,22 @@ cassandraClient.connect(function (error) {
 });
 
 
-describe('FileHelper node parse', function () {
-    var userId1;
-    var testFile1Raw:Buffer;
-    var testFile2Raw:Buffer;
-    var testFile1:FileContent;
-    var testFile2:FileContent;
-    var fileService = new FileService(cassandraClient);
-    var userService = new UserService(cassandraClient);
+describe('FileHelper node empty map parse', function () {
+    var testFileRaw:Buffer;
+    var testFile:FileContent;
     before(function (next) {
         fs.readFile("test/task/tasktest1.mm", function (err, data:Buffer) {
             if (err) {
                 console.error("Could not create file", err);
             }
-            testFile1Raw = data;
+            testFileRaw = data;
             ConverterHelper.fromFreeplane(data, function (error:ServiceError, result:FileContent) {
                 if (error) {
                     console.error("Could not create file", error);
                     next();
                 }
                 else {
-                    testFile1 = result;
-                    next();
-                }
-            })
-
-        });
-    });
-    before(function (next) {
-        fs.readFile("test/task/tasktest2.mm", function (err, data:Buffer) {
-            if (err) {
-                console.error("Could not create file", err);
-            }
-            testFile2Raw = data;
-            ConverterHelper.fromFreeplane(data, function (error:ServiceError, result:FileContent) {
-                if (error) {
-                    console.error("Could not create file", error);
-                    next();
-                }
-                else {
-                    testFile2 = result;
+                    testFile = result;
                     next();
                 }
             })
@@ -93,24 +69,47 @@ describe('FileHelper node parse', function () {
         });
     });
     it("Parses an empty map for config", function (done) {
-        TaskHelper.parseTasks(testFile1);
-        ConverterHelper.fromFreeplane(testFile1Raw, function (error:ServiceError, result:FileContent) {
+        TaskHelper.parseTasks(testFile);
+        ConverterHelper.fromFreeplane(testFileRaw, function (error:ServiceError, result:FileContent) {
             result.recurseNodes(function (node:MapNode):boolean {
-                var origNode:MapNode = testFile2.findNodeById(node.$['ID']);
+                var origNode:MapNode = testFile.findNodeById(node.$['ID']);
                 assert.equal(origNode.detailMarkdown, node.detailMarkdown);
                 assert.equal(origNode.icon ? origNode.icon.length : -1, node.icon ? node.icon.length : -1);
                 return false;
             });
             done();
         })
+    });
+});
 
+describe('FileHelper node simple parse', function () {
+    var testFileRaw:Buffer;
+    var testFile:FileContent;
+    before(function (next) {
+        fs.readFile("test/task/tasktest2.mm", function (err, data:Buffer) {
+            if (err) {
+                console.error("Could not create file", err);
+            }
+            testFileRaw = data;
+            ConverterHelper.fromFreeplane(data, function (error:ServiceError, result:FileContent) {
+                if (error) {
+                    console.error("Could not create file", error);
+                    next();
+                }
+                else {
+                    testFile = result;
+                    next();
+                }
+            })
+
+        });
     });
     it("Parses an example map for tasks", function (done) {
-        TaskHelper.parseTasks(testFile2);
-        ConverterHelper.fromFreeplane(testFile2Raw, function (error:ServiceError, testFileOrig:FileContent) {
+        TaskHelper.parseTasks(testFile);
+        ConverterHelper.fromFreeplane(testFileRaw, function (error:ServiceError, testFileOrig:FileContent) {
             testFileOrig.recurseNodes(function (node:MapNode):boolean {
                 var nodeId = node.$['ID'];
-                var origNode:MapNode = testFile2.findNodeById(nodeId);
+                var origNode:MapNode = testFile.findNodeById(nodeId);
                 if (['ID_825572237',
                         'ID_805969038', 'ID_1460792926', 'ID_972517531', 'ID_391734240',
                         'ID_1916348085', 'ID_1190980308', 'ID_1900184887', 'ID_759486144',
@@ -123,15 +122,152 @@ describe('FileHelper node parse', function () {
                 return false;
             });
             var testNodeNew:MapNode;
-            var testNodeOrig:MapNode;
-            testNodeNew = testFile2.findNodeById('ID_825572237');
-            testNodeOrig = testFileOrig.findNodeById('ID_825572237');
+            testNodeNew = testFile.findNodeById('ID_825572237');
             assert(testNodeNew.hasIcon('yes'));
-            assert.equal("Create web based mindmap editor for Freeplane with the same functionality", testNodeNew.nodeMarkdown);
-            assert.equal('Someday', testNodeNew.getAttribute('When'));
-            assert.equal('Computer,Hobby', testNodeNew.getAttribute('Where'));
+            assert(testNodeNew.hasIcon('male1'));
+            assert.equal(testNodeNew.nodeMarkdown, "Create web based mindmap editor for Freeplane with the same functionality");
+            assert.equal(testNodeNew.getAttribute('When'), 'Someday');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Computer,Hobby');
+
+            testNodeNew = testFile.findNodeById('ID_805969038');
+            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('male1'));
+            assert.equal(testNodeNew.nodeMarkdown, "Create cloud synchronization feature for Freeplane");
+            assert.equal(testNodeNew.getAttribute('When'), 'Someday');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Computer,Hobby');
+
+            testNodeNew = testFile.findNodeById('ID_1460792926');
+            assert(testNodeNew.hasIcon('yes'));
+            assert.equal(testNodeNew.nodeMarkdown, "Create Freeplane Android client");
+            assert.isNull(testNodeNew.getAttribute('When'));
+            assert.isNull(testNodeNew.getAttribute('Where'));
+
+            testNodeNew = testFile.findNodeById('ID_972517531');
+            assert(testNodeNew.hasIcon('yes'));
+            assert.equal(testNodeNew.nodeMarkdown, "Improve presentation skills");
+            assert.equal(testNodeNew.getAttribute('When'), 'Someday');
+            assert.isNull(testNodeNew.getAttribute('Where'));
+
+            testNodeNew = testFile.findNodeById('ID_391734240');
+            assert(testNodeNew.hasIcon('yes'));
+            assert.equal(testNodeNew.nodeMarkdown, "Learn to write Android applications");
+            assert.equal(testNodeNew.getAttribute('When'), 'Someday');
+            assert.isNull(testNodeNew.getAttribute('Where'));
+
+            testNodeNew = testFile.findNodeById('ID_1916348085');
+            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('male1'));
+            assert(testNodeNew.hasIcon('gohome'));
+            assert.equal(testNodeNew.nodeMarkdown, "Must create GTD presentation");
+            assert.equal(testNodeNew.getAttribute('When'), '03.24');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Home,Computer');
+            assert.equal(testNodeNew.getAttribute('Who'), 'Papp Gergely');
+
+            testNodeNew = testFile.findNodeById('ID_1190980308');
+            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('gohome'));
+            assert.equal(testNodeNew.nodeMarkdown, "Buy dog food");
+            assert.isNull(testNodeNew.getAttribute('When'));
+            assert.equal(testNodeNew.getAttribute('Where'), 'Home,Shop');
+
+            testNodeNew = testFile.findNodeById('ID_1900184887');
+            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('group'));
+            assert.equal(testNodeNew.nodeMarkdown, "Spend hours with HPC");
+            assert.equal(testNodeNew.getAttribute('When'), '4.1');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Meeting');
+            assert.equal(testNodeNew.getAttribute('Who'), 'Dogbert');
+
+            testNodeNew = testFile.findNodeById('ID_759486144');
+            assert(testNodeNew.hasIcon('yes'));
+            assert.equal(testNodeNew.nodeMarkdown, "Talk to boss about a raise");
+            assert.isNull(testNodeNew.getAttribute('Where'));
+            assert.equal(testNodeNew.getAttribute('When'), '4.1');
+            assert.equal(testNodeNew.getAttribute('Who'), 'Pointy Haired Boss');
+
+            testNodeNew = testFile.findNodeById('ID_1236162794');
+            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('Mail'));
+            assert.equal(testNodeNew.nodeMarkdown, "Reply to consultant\'s QA assessment");
+            assert.isNull(testNodeNew.getAttribute('When'));
+            assert.equal(testNodeNew.getAttribute('Where'), 'email');
+            assert.equal(testNodeNew.getAttribute('Who'), 'Dogbert');
+
+            testNodeNew = testFile.findNodeById('ID_1561371231');
+            assert(testNodeNew.hasIcon('male1'));
+            assert(testNodeNew.hasIcon('yes'));
+            assert.equal(testNodeNew.nodeMarkdown, "Archive competed tasks with structures");
+            assert.equal(testNodeNew.getAttribute('When'), 'Later');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Computer,Hobby');
+            assert.equal(testNodeNew.getAttribute('Who'), 'Papp Gergely');
+
             done();
         });
     });
-})
-;
+});
+
+describe('FileHelper node cornercases parse', function () {
+    var testFileRaw:Buffer;
+    var testFile:FileContent;
+    before(function (next) {
+        fs.readFile("test/task/tasktest3.mm", function (err, data:Buffer) {
+            if (err) {
+                console.error("Could not create file", err);
+            }
+            testFileRaw = data;
+            ConverterHelper.fromFreeplane(data, function (error:ServiceError, result:FileContent) {
+                if (error) {
+                    console.error("Could not create file", error);
+                    next();
+                }
+                else {
+                    testFile = result;
+                    next();
+                }
+            })
+
+        });
+    });
+     it("Parses a map with cornercases for tasks", function (done) {
+        TaskHelper.parseTasks(testFile);
+        ConverterHelper.fromFreeplane(testFileRaw, function (error:ServiceError, testFileOrig:FileContent) {
+            testFileOrig.recurseNodes(function (node:MapNode):boolean {
+                var nodeId = node.$['ID'];
+                var origNode:MapNode = testFile.findNodeById(nodeId);
+                if (['ID_1976506990','ID_1221496068','ID_254804742'].indexOf(nodeId) < 0) {
+                    assert.equal(origNode.nodeMarkdown, node.nodeMarkdown, "" + nodeId);
+                    assert.equal(origNode.detailMarkdown, node.detailMarkdown, "" + nodeId);
+                    assert.equal(origNode.icon ? origNode.icon.length : -1, node.icon ? node.icon.length : -1, "" + nodeId);
+                }
+                return false;
+            });
+            var testNodeNew:MapNode;
+            testNodeNew = testFile.findNodeById('ID_1976506990');
+            assert(testNodeNew.hasIcon('yes'));
+            assert.equal(testNodeNew.nodeMarkdown, "Just 2");
+            assert.equal(testNodeNew.getAttribute('Priority'), '1');
+            assert.equal(testNodeNew.getAttribute('When'), '5minutes');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Meeing,Hell');
+            assert.equal(testNodeNew.getAttribute('Who'), 'Dogbert');
+
+            testNodeNew = testFile.findNodeById('ID_1221496068');
+            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('group'));
+            assert.equal(testNodeNew.nodeMarkdown, "1 Just 2");
+            assert.equal(testNodeNew.getAttribute('Priority'), '4');
+            assert.equal(testNodeNew.getAttribute('When'), '5minutes');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Meeting,Hell');
+            assert.equal(testNodeNew.getAttribute('Who'), 'Catbert');
+
+            testNodeNew = testFile.findNodeById('ID_254804742');
+            assert(testNodeNew.hasIcon('yes'));
+            assert.equal(testNodeNew.nodeMarkdown, "This Will be wrong");
+            assert.equal(testNodeNew.getAttribute('Priority'), '1');
+            assert.equal(testNodeNew.getAttribute('When'), 'today');
+            assert.equal(testNodeNew.getAttribute('Where'), 'Context');
+            assert.isNull(testNodeNew.getAttribute('Who'));
+
+            done();
+        });
+    });
+});

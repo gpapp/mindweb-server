@@ -6,6 +6,7 @@ import MapNode from "../classes/MapNode";
 import Task from "../classes/Task";
 
 import * as ConverterHelper from './ConverterHelper';
+import * as FilterHelper from './FilterHelper';
 
 class IconConfigItem {
     constructor(name:string, value:string) {
@@ -47,7 +48,38 @@ class IconConfig {
 
 export function nodeToTask(node:MapNode, config:IconConfig):Task {
     var retval = new Task();
-    retval.description = node.nodeMarkdown;
+    var toParse = node.nodeMarkdown;
+    var taskRe:RegExp = /^\*\s*(.*)\s*?$/g;
+    var contextRe:RegExp = /@([^\s\{\[#]*)/;
+    var prioRe:RegExp = /#([0-9])/;
+    var dueRe:RegExp = /\{\s*(.*)\s*\}/;
+    var whoRe:RegExp = /\[\s*(.*)\s*\]/;
+
+    while (prioRe.test(toParse)) {
+        var prio = prioRe.exec(toParse)[1];
+        retval.priority = parseInt(prio);
+        toParse = toParse.replace(prioRe, ' ');
+    }
+    while (dueRe.test(toParse)) {
+        retval.due = dueRe.exec(toParse)[1];
+        toParse = toParse.replace(dueRe, ' ');
+    }
+    while (contextRe.test(toParse)) {
+        if (!retval.context) {
+            retval.context = [];
+        }
+        retval.context = retval.context.concat(contextRe.exec(toParse)[1].split(',')).filter(FilterHelper.uniqueFilterIgnoreCase);
+        toParse = toParse.replace(contextRe, ' ');
+    }
+    while (whoRe.test(toParse)) {
+        if (!retval.responsible) {
+            retval.responsible = [];
+        }
+        retval.responsible = retval.responsible.concat(whoRe.exec(toParse)[1].split(',')).filter(FilterHelper.uniqueFilterIgnoreCase);
+        toParse = toParse.replace(whoRe, ' ');
+    }
+    toParse = toParse.replace(taskRe, '$1').replace(/\s+/g, ' ').replace(/\s+$/, '');
+    retval.description = toParse;
     return retval;
 }
 
@@ -73,18 +105,32 @@ export function parseTasks(file:FileContent) {
         if (taskRex.test(node.nodeMarkdown)) {
             var newTask = nodeToTask(node, config);
             var taskIcon = config.getIcon("task");
+            node.nodeMarkdown = newTask.description;
             if (!node.hasIcon(taskIcon)) {
                 node.addIcon(taskIcon);
             }
             if (newTask.context) {
+                node.removeAttribute('Where');
                 node.addAttribute("Where", newTask.context.join(','));
                 for (var j in newTask.context) {
                     var curContext:string = newTask.context[j];
                     var curIcon:string = config.getIcon("@" + curContext);
-                    if (!node.hasIcon(curIcon)) {
+                    if (curIcon && !node.hasIcon(curIcon)) {
                         node.addIcon(curIcon);
                     }
                 }
+            }
+            if (newTask.responsible) {
+                node.removeAttribute('Who');
+                node.addAttribute("Who", newTask.responsible.join(','));
+            }
+            if (newTask.due) {
+                node.removeAttribute('When');
+                node.addAttribute("When", newTask.due);
+            }
+            if (newTask.priority) {
+                node.removeAttribute('Priority');
+                node.addAttribute("Priority", newTask.priority);
             }
         }
         return false;

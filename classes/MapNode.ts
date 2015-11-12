@@ -30,13 +30,13 @@ export default class MapNode extends MapNodeCore {
         if (toCopy.icon){
             this.icon=[];
             for(var i=0;i<toCopy.icon.length;i++){
-                this.icon.push(new MapNodeCore(toCopy.icon[i]));
+                this.icon.push(new MapNodeCore(toCopy.icon[i].$));
             }
         }
         if (toCopy.attribute){
             this.attribute=[];
             for(var i=0;i<toCopy.attribute.length;i++){
-                this.attribute.push(new MapNodeCore(toCopy.attribute[i]));
+                this.attribute.push(new MapNodeCore(toCopy.attribute[i].$));
             }
         }
         if (toCopy.hook){
@@ -70,6 +70,19 @@ export default class MapNode extends MapNodeCore {
             this.attribute = []
         }
         this.attribute.push(newAttribute);
+    }
+
+    removeAttribute(name:String):boolean {
+        if (!this.attribute) {
+            return false;
+        }
+        for (var i=0;i<this.attribute.length;i++){
+            if (this.attribute[i].$['NAME']===name){
+                this.attribute.splice(i,1);
+                return true;
+            }
+        }
+        return false;
     }
 
     getAttribute(name:String):string {

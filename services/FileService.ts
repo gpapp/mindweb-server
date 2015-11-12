@@ -8,6 +8,7 @@ import FileVersion from "../classes/FileVersion";
 import FileDAO from '../dao/File';
 import FileVersionDAO from '../dao/FileVersion';
 import * as cassandra from 'cassandra-driver';
+import * as FilterHelper from './FilterHelper';
 
 var Uuid = require('cassandra-driver').types.Uuid;
 
@@ -43,7 +44,7 @@ export default class FileService {
             for (var i = 0; i < result.rows.length; i++) {
                 tags = tags.concat(result.rows[i]['tags']);
             }
-            tags = tags.filter(queryFilter(query));
+            tags = tags.filter(FilterHelper.queryFilter(query));
             var tagCloud = {};
             for (var i = 0; i < tags.length; i++) {
                 tagCloud[tags[i]] = (tagCloud[tags[i]] == undefined ? 1 : tagCloud[tags[i]] + 1);
@@ -94,8 +95,8 @@ export default class FileService {
             function (retval:File[], next) {
                 retval =
                     retval
-                        .filter(uniqueFilterFile)
-                        .filter(queryFilterFile(query))
+                        .filter(FilterHelper.uniqueFilterFile)
+                        .filter(FilterHelper.queryFilterFile(query))
                         .filter(function (v:File) {
                             if (v.tags == null) {
                                 return tags.length == 0;
@@ -335,10 +336,10 @@ export default class FileService {
                 },
                 function (file:File) {
                     if (viewers) {
-                        viewers = viewers.filter(uniqueFilter);
+                        viewers = viewers.filter(FilterHelper.uniqueFilter);
                     }
                     if (editors) {
-                        editors = editors.filter(uniqueFilter);
+                        editors = editors.filter(FilterHelper.uniqueFilter);
                     }
                     if (viewers && editors) {
                         for (var i in viewers) {
@@ -386,10 +387,10 @@ export default class FileService {
             },
             function (tags:string[], file:File) {
                 if (file != null && file.tags != null) {
-                    tags = tags.filter(exceptFilter(file.tags));
+                    tags = tags.filter(FilterHelper.exceptFilter(file.tags));
                 }
                 tags.unshift(query);
-                callback(null, tags.filter(uniqueFilter).filter(queryFilter(query)));
+                callback(null, tags.filter(FilterHelper.uniqueFilter).filter(FilterHelper.queryFilter(query)));
             },
         ]);
     }
@@ -437,41 +438,4 @@ export default class FileService {
 
 function fileFromRow(row) {
     return new File(row['id'], row['name'], row['owner'], row['viewers'], row['editors'], row['public'], row['versions'], row['tags']);
-}
-
-function uniqueFilter(value:string, index:number, array:string[]):boolean {
-    return array.indexOf(value) === index;
-}
-
-function exceptFilter(toFilter:string[]) {
-    return function (value:string, index:number, array:string[]):boolean {
-        return toFilter.indexOf(value) == -1;
-    }
-}
-
-function queryFilter(query:string):(value:string, index:number, array:any[])=>boolean {
-    var rex:RegExp;
-    rex = new RegExp('.*' + query.toLowerCase() + '.*');
-    return function (value:string, index:number, array:any[]):boolean {
-        if (value == null) return false;
-        return rex.test(value.toLowerCase());
-    }
-}
-
-function uniqueFilterFile(value:File, index:number, array:File[]):boolean {
-    for (var i = 0; i < index; i++) {
-        if (array[i].id.toString() === value.id.toString()) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function queryFilterFile(query:string):(value:File, index:number, array:File[])=>boolean {
-    var rex:RegExp;
-    rex = new RegExp('.*' + query.toLowerCase() + '.*');
-    return function (value:File, index:number, array:File[]):boolean {
-        if (value == null) return false;
-        return rex.test(value.name.toLowerCase());
-    }
 }

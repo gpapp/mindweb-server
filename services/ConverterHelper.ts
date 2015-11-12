@@ -57,7 +57,8 @@ function buildMarkdownContent(node:MapNode):void {
         if (!node.hasOwnProperty(attr) || attr === '$') {
             continue;
         }
-        if (attr === 'nodeMarkdown' || attr === 'detailMarkdown' || attr === 'noteMarkdown' || attr === 'richcontent') {
+        if (attr === 'nodeMarkdown' || attr === 'detailMarkdown' || attr === 'noteMarkdown' ||
+            attr === 'open' ||attr === 'detailOpen' ||attr === 'richcontent') {
 
         } else if (Array.isArray(node[attr])) {
             for (var i = 0, len = node[attr].length; i < len; i++) {

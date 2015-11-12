@@ -3,4 +3,5 @@ export default class Task{
     context:string[];
     responsible:string[];
     due:string;
+    priority:number;
 }
