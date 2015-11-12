@@ -18,12 +18,11 @@ export default class FriendRouter extends BaseRouter {
 
         console.log("Setting up DB connection for file service");
         var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error, ok) {
+        cassandraClient.connect(function (error) {
             if (error) {
                 console.error(error);
                 throw new Error('Cannot connect to database');
             }
-            console.log('Connected to database:' + ok);
             friendService = new FriendService(cassandraClient);
             next();
         });

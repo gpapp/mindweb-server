@@ -12,8 +12,6 @@ import StorageSchema from '../db/storage_schema';
 
 import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
-import * as ConverterService from 'ConverterHelper.ts'
-
 
 var fileService:FileService;
 export default class PublicRouter extends BaseRouter {
@@ -23,7 +21,7 @@ export default class PublicRouter extends BaseRouter {
 
         console.log("Setting up DB connection for public service");
         var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error, ok) {
+        cassandraClient.connect(function (error) {
             if (error) {
                 console.error(error);
                 throw new Error('Cannot connect to database');

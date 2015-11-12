@@ -11,8 +11,8 @@ import StorageSchema from '../db/storage_schema';
 
 import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
-import * as EditorService from 'EditorHelper.ts';
-import * as ConverterService from 'ConverterHelper.ts'
+import * as EditorHelper from '../services/EditorHelper';
+import * as ConverterHelper from '../services/ConverterHelper'
 
 var multer = require('multer');
 
@@ -31,12 +31,12 @@ export default class FileRouter extends BaseRouter {
 
         console.log("Setting up DB connection for file service");
         var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error, ok) {
+        cassandraClient.connect(function (error) {
             if (error) {
                 console.error(error);
                 throw new Error('Cannot connect to database');
             }
-            console.log('Connected to database:' + ok);
+            console.log('Building storage schema');
             StorageSchema(cassandraClient, next);
             fileService = new FileService(cassandraClient);
         });
@@ -285,7 +285,7 @@ export default class FileRouter extends BaseRouter {
                             async.each(
                                 actions,
                                 function (action:EditAction, callback) {
-                                    EditorService.applyAction(fileContent, action, callback);
+                                    EditorHelper.applyAction(fileContent, action, callback);
                                 },
                                 function (error) {
                                     if (error) {
@@ -325,7 +325,7 @@ export default class FileRouter extends BaseRouter {
                             });
                         },
                         function (fileInfo, fileVersion, next) {
-                            ConverterService.toFreeplane(fileVersion.content, function (error, result) {
+                            ConverterHelper.toFreeplane(fileVersion.content, function (error, result) {
                                 if (error) return appCallback(error);
 
                                 response.write(result);
@@ -341,7 +341,7 @@ export default class FileRouter extends BaseRouter {
                     request.files,
                     function (file, index, next) {
                         console.log("Received request to store file: " + file.originalname + " length:" + file.size);
-                        ConverterService.fromFreeplane(file.buffer, function (error, rawmap) {
+                        ConverterHelper.fromFreeplane(file.buffer, function (error, rawmap) {
                             if (error) return appCallback(error);
 
                             fileService.createNewVersion(request.user.id, file.originalname, false, null, null, null, JSON.stringify(rawmap), next);

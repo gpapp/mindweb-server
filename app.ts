@@ -17,7 +17,7 @@ import AuthRoute from './routes/auth';
 import FileRoute from './routes/file';
 import PublicRoute from './routes/public';
 import FriendRoute from './routes/friend';
-
+import TaskRoute from './routes/task';
 
 var options;
 var cassandraOptions:cassandra.client.Options;
@@ -28,6 +28,7 @@ var authRoute;
 var publicRoute;
 var fileRoute;
 var friendRoute;
+var taskRoute;
 
 async.waterfall([
     function (next) {
@@ -67,6 +68,10 @@ async.waterfall([
         friendRoute = new FriendRoute(cassandraOptions, next);
     },
     function (next) {
+        taskRoute = new TaskRoute(cassandraOptions, next);
+    },
+    function (next) {
+        console.log("All set up, starting web server");
         // view engine setup
         app.set('views', path.join(__dirname, 'views'));
         app.set('view engine', 'jade');
@@ -97,6 +102,7 @@ async.waterfall([
         app.use('/public', publicRoute.getRouter());
         app.use('/file', BaseRouter.ensureAuthenticated, fileRoute.getRouter());
         app.use('/friend', BaseRouter.ensureAuthenticated, friendRoute.getRouter());
+        app.use('/task', BaseRouter.ensureAuthenticated, taskRoute.getRouter());
 
         // catch 404 and forward to error handler
         app.use(function (req, res, next) {

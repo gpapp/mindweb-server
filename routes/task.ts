@@ -23,7 +23,7 @@ export default class PublicRouter extends BaseRouter {
 
         console.log("Setting up DB connection for task service");
         var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error, ok) {
+        cassandraClient.connect(function (error) {
             if (error) {
                 console.error(error);
                 throw new Error('Cannot connect to database');

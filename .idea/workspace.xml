@@ -2,31 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/sort-arrow-sprite.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/coverage.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/base.css" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/classes/File.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/classes/Friend.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/classes/Persona.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/classes/ServiceError.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/classes/User.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/classes/index.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/dao/DAOBase.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/dao/File.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/dao/FileVersion.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/dao/Friend.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/dao/User.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/dao/UserPersona.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/dao/index.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/index.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/prettify.css" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/services/FileService.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/services/FriendService.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/services/UserService.js.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov-report/services/index.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/coverage/lcov.info" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.ts" afterPath="$PROJECT_DIR$/app.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/auth.ts" afterPath="$PROJECT_DIR$/routes/auth.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/file.ts" afterPath="$PROJECT_DIR$/routes/file.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/friend.ts" afterPath="$PROJECT_DIR$/routes/friend.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/public.ts" afterPath="$PROJECT_DIR$/routes/public.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/task.ts" afterPath="$PROJECT_DIR$/routes/task.ts" />
     </list>
     <ignored path="server.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -47,91 +29,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="TaskHelper.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/services/TaskHelper.ts">
+      <file leaf-file-name="app.ts" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="70" column="128" selection-start-line="70" selection-start-column="128" selection-end-line="70" selection-end-column="128" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MapNode.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/classes/MapNode.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="57" column="4" selection-start-line="57" selection-start-column="4" selection-end-line="57" selection-end-column="4" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="taskTest.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/task/taskTest.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="232" column="30" selection-start-line="232" selection-start-column="30" selection-end-line="232" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ConverterHelper.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/services/ConverterHelper.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="60" column="26" selection-start-line="60" selection-start-column="26" selection-end-line="60" selection-end-column="26" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fileTest.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/file/fileTest.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="528" column="30" selection-start-line="528" selection-start-column="30" selection-end-line="528" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="gruntfile.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/gruntfile.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.38395905">
-              <caret line="15" column="8" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="FileService.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/services/FileService.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="11" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="FilterHelper.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/services/FilterHelper.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.25862068">
+              <caret line="73" column="55" selection-start-line="73" selection-start-column="55" selection-end-line="73" selection-end-column="55" />
               <folding />
             </state>
           </provider>
@@ -145,34 +47,27 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/tsconfig.json" />
         <option value="$PROJECT_DIR$/gruntfile.js" />
         <option value="$PROJECT_DIR$/classes/Friend.ts" />
         <option value="$PROJECT_DIR$/test/friend/friendTest.js" />
         <option value="$PROJECT_DIR$/test/friend/friendTest.ts" />
         <option value="$PROJECT_DIR$/routes/BaseRoute.ts" />
-        <option value="$PROJECT_DIR$/routes/auth.ts" />
         <option value="$PROJECT_DIR$/typings/showdown-htmlescape/showdown-htmlescape.d.ts" />
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/services/ConverterService.js" />
         <option value="$PROJECT_DIR$/typings/tsd.d.ts" />
         <option value="$PROJECT_DIR$/typings/markdown/markdown.d.ts" />
         <option value="$PROJECT_DIR$/services/ConverterService.ts" />
-        <option value="$PROJECT_DIR$/routes/friend.ts" />
         <option value="$PROJECT_DIR$/routes/BaseRouter.ts" />
         <option value="$PROJECT_DIR$/classes/File.ts" />
         <option value="$PROJECT_DIR$/db/storage_schema.ts" />
-        <option value="$PROJECT_DIR$/routes/file.ts" />
-        <option value="$PROJECT_DIR$/app.ts" />
         <option value="$PROJECT_DIR$/services/FileService.js" />
         <option value="$PROJECT_DIR$/services/EditorService.js" />
         <option value="$PROJECT_DIR$/services/TaskService.ts" />
         <option value="$PROJECT_DIR$/classes/GTDConfig.ts" />
         <option value="$PROJECT_DIR$/classes/MapIcon.ts" />
         <option value="$PROJECT_DIR$/classes/MapNodeCore.ts" />
-        <option value="$PROJECT_DIR$/routes/task.ts" />
-        <option value="$PROJECT_DIR$/routes/public.ts" />
         <option value="$PROJECT_DIR$/classes/FileVersion.ts" />
         <option value="$PROJECT_DIR$/test/user/userTest.ts" />
         <option value="$PROJECT_DIR$/services/EditorService.ts" />
@@ -196,6 +91,13 @@
         <option value="$PROJECT_DIR$/services/ConverterHelper.ts" />
         <option value="$PROJECT_DIR$/test/file/fileTest.js" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/routes/file.js" />
+        <option value="$PROJECT_DIR$/routes/public.ts" />
+        <option value="$PROJECT_DIR$/routes/auth.ts" />
+        <option value="$PROJECT_DIR$/routes/file.ts" />
+        <option value="$PROJECT_DIR$/routes/friend.ts" />
+        <option value="$PROJECT_DIR$/routes/task.ts" />
+        <option value="$PROJECT_DIR$/app.ts" />
       </list>
     </option>
   </component>
@@ -278,6 +180,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="routes" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -576,7 +492,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Mocha.All tests">
+  <component name="RunManager" selected="Node.js.bin/www">
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <method />
     </configuration>
@@ -1068,9 +984,9 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32615384" sideWeight="0.5152416" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23271376" sideWeight="0.53196347" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32599118" sideWeight="0.49722" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.4832714" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3222958" sideWeight="0.48475838" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2025417" sideWeight="0.46803653" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3289183" sideWeight="0.4832714" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3222958" sideWeight="0.48475838" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2025417" sideWeight="0.46803653" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Grunt " active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24861" sideWeight="0.52729887" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32671082" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2494043" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1154,20 +1070,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33208954">
           <caret line="457" column="12" selection-start-line="457" selection-start-column="12" selection-end-line="457" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/friend.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.1940298">
-          <caret line="73" column="54" selection-start-line="73" selection-start-column="54" selection-end-line="73" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/file.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="125" column="32" selection-start-line="125" selection-start-column="32" selection-end-line="125" selection-end-column="32" />
         </state>
       </provider>
     </entry>
@@ -1257,30 +1159,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/routes/BaseRouter.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.06833713">
-          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/file.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21412301">
-          <caret line="26" column="44" selection-start-line="26" selection-start-column="44" selection-end-line="26" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.23917995">
-          <caret line="46" column="29" selection-start-line="46" selection-start-column="29" selection-end-line="46" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/classes/File.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.8974943">
@@ -1301,30 +1179,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.7467057">
           <caret line="34" column="3" selection-start-line="34" selection-start-column="3" selection-end-line="34" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/public.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5270864">
-          <caret line="75" column="113" selection-start-line="75" selection-start-column="113" selection-end-line="75" selection-end-column="113" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/task.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.0658858">
-          <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/auth.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.021961933">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1483,25 +1337,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/services/FilterHelper.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/services/TaskHelper.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="70" column="128" selection-start-line="70" selection-start-column="128" selection-end-line="70" selection-end-column="128" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/task/taskTest.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="0.094827585">
           <caret line="232" column="30" selection-start-line="232" selection-start-column="30" selection-end-line="232" selection-end-column="30" />
           <folding />
         </state>
@@ -1509,7 +1347,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/services/ConverterHelper.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="0.67241377">
           <caret line="60" column="26" selection-start-line="60" selection-start-column="26" selection-end-line="60" selection-end-column="26" />
           <folding />
         </state>
@@ -1517,15 +1355,130 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test/file/fileTest.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="528" column="30" selection-start-line="528" selection-start-column="30" selection-end-line="528" selection-end-column="30" />
-          <folding />
+        <state vertical-scroll-proportion="0.7155172">
+          <caret line="526" column="30" selection-start-line="526" selection-start-column="30" selection-end-line="526" selection-end-column="30" />
+          <folding>
+            <marker date="1447326643585" expanded="true" signature="360:536" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="404:429" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="689:803" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="710:741" placeholder="[...]" />
+            <marker date="1447326643585" expanded="true" signature="764:801" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="847:959" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="864:915" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1006:20001" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1221:1798" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1355:1790" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1380:1630" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1467:1614" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1648:1780" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1828:2405" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1962:2397" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="1987:2237" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="2074:2221" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="2255:2387" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="2465:3606" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="2606:3598" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="2624:3525" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="3548:3588" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="3688:4897" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="3828:4889" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="3846:4816" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="4839:4879" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="4991:6208" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="5139:6200" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="5157:6127" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="6150:6190" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="6252:7311" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="6347:7303" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="6365:7230" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="7253:7293" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="7363:8643" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="7450:8635" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="7468:8562" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="7673:8546" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="8585:8625" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="8697:9835" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="8785:9827" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="8803:9754" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="9777:9817" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="9890:11127" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="9983:11119" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="10001:11046" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="11069:11109" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="11192:12429" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="11285:12421" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="11303:12348" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="12371:12411" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="12486:13725" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="12579:13717" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="12597:13644" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="13667:13707" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="13790:15031" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="13882:15023" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="13900:14950" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="14973:15013" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="15100:16382" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="15233:16374" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="15251:16301" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="16324:16364" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="16476:17528" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="16563:17520" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="16581:17447" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="17470:17510" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="17626:18675" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="17714:18667" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="17732:18594" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="18617:18657" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="18739:19113" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="18854:19105" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="18872:19032" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19055:19095" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19157:19503" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19227:19495" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19245:19422" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19445:19485" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19532:19750" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19591:19742" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19616:19660" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19779:19997" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19838:19989" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="19863:19907" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="20040:27099" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="20249:20523" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="20388:20515" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="20553:20831" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="20690:20823" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="20861:21189" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21048:21181" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21243:21667" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21320:21659" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21338:21586" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21609:21649" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21723:22218" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21800:22210" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="21818:22137" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22160:22200" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22277:22772" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22354:22764" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22372:22691" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22714:22754" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22847:23326" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22931:23318" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="22949:23245" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="23268:23308" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="23398:23614" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="23485:23614" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="23503:23614" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="24809:24981" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="24809:25054" placeholder="{...}" />
+            <marker date="1447326643585" expanded="true" signature="24809:25062" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/gruntfile.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="-0.6448276">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
@@ -1533,8 +1486,88 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.38395905">
+        <state vertical-scroll-proportion="0.38793105">
           <caret line="15" column="8" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/file.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3586207">
+          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/services/TaskHelper.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.28965518">
+          <caret line="70" column="128" selection-start-line="70" selection-start-column="128" selection-end-line="70" selection-end-column="128" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/services/FilterHelper.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1724138">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/auth.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.67241377">
+          <caret line="71" column="48" selection-start-line="71" selection-start-column="48" selection-end-line="71" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/BaseRouter.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.10344828">
+          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/file.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.67241377">
+          <caret line="38" column="48" selection-start-line="38" selection-start-column="48" selection-end-line="38" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/task.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.43965518">
+          <caret line="17" column="29" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/public.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.112069">
+          <caret line="43" column="47" selection-start-line="43" selection-start-column="47" selection-end-line="43" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/friend.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6465517">
+          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.25862068">
+          <caret line="73" column="55" selection-start-line="73" selection-start-column="55" selection-end-line="73" selection-end-column="55" />
           <folding />
         </state>
       </provider>
