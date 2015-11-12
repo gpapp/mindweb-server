@@ -8,13 +8,13 @@ import ServiceError from '../classes/ServiceError';
 import EditAction from "../classes/EditAction";
 import FileVersion from "../classes/FileVersion";
 
-import StorageSchema from '../db/storage_schema';
-
 import BaseRouter from './BaseRouter';
+import StorageSchema from '../db/storage_schema';
 import FileService from '../services/FileService';
+import PublicRouter from "./";
 
-var fileService:FileService;
 export default class PublicRouter extends BaseRouter {
+    private fileService:FileService;
 
     constructor(cassandraOptions:cassandra.client.Options, next:Function) {
         super();
@@ -32,7 +32,7 @@ export default class PublicRouter extends BaseRouter {
 
         this.router
             .get('/fileTags/', function (request, response, appCallback) {
-                fileService.getPublicFileTags('', function (error, result) {
+                this.fileService.getPublicFileTags('', function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -41,7 +41,7 @@ export default class PublicRouter extends BaseRouter {
             })
             .get('/fileTags/:query', function (request, response, appCallback) {
                 var query = request.params.query;
-                fileService.getPublicFileTags(query, function (error, result) {
+                this.fileService.getPublicFileTags(query, function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -51,7 +51,7 @@ export default class PublicRouter extends BaseRouter {
             .put('/filesForTags', bodyParser.json(), function (request, response, appCallback) {
                 var query:string = request.body.query;
                 var tags:string[] = request.body.tags;
-                fileService.getPublicFilesForTags(query, tags, function (error, result) {
+                this.fileService.getPublicFilesForTags(query, tags, function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -59,25 +59,27 @@ export default class PublicRouter extends BaseRouter {
                 });
             })
             .get('/file/:id', function (request, response, appCallback) {
+                var fileId = request.params.id;
+                var parent:PublicRouter = this;
                 async.waterfall(
                     [
-                        function (next) {
-                            fileService.getFile(request.params.id, next);
+                        function (next:(error:ServiceError, file?:File)=>void) {
+                            parent.fileService.getFile(fileId, next);
                         },
-                        function (fileInfo:File, next) {
-                            if (!fileInfo.isPublic){
-                                if (!fileInfo.canView(request.user.id)) {
+                        function (file:File, next) {
+                            if (!file.isPublic) {
+                                if (!file.canView(request.user.id)) {
                                     return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                                 }
                             }
-                            var lastVersionId = fileInfo.versions[0];
-                            fileService.getFileVersion(lastVersionId, function (error:ServiceError, result:FileVersion) {
+                            var lastVersionId = file.versions[0];
+                            parent.fileService.getFileVersion(lastVersionId, function (error:ServiceError, result:FileVersion) {
                                 if (error) return appCallback(error);
-                                result.file = fileInfo;
+                                result.file = file;
                                 next(null, result);
                             });
                         },
-                        function (fileContent, next) {
+                        function (fileContent:FileVersion, next) {
                             response.json(fileContent);
                             response.end();
                             next();

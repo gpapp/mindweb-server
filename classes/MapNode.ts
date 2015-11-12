@@ -11,7 +11,8 @@ export default class MapNode extends MapNodeCore {
     public icon:MapNodeCore[];
     public attribute:MapNodeCore[];
     //Copy as-is
-    public hook:Object[];
+    private hook:Object[];
+    private richcontent;
 
     constructor(toCopy:any) {
         super(toCopy.$);
@@ -20,6 +21,7 @@ export default class MapNode extends MapNodeCore {
         this.detailMarkdown = toCopy.detailMarkdown;
         this.detailOpen = toCopy.detailOpen;
         this.noteMarkdown = toCopy.noteMarkdown;
+        this.richcontent = toCopy.richcontent;
 
         if (toCopy.node){
             this.node=[];

@@ -14,17 +14,19 @@ const toMarkdown = require('to-markdown');
 export function fromFreeplane(buffer:Buffer, callback:(error:ServiceError, result?:FileContent)=>void) {
     // XML to JSON
     xml2js.parseString(buffer.toString(), {trim: true}, function (err, result:{map:{$:any,node:MapNode[]}}) {
-        if (err) {
-            return callback(err);
+            if (err) {
+                return callback(err);
+            }
+
+            var retval:FileContent = new FileContent({$: result.map.$, rootNode: result.map.node[0]});
+            try {
+                buildMarkdownContent(retval.rootNode);
+            } catch (e) {
+                return callback(e);
+            }
+            callback(null, retval);
         }
-        var retval:FileContent = new FileContent(result.map);
-        try {
-            buildMarkdownContent(retval.rootNode);
-        } catch (e) {
-            return callback(e);
-        }
-        callback(null, retval);
-    })
+    )
 }
 
 function buildMarkdownContent(node:MapNode):void {
@@ -58,7 +60,7 @@ function buildMarkdownContent(node:MapNode):void {
             continue;
         }
         if (attr === 'nodeMarkdown' || attr === 'detailMarkdown' || attr === 'noteMarkdown' ||
-            attr === 'open' ||attr === 'detailOpen' ||attr === 'richcontent') {
+            attr === 'open' || attr === 'detailOpen' || attr === 'richcontent') {
 
         } else if (Array.isArray(node[attr])) {
             for (var i = 0, len = node[attr].length; i < len; i++) {
@@ -75,7 +77,7 @@ function buildMarkdownContentForNode(node:MapNode):string {
     return toMarkdown(buildObject, {gfm: true});
 }
 
-export function toFreeplane(content:FileContent, callback:(error:ServiceError,result:string)=>void) {
+export function toFreeplane(content:FileContent, callback:(error:ServiceError, result:string)=>void) {
     content['node'] = [content.rootNode];
 
     removeMarkdown([content.rootNode]);

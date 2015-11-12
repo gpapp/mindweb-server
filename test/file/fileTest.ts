@@ -501,7 +501,8 @@ describe('File taging', function () {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result);
-                assert.equal(0, result.length);
+                assert.equal(1, result.length);
+                assert.equal(0, result.indexOf('TAG-TEST1'));
                 done();
             } catch (e) {
                 done(e);
@@ -514,7 +515,7 @@ describe('File taging', function () {
                 assert.isNull(error);
                 assert.isNotNull(result);
                 assert.equal(5, result.length);
-                assert.notEqual(-1, result.indexOf('TAG-TEST'));
+                assert.equal(0, result.indexOf('TAG-TEST'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST1'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST2'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST3'));
@@ -530,7 +531,8 @@ describe('File taging', function () {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result);
-                assert.equal(2, result.length);
+                assert.equal(3, result.length);
+                assert.equal(0, result.indexOf('TAG-TEST'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST3'));
                 assert.notEqual(-1, result.indexOf('TAG-TEST4'));
                 done();

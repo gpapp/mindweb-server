@@ -12,7 +12,7 @@ export default class FileContent {
         }
         if (data instanceof Object) {
             this.$ = data.$;
-            this.rootNode = new MapNode(data.node[0]);
+            this.rootNode = new MapNode(data.rootNode);
         } else {
             var parsed = JSON.parse(data);
             this.$ = parsed.$;
