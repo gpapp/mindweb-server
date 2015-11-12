@@ -12,3 +12,5 @@ node_modules
 # Unignore handmade typescript definitions
 !/typings/**/*.d.ts
 .tscache
+.idea
+coverage
