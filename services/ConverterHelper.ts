@@ -80,7 +80,7 @@ function buildMarkdownContentForNode(node:MapNode):string {
 export function toFreeplane(content:FileContent, callback:(error:ServiceError, result:string)=>void) {
     content['node'] = [content.rootNode];
 
-    removeMarkdown([content.rootNode]);
+    removeMarkdown(content['node']);
     delete content.rootNode;
 
 
@@ -91,37 +91,48 @@ export function toFreeplane(content:FileContent, callback:(error:ServiceError, r
 function removeMarkdown(nodes:MapNode[]):void {
     for (var i in nodes) {
         var curnode:MapNode = nodes[i];
-        if (curnode.nodeMarkdown) {
-            var richnode = {$: {TYPE: 'NODE'}, html: markdownToHTML(curnode.nodeMarkdown)};
-            if (!curnode['richcontent']) {
-                curnode['richcontent'] = [richnode];
-            } else {
+        var content:string = markdown.parse(curnode.nodeMarkdown);
+        if (content!="<p>"+curnode.nodeMarkdown+"</p>") {
+            var richContent = markdownToHTML(content);
+            if (richContent) {
+                var richnode = {
+                    $: {TYPE: 'NODE'},
+                    html: richContent
+                };
+                if (!curnode['richcontent']) {
+                    curnode['richcontent'] = [];
+                }
                 curnode['richcontent'].push(richnode);
             }
-            curnode.$['TEXT'] = curnode.nodeMarkdown;
-            delete curnode.nodeMarkdown;
         }
+        curnode.$['TEXT'] = curnode.nodeMarkdown;
+        delete curnode.nodeMarkdown;
         if (curnode.detailMarkdown) {
             var richnode = {
                 $: {TYPE: 'DETAILS'},
-                html: markdownToHTML(curnode.detailMarkdown)
+                html: markdownToHTML(markdown.parse(curnode.detailMarkdown))
             };
-            if (!curnode['richcontent']) {
-                curnode['richcontent'] = [richnode];
-            } else {
+            if (richnode) {
+                if (!curnode['richcontent']) {
+                    curnode['richcontent'] = [];
+                }
                 curnode['richcontent'].push(richnode);
+
+                richnode.$['HIDDEN'] = !curnode.detailOpen;
             }
-            richnode.$['HIDDEN'] = !curnode.detailOpen;
             delete curnode.detailOpen;
             delete curnode.detailMarkdown;
         }
         if (curnode.noteMarkdown) {
-            var richnode = {$: {TYPE: 'NOTE'}, html: markdownToHTML(curnode.noteMarkdown)};
+            var richnode = {
+                $: {TYPE: 'NOTE'},
+                html: markdownToHTML(markdown.parse(curnode.noteMarkdown))
+            };
             if (!curnode['richcontent']) {
-                curnode['richcontent'] = [richnode];
-            } else {
-                curnode['richcontent'].push(richnode);
+                curnode['richcontent'] = [];
             }
+            curnode['richcontent'].push(richnode);
+
             delete curnode.noteMarkdown;
         }
         if (curnode.open != null) {
@@ -136,18 +147,16 @@ function removeMarkdown(nodes:MapNode[]):void {
 
 
 function markdownToHTML(content:string):Object {
-    var retval = markdown.parse(content);
-    xml2js.parseString('<body>' + retval + '</body>', {trim: true, async: false}, function (error, result) {
+    xml2js.parseString('<body>' + content + '</body>', {trim: true, async: false}, function (error, result) {
         if (error) {
             console.error(content);
-            console.error(retval);
             console.error(error);
         }
-        retval = result;
+        content = result;
     });
     return {
         head: {},
-        body: retval['body']
+        body: content['body']
     };
 }
 
