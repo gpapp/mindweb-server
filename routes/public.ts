@@ -11,7 +11,6 @@ import FileVersion from "../classes/FileVersion";
 import BaseRouter from './BaseRouter';
 import StorageSchema from '../db/storage_schema';
 import FileService from '../services/FileService';
-import PublicRouter from "./";
 
 export default class PublicRouter extends BaseRouter {
     private fileService:FileService;
@@ -26,7 +25,7 @@ export default class PublicRouter extends BaseRouter {
                 console.error(error);
                 throw new Error('Cannot connect to database');
             }
-            fileService = new FileService(cassandraClient);
+            this.fileService = new FileService(cassandraClient);
             next();
         });
 
@@ -81,9 +80,9 @@ export default class PublicRouter extends BaseRouter {
                             });
                         },
                         function (fileContent:FileVersion, next) {
-                            fileContent['owned'] = fileContent.file.canRemove(userId);
-                            fileContent['editable'] = fileContent.file.canEdit(userId);
-                            fileContent['viewable'] = fileContent.file.canView(userId);
+                            fileContent.file['owned'] = fileContent.file.canRemove(userId);
+                            fileContent.file['editable'] = fileContent.file.canEdit(userId);
+                            fileContent.file['viewable'] = fileContent.file.canView(userId);
                             response.json(fileContent);
                             response.end();
                             next();

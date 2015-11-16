@@ -37,13 +37,14 @@ export default class TaskRouter extends BaseRouter {
             .get('/parse/:id', function (request, response, appCallback) {
                 var fileId = request.params.id;
                 var parent:TaskRouter = this;
+                var userId = request.user?request.user.id:null;
                 async.waterfall(
                     [
                         function (next:(error:ServiceError, result?:File)=>void) {
                             parent.fileService.getFile(fileId, next);
                         },
                         function (file, next:(error:ServiceError, file?:File, fileVersionId?:cassandra.types.Uuid, fileContent?:FileContent)=>void) {
-                            if (!file.canView(request.user.id)) {
+                            if (!file.canView(userId)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             var fileVersionId:cassandra.types.Uuid = file.versions[0];
@@ -60,6 +61,9 @@ export default class TaskRouter extends BaseRouter {
                                     parent.fileService.getFileVersion(fileVersionId, function (error:ServiceError, result?:FileVersion) {
                                         if (error) return appCallback(error);
                                         result.file = file;
+                                        result.file['owned'] = file.canRemove(userId);
+                                        result.file['editable'] = file.canEdit(userId);
+                                        result.file['viewable'] = file.canView(userId);
                                         response.json(result);
                                         response.end();
                                     });
