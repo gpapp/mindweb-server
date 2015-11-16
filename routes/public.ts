@@ -61,6 +61,7 @@ export default class PublicRouter extends BaseRouter {
             .get('/file/:id', function (request, response, appCallback) {
                 var fileId = request.params.id;
                 var parent:PublicRouter = this;
+                var userId = request.user?request.user.id:null;
                 async.waterfall(
                     [
                         function (next:(error:ServiceError, file?:File)=>void) {
@@ -68,7 +69,7 @@ export default class PublicRouter extends BaseRouter {
                         },
                         function (file:File, next) {
                             if (!file.isPublic) {
-                                if (!file.canView(request.user.id)) {
+                                if (!file.canView(userId)) {
                                     return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                                 }
                             }
@@ -80,6 +81,9 @@ export default class PublicRouter extends BaseRouter {
                             });
                         },
                         function (fileContent:FileVersion, next) {
+                            fileContent['owned'] = fileContent.file.canRemove(userId);
+                            fileContent['editable'] = fileContent.file.canEdit(userId);
+                            fileContent['viewable'] = fileContent.file.canView(userId);
                             response.json(fileContent);
                             response.end();
                             next();

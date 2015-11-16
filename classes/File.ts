@@ -30,8 +30,11 @@ export default class File {
     }
 
     public canView(userId:string|cassandra.types.Uuid):boolean {
-        var strUserId = userId.toString();
         if (this.isPublic) return true;
+        if(!userId) {
+            return false;
+        }
+        var strUserId = userId.toString();
         if (this.canEdit(userId)) {
             return true;
         }
@@ -48,6 +51,9 @@ export default class File {
     }
 
     public canEdit(userId:string|cassandra.types.Uuid):boolean {
+        if(!userId) {
+            return false;
+        }
         var strUserId = userId.toString();
         if (this.canRemove(userId)) {
             return true;
@@ -64,6 +70,9 @@ export default class File {
     }
 
     public canRemove(userId:string|cassandra.types.Uuid):boolean {
+        if(!userId) {
+            return false;
+        }
         return this.owner.toString() === userId.toString();
     }
 

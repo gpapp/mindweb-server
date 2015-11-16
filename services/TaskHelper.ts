@@ -22,24 +22,33 @@ class IconConfig {
 
     constructor() {
         this.config = [];
-        this.config.push(new IconConfigItem('project', 'list'));
-        this.config.push(new IconConfigItem('task', 'yes'));
-        this.config.push(new IconConfigItem('nextAction', 'bookmark'));
-        this.config.push(new IconConfigItem('done', 'button_ok'));
+        this.config.push(new IconConfigItem('Project', 'list'));
+        this.config.push(new IconConfigItem('Task', 'yes'));
+        this.config.push(new IconConfigItem('NextAction', 'bookmark'));
+        this.config.push(new IconConfigItem('Done', 'button_ok'));
     }
 
     addIcon(icon:IconConfigItem) {
         this.config = this.config.filter(function (v:IconConfigItem):boolean {
-            return v.name != icon.name;
+            return v.name.toLocaleLowerCase() != icon.name.toLocaleLowerCase();
         });
         this.config.push(icon);
     }
 
-    getIcon(name:string):string {
+    configToIcon(name:string):string {
         for (var i in this.config) {
             var cur:IconConfigItem = this.config[i];
-            if (cur.name === name) {
+            if (cur.name.toLowerCase() === name.toLowerCase()) {
                 return cur.value;
+            }
+        }
+        return null;
+    }
+    iconToConfig(value:string):string {
+        for (var i in this.config) {
+            var cur:IconConfigItem = this.config[i];
+            if (cur.value.toLowerCase() === value.toLowerCase()) {
+                return cur.name;
             }
         }
         return null;
@@ -55,6 +64,29 @@ export function nodeToTask(node:MapNode, config:IconConfig):Task {
     var dueRe:RegExp = /\{\s*(.*)\s*\}/;
     var whoRe:RegExp = /\[\s*(.*)\s*\]/;
 
+
+    // Initialize with properties already on the node
+    if (node.getAttribute('Where')) {
+        retval.context = node.getAttribute('Where').split(',').filter(FilterHelper.uniqueFilterIgnoreCase);
+    }
+    if (node.getAttribute('Who')) {
+        retval.responsible = node.getAttribute('Who').split(',').filter(FilterHelper.uniqueFilterIgnoreCase);
+    }
+    if (node.getAttribute('When')) {
+        retval.due = node.getAttribute('When');
+    }
+    // Resolve icons to contexts
+    for (var i in node.icon) {
+        var result = config.iconToConfig(node.icon[i].$['BUILTIN']);
+        if(contextRe.test(result)){
+            if (!retval.context) {
+                retval.context = [];
+            }
+            retval.context = retval.context.concat(contextRe.exec(result)[1].split(',')).filter(FilterHelper.uniqueFilterIgnoreCase);
+        }
+    }
+
+    // Parse string for tokens
     while (prioRe.test(toParse)) {
         var prio = prioRe.exec(toParse)[1];
         retval.priority = parseInt(prio);
@@ -102,9 +134,9 @@ export function parseTasks(file:FileContent) {
 
     var config:IconConfig = parseConfig(file);
     file.recurseNodes(function (node:MapNode):boolean {
-        if (taskRex.test(node.nodeMarkdown)) {
+        if (taskRex.test(node.nodeMarkdown) || node.hasIcon(config.configToIcon('Task'))) {
             var newTask = nodeToTask(node, config);
-            var taskIcon = config.getIcon("task");
+            var taskIcon = config.configToIcon("task");
             node.nodeMarkdown = newTask.description;
             if (!node.hasIcon(taskIcon)) {
                 node.addIcon(taskIcon);
@@ -114,7 +146,7 @@ export function parseTasks(file:FileContent) {
                 node.addAttribute("Where", newTask.context.join(','));
                 for (var j in newTask.context) {
                     var curContext:string = newTask.context[j];
-                    var curIcon:string = config.getIcon("@" + curContext);
+                    var curIcon:string = config.configToIcon("@" + curContext);
                     if (curIcon && !node.hasIcon(curIcon)) {
                         node.addIcon(curIcon);
                     }

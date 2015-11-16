@@ -228,13 +228,13 @@ describe('FileHelper node cornercases parse', function () {
 
         });
     });
-     it("Parses a map with cornercases for tasks", function (done) {
+     it("Parses a map with corner cases for tasks", function (done) {
         TaskHelper.parseTasks(testFile);
         ConverterHelper.fromFreeplane(testFileRaw, function (error:ServiceError, testFileOrig:FileContent) {
             testFileOrig.recurseNodes(function (node:MapNode):boolean {
                 var nodeId = node.$['ID'];
                 var origNode:MapNode = testFile.findNodeById(nodeId);
-                if (['ID_1976506990','ID_1221496068','ID_254804742'].indexOf(nodeId) < 0) {
+                if (['ID_1976506990','ID_1221496068','ID_254804742','ID_875861497','ID_1546734060','ID_1166725155','ID_17589400'].indexOf(nodeId) < 0) {
                     assert.equal(origNode.nodeMarkdown, node.nodeMarkdown, "" + nodeId);
                     assert.equal(origNode.detailMarkdown, node.detailMarkdown, "" + nodeId);
                     assert.equal(origNode.icon ? origNode.icon.length : -1, node.icon ? node.icon.length : -1, "" + nodeId);
@@ -243,7 +243,7 @@ describe('FileHelper node cornercases parse', function () {
             });
             var testNodeNew:MapNode;
             testNodeNew = testFile.findNodeById('ID_1976506990');
-            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('ksmiletris'));
             assert.equal(testNodeNew.nodeMarkdown, "Just 2");
             assert.equal(testNodeNew.getAttribute('Priority'), '1');
             assert.equal(testNodeNew.getAttribute('When'), '5minutes');
@@ -251,7 +251,7 @@ describe('FileHelper node cornercases parse', function () {
             assert.equal(testNodeNew.getAttribute('Who'), 'Dogbert');
 
             testNodeNew = testFile.findNodeById('ID_1221496068');
-            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('ksmiletris'));
             assert(testNodeNew.hasIcon('group'));
             assert.equal(testNodeNew.nodeMarkdown, "1 Just 2");
             assert.equal(testNodeNew.getAttribute('Priority'), '4');
@@ -260,13 +260,44 @@ describe('FileHelper node cornercases parse', function () {
             assert.equal(testNodeNew.getAttribute('Who'), 'Catbert');
 
             testNodeNew = testFile.findNodeById('ID_254804742');
-            assert(testNodeNew.hasIcon('yes'));
+            assert(testNodeNew.hasIcon('ksmiletris'));
             assert.equal(testNodeNew.nodeMarkdown, "This Will be wrong");
             assert.equal(testNodeNew.getAttribute('Priority'), '1');
             assert.equal(testNodeNew.getAttribute('When'), 'today');
             assert.equal(testNodeNew.getAttribute('Where'), 'Context');
             assert.isNull(testNodeNew.getAttribute('Who'));
 
+            testNodeNew = testFile.findNodeById('ID_875861497');
+            assert(testNodeNew.hasIcon('ksmiletris'));
+            assert.equal(testNodeNew.nodeMarkdown, "This should be converted to task with two contexts");
+            assert.isNull(testNodeNew.getAttribute('Priority'));
+            assert.isNull(testNodeNew.getAttribute('When'));
+            assert.equal(testNodeNew.getAttribute('Where'), 'Meeting,Home');
+            assert.isNull(testNodeNew.getAttribute('Who'));
+
+            testNodeNew = testFile.findNodeById('ID_1546734060');
+            assert(testNodeNew.hasIcon('ksmiletris'));
+            assert.equal(testNodeNew.nodeMarkdown, "This should be converted to task with one context");
+            assert.isNull(testNodeNew.getAttribute('Priority'));
+            assert.isNull(testNodeNew.getAttribute('When'));
+            assert.equal(testNodeNew.getAttribute('Where'), 'Home');
+            assert.isNull(testNodeNew.getAttribute('Who'));
+
+            testNodeNew = testFile.findNodeById('ID_1166725155');
+            assert(testNodeNew.hasIcon('ksmiletris'));
+            assert.equal(testNodeNew.nodeMarkdown, "This should be converted to task with three contexts");
+            assert.isNull(testNodeNew.getAttribute('Priority'));
+            assert.isNull(testNodeNew.getAttribute('When'));
+            assert.equal(testNodeNew.getAttribute('Where'), 'LongFocus,Meeting,Home');
+            assert.isNull(testNodeNew.getAttribute('Who'));
+
+            testNodeNew = testFile.findNodeById('ID_17589400');
+            assert(testNodeNew.hasIcon('ksmiletris'));
+            assert.equal(testNodeNew.nodeMarkdown, "This should overwrite the already set date");
+            assert.isNull(testNodeNew.getAttribute('Priority'));
+            assert.equal(testNodeNew.getAttribute('When'),'now');
+            assert.isNull(testNodeNew.getAttribute('Where'));
+            assert.isNull(testNodeNew.getAttribute('Who'));
             done();
         });
     });
