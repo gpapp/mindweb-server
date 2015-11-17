@@ -8,6 +8,13 @@ import Task from "../classes/Task";
 import * as ConverterHelper from './ConverterHelper';
 import * as FilterHelper from './FilterHelper';
 
+const taskRe:RegExp = /^\*\s*(.*)\s*?$/g;
+const contextRe:RegExp = /@([^\s\{\[#]*)/;
+const prioRe:RegExp = /#([0-9])/;
+const dueRe:RegExp = /\{\s*(.*)\s*}/;
+const whoRe:RegExp = /\[\s*(.*)\s*]/;
+const iconRe:RegExp = /^Icon: (.*)/;
+
 class IconConfigItem {
     constructor(name:string, value:string) {
         this.name = name;
@@ -36,7 +43,7 @@ class IconConfig {
     }
 
     configToIcon(name:string):string {
-        for (var i in this.config) {
+        for (var i = 0; i < this.config.length; i++) {
             var cur:IconConfigItem = this.config[i];
             if (cur.name.toLowerCase() === name.toLowerCase()) {
                 return cur.value;
@@ -46,7 +53,7 @@ class IconConfig {
     }
 
     iconToConfig(value:string):string {
-        for (var i in this.config) {
+        for (var i = 0; i < this.config.length; i++) {
             var cur:IconConfigItem = this.config[i];
             if (cur.value.toLowerCase() === value.toLowerCase()) {
                 return cur.name;
@@ -59,12 +66,6 @@ class IconConfig {
 export function nodeToTask(node:MapNode, config:IconConfig):Task {
     var retval = new Task();
     var toParse = node.nodeMarkdown;
-    var taskRe:RegExp = /^\*\s*(.*)\s*?$/g;
-    var contextRe:RegExp = /@([^\s\{\[#]*)/;
-    var prioRe:RegExp = /#([0-9])/;
-    var dueRe:RegExp = /\{\s*(.*)\s*\}/;
-    var whoRe:RegExp = /\[\s*(.*)\s*\]/;
-
 
     // Initialize with properties already on the node
     if (node.getAttribute('Where')) {
@@ -77,20 +78,21 @@ export function nodeToTask(node:MapNode, config:IconConfig):Task {
         retval.due = node.getAttribute('When');
     }
     // Resolve icons to contexts
-    for (var i in node.icon) {
-        var result = config.iconToConfig(node.icon[i].$['BUILTIN']);
-        if (contextRe.test(result)) {
-            if (!retval.context) {
-                retval.context = [];
+    if (node.icon) {
+        for (let i = 0; i < node.icon.length; i++) {
+            var result = config.iconToConfig(node.icon[i].$['BUILTIN']);
+            if (contextRe.test(result)) {
+                if (!retval.context) {
+                    retval.context = [];
+                }
+                retval.context = retval.context.concat(contextRe.exec(result)[1].split(',')).filter(FilterHelper.uniqueFilterIgnoreCase);
             }
-            retval.context = retval.context.concat(contextRe.exec(result)[1].split(',')).filter(FilterHelper.uniqueFilterIgnoreCase);
         }
     }
 
     // Parse string for tokens
     while (prioRe.test(toParse)) {
-        var prio = prioRe.exec(toParse)[1];
-        retval.priority = parseInt(prio);
+        retval.priority = parseInt(prioRe.exec(toParse)[1]);
         toParse = toParse.replace(prioRe, ' ');
     }
     while (dueRe.test(toParse)) {
@@ -118,12 +120,10 @@ export function nodeToTask(node:MapNode, config:IconConfig):Task {
 
 export function parseConfig(file:FileContent):IconConfig {
     var config:IconConfig = new IconConfig();
-    var iconRex:RegExp = /^Icon: (.*)/;
-    var config:IconConfig = new IconConfig();
     file.recurseNodes(function (node:MapNode):boolean {
-        if (iconRex.test(node.nodeMarkdown)) {
-            var res:RegExpExecArray = iconRex.exec(node.nodeMarkdown);
-            if (node.icon){
+        if (iconRe.test(node.nodeMarkdown)) {
+            var res:RegExpExecArray = iconRe.exec(node.nodeMarkdown);
+            if (node.icon) {
                 config.addIcon(new IconConfigItem(res[1], node.icon[0].$['BUILTIN']));
             }
         }
@@ -147,7 +147,7 @@ export function parseTasks(file:FileContent) {
             if (newTask.context) {
                 node.removeAttribute('Where');
                 node.addAttribute("Where", newTask.context.join(','));
-                for (var j in newTask.context) {
+                for (let j = 0; j < newTask.context.length; j++) {
                     var curContext:string = newTask.context[j];
                     var curIcon:string = config.configToIcon("@" + curContext);
                     if (curIcon && !node.hasIcon(curIcon)) {

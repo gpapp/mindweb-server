@@ -23,26 +23,26 @@ export default class MapNode extends MapNodeCore {
         this.noteMarkdown = toCopy.noteMarkdown;
         this.richcontent = toCopy.richcontent;
 
-        if (toCopy.node){
-            this.node=[];
-            for(var i=0;i<toCopy.node.length;i++){
+        if (toCopy.node) {
+            this.node = [];
+            for (var i = 0; i < toCopy.node.length; i++) {
                 this.node.push(new MapNode(toCopy.node[i]));
             }
         }
-        if (toCopy.icon){
-            this.icon=[];
-            for(var i=0;i<toCopy.icon.length;i++){
+        if (toCopy.icon) {
+            this.icon = [];
+            for (var i = 0; i < toCopy.icon.length; i++) {
                 this.icon.push(new MapNodeCore(toCopy.icon[i].$));
             }
         }
-        if (toCopy.attribute){
-            this.attribute=[];
-            for(var i=0;i<toCopy.attribute.length;i++){
+        if (toCopy.attribute) {
+            this.attribute = [];
+            for (var i = 0; i < toCopy.attribute.length; i++) {
                 this.attribute.push(new MapNodeCore(toCopy.attribute[i].$));
             }
         }
-        if (toCopy.hook){
-            this.hook=toCopy.hook;
+        if (toCopy.hook) {
+            this.hook = toCopy.hook;
         }
     }
 
@@ -50,14 +50,15 @@ export default class MapNode extends MapNodeCore {
         if (!this.icon) {
             return false;
         }
-        for (var i in this.icon){
+        for (var i = 0; i < this.icon.length; i++) {
             var curItem:MapNodeCore = this.icon[i];
-            if (curItem.$['BUILTIN']===name){
+            if (curItem.$['BUILTIN'] === name) {
                 return true;
             }
         }
         return false;
     }
+
     addIcon(name:string):void {
         var newIcon = new MapNodeCore({"BUILTIN": name});
         if (!this.icon) {
@@ -78,9 +79,9 @@ export default class MapNode extends MapNodeCore {
         if (!this.attribute) {
             return false;
         }
-        for (var i=0;i<this.attribute.length;i++){
-            if (this.attribute[i].$['NAME']===name){
-                this.attribute.splice(i,1);
+        for (var i = 0; i < this.attribute.length; i++) {
+            if (this.attribute[i].$['NAME'] === name) {
+                this.attribute.splice(i, 1);
                 return true;
             }
         }
@@ -91,8 +92,8 @@ export default class MapNode extends MapNodeCore {
         if (!this.attribute) {
             return null;
         }
-        for (var i=0;i<this.attribute.length;i++){
-            if (this.attribute[i].$['NAME']===name){
+        for (var i = 0; i < this.attribute.length; i++) {
+            if (this.attribute[i].$['NAME'] === name) {
                 return this.attribute[i].$['VALUE'];
             }
         }
