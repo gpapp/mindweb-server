@@ -44,6 +44,7 @@ class IconConfig {
         }
         return null;
     }
+
     iconToConfig(value:string):string {
         for (var i in this.config) {
             var cur:IconConfigItem = this.config[i];
@@ -78,7 +79,7 @@ export function nodeToTask(node:MapNode, config:IconConfig):Task {
     // Resolve icons to contexts
     for (var i in node.icon) {
         var result = config.iconToConfig(node.icon[i].$['BUILTIN']);
-        if(contextRe.test(result)){
+        if (contextRe.test(result)) {
             if (!retval.context) {
                 retval.context = [];
             }
@@ -122,7 +123,9 @@ export function parseConfig(file:FileContent):IconConfig {
     file.recurseNodes(function (node:MapNode):boolean {
         if (iconRex.test(node.nodeMarkdown)) {
             var res:RegExpExecArray = iconRex.exec(node.nodeMarkdown);
-            config.addIcon(new IconConfigItem(res[1], node.icon[0].$['BUILTIN']));
+            if (node.icon){
+                config.addIcon(new IconConfigItem(res[1], node.icon[0].$['BUILTIN']));
+            }
         }
         return false;
     });

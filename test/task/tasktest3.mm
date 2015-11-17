@@ -95,6 +95,21 @@
 <icon BUILTIN="ksmiletris"/>
 <attribute NAME="When" VALUE="Yesterday"/>
 </node>
+<node TEXT="Icon: task" ID="ID_1119715494" CREATED="1447752978397" MODIFIED="1447752998209"><richcontent TYPE="DETAILS">
+
+<html>
+  <head>
+    
+  </head>
+  <body>
+    <p>
+      Should be ignored
+    </p>
+  </body>
+</html>
+
+</richcontent>
+</node>
 </node>
 </node>
 </map>
