@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="Fixed return data after parsing tasks">
+    <list default="true" id="eb6f6588-d895-4271-8b1b-f76d30d40b97" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/public.ts" afterPath="$PROJECT_DIR$/routes/public.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/file.ts" afterPath="$PROJECT_DIR$/routes/file.ts" />
     </list>
     <ignored path="server.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -24,20 +24,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="file.ts" pinned="false" current-in-tab="false">
+      <file leaf-file-name="file.ts" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/routes/file.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="252" column="53" selection-start-line="252" selection-start-column="53" selection-end-line="252" selection-end-column="53" />
+            <state vertical-scroll-proportion="0.49579832">
+              <caret line="338" column="26" selection-start-line="338" selection-start-column="26" selection-end-line="338" selection-end-column="26" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="public.ts" pinned="false" current-in-tab="true">
+      <file leaf-file-name="public.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/public.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.9579832">
+            <state vertical-scroll-proportion="0.0">
               <caret line="95" column="0" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
               <folding />
             </state>
@@ -141,7 +141,6 @@
         <option value="$PROJECT_DIR$/routes/auth.ts" />
         <option value="$PROJECT_DIR$/routes/friend.ts" />
         <option value="$PROJECT_DIR$/app.ts" />
-        <option value="$PROJECT_DIR$/routes/file.ts" />
         <option value="$PROJECT_DIR$/classes/FileContent.ts" />
         <option value="$PROJECT_DIR$/test/file/fileTest.ts" />
         <option value="$PROJECT_DIR$/classes/MapNode.ts" />
@@ -153,6 +152,7 @@
         <option value="$PROJECT_DIR$/test/task/taskTest.ts" />
         <option value="$PROJECT_DIR$/routes/task.ts" />
         <option value="$PROJECT_DIR$/routes/public.ts" />
+        <option value="$PROJECT_DIR$/routes/file.ts" />
       </list>
     </option>
   </component>
@@ -813,12 +813,6 @@
       <option name="number" value="Default" />
       <updated>1444032436323</updated>
     </task>
-    <task id="LOCAL-00015" summary="Fixed startup issues">
-      <created>1444076972942</created>
-      <option name="number" value="00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1444076972942</updated>
-    </task>
     <task id="LOCAL-00016" summary="Added base url to config">
       <created>1444077347016</created>
       <option name="number" value="00016" />
@@ -1107,7 +1101,13 @@
       <option name="project" value="LOCAL" />
       <updated>1447685232163</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="Revert from fileservice to var">
+      <created>1447740902496</created>
+      <option name="number" value="00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1447740902496</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1216,7 +1216,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
-    <MESSAGE value="Fixed failing tests&#10;Added proper chai assertions" />
     <MESSAGE value="Fixed rights management and storage schema" />
     <MESSAGE value="Fixed testsuite dependencies" />
     <MESSAGE value="Added friend tagging service" />
@@ -1241,7 +1240,8 @@
     <MESSAGE value="Fixed export problems MindWeb/issues#8" />
     <MESSAGE value="Fixed task parsing, to allow reparse, and use context icons as well" />
     <MESSAGE value="Fixed return data after parsing tasks" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed return data after parsing tasks" />
+    <MESSAGE value="Revert from fileservice to var" />
+    <option name="LAST_COMMIT_MESSAGE" value="Revert from fileservice to var" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1605,6 +1605,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/routes/public.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="95" column="0" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/routes/friend.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1615,16 +1623,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/file.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="252" column="53" selection-start-line="252" selection-start-column="53" selection-end-line="252" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/public.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9579832">
-          <caret line="95" column="0" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.49579832">
+          <caret line="338" column="26" selection-start-line="338" selection-start-column="26" selection-end-line="338" selection-end-column="26" />
           <folding />
         </state>
       </provider>
