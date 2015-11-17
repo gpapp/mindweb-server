@@ -9,6 +9,7 @@ import FileDAO from '../dao/File';
 import FileVersionDAO from '../dao/FileVersion';
 import * as cassandra from 'cassandra-driver';
 import * as FilterHelper from './FilterHelper';
+import FileContent from "../classes/FileContent";
 
 var Uuid = require('cassandra-driver').types.Uuid;
 
@@ -223,7 +224,7 @@ export default class FileService {
             if (error) return callback(error, null);
             var row = result.first();
             if (row != null) {
-                callback(null, new FileVersion(row.version, JSON.parse(row.content)));
+                callback(null, new FileVersion(row.version, new FileContent(row.content)));
             }
             else {
                 callback(new ServiceError(403, 'No such file version by that id', 'getFileVersion'));

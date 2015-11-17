@@ -68,11 +68,23 @@ export default class MapNode extends MapNodeCore {
     }
 
     addAttribute(name:string, value:string):void {
-        var newAttribute = new MapNodeCore({"NAME": name, "VALUE": value});
         if (!this.attribute) {
             this.attribute = []
         }
-        this.attribute.push(newAttribute);
+        var done = false;
+        for (var i = 0; i < this.attribute.length; i++) {
+            if (this.attribute[i].$['NAME'] === name) {
+                if (!done) {
+                    this.attribute[i].$['VALUE'] = value;
+                    done = true;
+                } else {
+                    this.attribute.splice(i,1);
+                }
+            }
+        }
+        if (!done) {
+            this.attribute.push(new MapNodeCore({"NAME": name, "VALUE": value}));
+        }
     }
 
     removeAttribute(name:String):boolean {

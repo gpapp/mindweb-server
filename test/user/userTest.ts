@@ -6,6 +6,7 @@ import * as cassandra from 'cassandra-driver';
 import * as fs from 'fs';
 
 import File from "../../classes/File";
+import Friend from "../../classes/Friend";
 import FileVersion from "../../classes/FileVersion";
 import ServiceError from "../../classes/ServiceError";
 import FileService from '../../services/FileService';
@@ -266,7 +267,7 @@ describe('UserDAO Persona test', function () {
         });
     });
     after(function (done) {
-        userService.deleteUser(userId2, function (error, result) {
+        userService.deleteUser(userId2, function (error:ServiceError) {
             done();
         });
     });
@@ -296,20 +297,19 @@ describe('UserDAO userDelete', function () {
         });
     });
     before(function (next) {
-        friendService.createFriend(userId1, "Alias User  1-2", userId2, [], function (error, result:File) {
+        friendService.createFriend(userId1, "Alias User  1-2", userId2, [], function (error:ServiceError, result:Friend) {
             next();
         });
     });
     before(function (next) {
-        friendService.createFriend(userId2, "Alias User  2-1", userId1, [], function (error, result:File) {
+        friendService.createFriend(userId2, "Alias User  2-1", userId1, [], function (error:ServiceError, result:Friend) {
             next();
         });
     });
     it("removes a user from the database", function (done) {
-        userService.deleteUser(userId1, function (error, result) {
+        userService.deleteUser(userId1, function (error:ServiceError) {
             try {
                 assert.isUndefined(error, "Cannot remove test user: " + error);
-                assert.isUndefined(result, "Should not have result");
                 done();
             }
             catch (e) {
@@ -318,7 +318,7 @@ describe('UserDAO userDelete', function () {
         });
     });
     after(function (next) {
-        userService.deleteUser(userId2, function (error, result) {
+        userService.deleteUser(userId2, function (error:ServiceError) {
             next();
         });
     });

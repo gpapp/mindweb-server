@@ -16,7 +16,7 @@ export default class FileContent {
         } else {
             var parsed = JSON.parse(data);
             this.$ = parsed.$;
-            this.rootNode = parsed.rootNode;
+            this.rootNode = new MapNode(parsed.rootNode);
         }
     }
 
