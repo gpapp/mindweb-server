@@ -16,8 +16,8 @@ import FileService from "../services/FileService";
 import * as ConverterHelper from "../services/ConverterHelper";
 import * as TaskHelper from "../services/TaskHelper";
 
+var fileService:FileService;
 export default class TaskRouter extends BaseRouter {
-    private fileService:FileService;
 
     constructor(cassandraOptions:cassandra.client.Options, next:Function) {
         super();
@@ -29,26 +29,25 @@ export default class TaskRouter extends BaseRouter {
                 console.error(error);
                 throw new Error('Cannot connect to database');
             }
-            this.fileService = new FileService(cassandraClient);
+            fileService = new FileService(cassandraClient);
             next();
         });
 
         this.router
             .get('/parse/:id', function (request, response, appCallback) {
                 var fileId = request.params.id;
-                var parent:TaskRouter = this;
                 var userId = request.user?request.user.id:null;
                 async.waterfall(
                     [
                         function (next:(error:ServiceError, result?:File)=>void) {
-                            parent.fileService.getFile(fileId, next);
+                            fileService.getFile(fileId, next);
                         },
                         function (file, next:(error:ServiceError, file?:File, fileVersionId?:cassandra.types.Uuid, fileContent?:FileContent)=>void) {
                             if (!file.canView(userId)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             var fileVersionId:cassandra.types.Uuid = file.versions[0];
-                            parent.fileService.getFileVersion(fileVersionId, function (error:ServiceError, fileVersion?:FileVersion) {
+                            fileService.getFileVersion(fileVersionId, function (error:ServiceError, fileVersion?:FileVersion) {
                                 if (error) return appCallback(error);
                                 var fileContent:FileContent = new FileContent(fileVersion.content);
                                 next(null, file, fileVersionId, fileContent);
@@ -56,9 +55,9 @@ export default class TaskRouter extends BaseRouter {
                         },
                         function (file:File, fileVersionId:cassandra.types.Uuid, fileContent:FileContent, next) {
                             TaskHelper.parseTasks(fileContent);
-                            parent.fileService.updateFileVersion(fileVersionId, JSON.stringify(fileContent),
+                            fileService.updateFileVersion(fileVersionId, JSON.stringify(fileContent),
                                 function (error:ServiceError, result:string) {
-                                    parent.fileService.getFileVersion(fileVersionId, function (error:ServiceError, result?:FileVersion) {
+                                    fileService.getFileVersion(fileVersionId, function (error:ServiceError, result?:FileVersion) {
                                         if (error) return appCallback(error);
                                         result.file = file;
                                         result.file['owned'] = file.canRemove(userId);
