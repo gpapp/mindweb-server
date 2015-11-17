@@ -165,7 +165,7 @@ export function parseTasks(file:FileContent) {
             }
             if (newTask.priority) {
                 node.removeAttribute('Priority');
-                node.addAttribute("Priority", newTask.priority);
+                node.addAttribute("Priority", newTask.priority.toString());
             }
         }
         return false;
