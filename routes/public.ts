@@ -12,8 +12,8 @@ import BaseRouter from './BaseRouter';
 import StorageSchema from '../db/storage_schema';
 import FileService from '../services/FileService';
 
+var fileService:FileService;
 export default class PublicRouter extends BaseRouter {
-    private fileService:FileService;
 
     constructor(cassandraOptions:cassandra.client.Options, next:Function) {
         super();
@@ -25,13 +25,13 @@ export default class PublicRouter extends BaseRouter {
                 console.error(error);
                 throw new Error('Cannot connect to database');
             }
-            this.fileService = new FileService(cassandraClient);
+            fileService = new FileService(cassandraClient);
             next();
         });
 
         this.router
             .get('/fileTags/', function (request, response, appCallback) {
-                this.fileService.getPublicFileTags('', function (error, result) {
+                fileService.getPublicFileTags('', function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -40,7 +40,7 @@ export default class PublicRouter extends BaseRouter {
             })
             .get('/fileTags/:query', function (request, response, appCallback) {
                 var query = request.params.query;
-                this.fileService.getPublicFileTags(query, function (error, result) {
+                fileService.getPublicFileTags(query, function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -50,7 +50,7 @@ export default class PublicRouter extends BaseRouter {
             .put('/filesForTags', bodyParser.json(), function (request, response, appCallback) {
                 var query:string = request.body.query;
                 var tags:string[] = request.body.tags;
-                this.fileService.getPublicFilesForTags(query, tags, function (error, result) {
+                fileService.getPublicFilesForTags(query, tags, function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -59,12 +59,11 @@ export default class PublicRouter extends BaseRouter {
             })
             .get('/file/:id', function (request, response, appCallback) {
                 var fileId = request.params.id;
-                var parent:PublicRouter = this;
                 var userId = request.user?request.user.id:null;
                 async.waterfall(
                     [
                         function (next:(error:ServiceError, file?:File)=>void) {
-                            parent.fileService.getFile(fileId, next);
+                            fileService.getFile(fileId, next);
                         },
                         function (file:File, next) {
                             if (!file.isPublic) {
@@ -73,7 +72,7 @@ export default class PublicRouter extends BaseRouter {
                                 }
                             }
                             var lastVersionId = file.versions[0];
-                            parent.fileService.getFileVersion(lastVersionId, function (error:ServiceError, result:FileVersion) {
+                            fileService.getFileVersion(lastVersionId, function (error:ServiceError, result:FileVersion) {
                                 if (error) return appCallback(error);
                                 result.file = file;
                                 next(null, result);
