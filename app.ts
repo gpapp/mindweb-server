@@ -10,6 +10,7 @@ import * as cassandra from 'cassandra-driver';
 
 import ServiceError from './classes/ServiceError';
 import DbKeyspace from './db/keyspace'
+import CoreSchema from './db/core_schema';
 
 import BaseRouter from "./routes/BaseRouter";
 import routes from './routes/index';
@@ -24,11 +25,12 @@ var cassandraOptions:cassandra.client.Options;
 
 
 var app = express();
-var authRoute;
-var publicRoute;
-var fileRoute;
-var friendRoute;
-var taskRoute;
+var cassandraClient:cassandra.Client;
+var authRoute:AuthRoute;
+var publicRoute:PublicRoute;
+var fileRoute:FileRoute;
+var friendRoute:FriendRoute;
+var taskRoute:TaskRoute;
 
 async.waterfall([
     function (next) {
@@ -53,22 +55,35 @@ async.waterfall([
     },
     function (next) {
         cassandraOptions.keyspace = "mindweb";
+        cassandraClient = new cassandra.Client(cassandraOptions);
+        cassandraClient.connect(function (error) {
+            if (error) {
+                console.error(error);
+                throw new Error('Cannot connect to database');
+            }
+            console.log('Building session schema');
+            CoreSchema(cassandraClient, next);
+        });
+    },
+    function (next) {
+        authRoute = new AuthRoute(cassandraClient, options.url);
         next();
     },
     function (next) {
-        authRoute = new AuthRoute(cassandraOptions, options.url, next);
+        publicRoute = new PublicRoute(cassandraClient);
+        next();
     },
     function (next) {
-        publicRoute = new PublicRoute(cassandraOptions, next);
+        fileRoute = new FileRoute(cassandraClient);
+        next();
     },
     function (next) {
-        fileRoute = new FileRoute(cassandraOptions, next);
+        friendRoute = new FriendRoute(cassandraClient);
+        next();
     },
     function (next) {
-        friendRoute = new FriendRoute(cassandraOptions, next);
-    },
-    function (next) {
-        taskRoute = new TaskRoute(cassandraOptions, next);
+        taskRoute = new TaskRoute(cassandraClient);
+        next();
     },
     function (next) {
         console.log("All set up, starting web server");

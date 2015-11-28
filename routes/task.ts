@@ -9,8 +9,6 @@ import FileContent from "../classes/FileContent";
 import Task from "../classes/Task";
 import ServiceError from '../classes/ServiceError';
 
-import StorageSchema from '../db/storage_schema';
-
 import BaseRouter from './BaseRouter';
 import FileService from "../services/FileService";
 import * as ConverterHelper from "../services/ConverterHelper";
@@ -19,24 +17,16 @@ import * as TaskHelper from "../services/TaskHelper";
 var fileService:FileService;
 export default class TaskRouter extends BaseRouter {
 
-    constructor(cassandraOptions:cassandra.client.Options, next:Function) {
+    constructor(cassandraClient:cassandra.Client) {
         super();
 
         console.log("Setting up DB connection for task service");
-        var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error) {
-            if (error) {
-                console.error(error);
-                throw new Error('Cannot connect to database');
-            }
-            fileService = new FileService(cassandraClient);
-            next();
-        });
+        fileService = new FileService(cassandraClient);
 
         this.router
             .get('/parse/:id', function (request, response, appCallback) {
                 var fileId = request.params.id;
-                var userId = request.user?request.user.id:null;
+                var userId = request.user ? request.user.id : null;
                 async.waterfall(
                     [
                         function (next:(error:ServiceError, result?:File)=>void) {
@@ -71,8 +61,7 @@ export default class TaskRouter extends BaseRouter {
                     function (error) {
                         if (error) appCallback(error);
                     });
-            })
-        ;
+            });
     }
 }
 

@@ -13,19 +13,11 @@ import FriendService from '../services/FriendService';
 var friendService:FriendService;
 export default class FriendRouter extends BaseRouter {
 
-    constructor(cassandraOptions:cassandra.client.Options, next:Function) {
+    constructor(cassandraClient:cassandra.Client) {
         super();
 
         console.log("Setting up DB connection for file service");
-        var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error) {
-            if (error) {
-                console.error(error);
-                throw new Error('Cannot connect to database');
-            }
-            friendService = new FriendService(cassandraClient);
-            next();
-        });
+        friendService = new FriendService(cassandraClient);
 
         this.router
             .get('/list', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
@@ -170,7 +162,7 @@ export default class FriendRouter extends BaseRouter {
                         },
                         function (friend:Friend, next) {
                             if (friend.owner.toString() === request.user.id.toString()) {
-                                friendService.deleteFriend(friendId, function (error, result) {
+                                friendService.deleteFriend(friendId, function (error:ServiceError) {
                                     if (error) return appCallback(error);
                                     next(null, friend);
                                 });

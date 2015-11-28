@@ -9,25 +9,16 @@ import EditAction from "../classes/EditAction";
 import FileVersion from "../classes/FileVersion";
 
 import BaseRouter from './BaseRouter';
-import StorageSchema from '../db/storage_schema';
 import FileService from '../services/FileService';
 
 var fileService:FileService;
 export default class PublicRouter extends BaseRouter {
 
-    constructor(cassandraOptions:cassandra.client.Options, next:Function) {
+    constructor(cassandraClient:cassandra.Client) {
         super();
 
         console.log("Setting up DB connection for public service");
-        var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error) {
-            if (error) {
-                console.error(error);
-                throw new Error('Cannot connect to database');
-            }
-            fileService = new FileService(cassandraClient);
-            next();
-        });
+        fileService = new FileService(cassandraClient);
 
         this.router
             .get('/fileTags/', function (request, response, appCallback) {

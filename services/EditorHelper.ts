@@ -4,7 +4,7 @@ import FileContent from "../classes/FileContent";
 import MapNode from "../classes/MapNode";
 import ServiceError from "../classes/ServiceError";
 
-export function findNodeById(node:MapNode, nodeId:string) {
+export function findNodeById(node:MapNode, nodeId:string):MapNode {
     if (node.$['ID'] === nodeId) {
         return node;
     }
@@ -47,6 +47,12 @@ export function applyAction(file:FileContent, action:EditAction, callback:(error
             break;
         case 'nodeModifyIcons':
             eventNode.icon = action.payload;
+            break;
+        case 'nodeSetAttribute':
+            eventNode.addAttribute(action.payload.name,action.payload.value);
+            break;
+        case 'nodeRemoveAttribute':
+            eventNode.removeAttribute(action.payload.name);
             break;
         case 'newNode':
             // TODO: sanitize node, add proper ids

@@ -9,6 +9,7 @@ import Friend from '../../classes/Friend';
 
 import FriendService from '../../services/FriendService';
 import UserService from '../../services/UserService';
+import ServiceError from "../../classes/ServiceError";
 
 
 var rawConfig = fs.readFileSync('config/config.json');
@@ -128,11 +129,10 @@ describe('Friend management', function () {
         async.whilst(function () {
             return i < createdUsers - 1;
         }, function (next) {
-            friendService.deleteFriend(friendIds[i], function (error, result) {
+            friendService.deleteFriend(friendIds[i], function (error:ServiceError) {
                 try {
                     if (error) return done(error);
                     assert.isUndefined(error);
-                    assert.isUndefined(result);
                     i++;
                     next();
                 } catch (e) {

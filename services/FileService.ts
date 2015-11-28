@@ -234,6 +234,7 @@ export default class FileService {
 
     public createNewVersion(userId:string|cassandra.types.Uuid,
                             fileName:string,
+                            isShareable:boolean,
                             isPublic:boolean,
                             viewers:string[]|cassandra.types.Uuid[],
                             editors:string[]|cassandra.types.Uuid[],
@@ -272,33 +273,33 @@ export default class FileService {
                             else {
                                 parent.fileVersion.createNewVersion(newFileVersionId, versions.length + 1, content,
                                     function (error:ServiceError) {
-                                    if (error) return callback(error);
-                                    versions.unshift(newFileVersionId);
-                                    next(null, fileId, versions);
-                                });
+                                        if (error) return callback(error);
+                                        versions.unshift(newFileVersionId);
+                                        next(null, fileId, versions);
+                                    });
                             }
                         });
                     }
                     else {
                         parent.fileVersion.createNewVersion(newFileVersionId, versions.length + 1, content,
                             function (error:ServiceError) {
-                            if (error) return callback(error);
-                            versions.unshift(newFileVersionId);
-                            next(null, fileId, versions);
-                        });
+                                if (error) return callback(error);
+                                versions.unshift(newFileVersionId);
+                                next(null, fileId, versions);
+                            });
                     }
                 },
                 function (fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[], next:(error:ServiceError, fileId?:cassandra.types.Uuid)=>void) {
                     var isUpdate:boolean = versions.length > 1;
                     if (isUpdate) {
-                        parent.file.updateFile(fileId, fileName, isPublic, viewers, editors, versions, tags,
+                        parent.file.updateFile(fileId, fileName, isShareable, isPublic, viewers, editors, versions, tags,
                             function (error:ServiceError) {
-                            if (error) return callback(error);
-                            next(null, fileId);
-                        });
+                                if (error) return callback(error);
+                                next(null, fileId);
+                            });
                     }
                     else {
-                        parent.file.createFile(fileId, fileName, userId, isPublic, viewers, editors, versions, tags, function (error:ServiceError) {
+                        parent.file.createFile(fileId, fileName, userId, isShareable, isPublic, viewers, editors, versions, tags, function (error:ServiceError) {
                             if (error) return callback(error);
                             next(null, fileId);
                         });
@@ -320,6 +321,7 @@ export default class FileService {
     }
 
     public shareFile(fileId:string|cassandra.types.Uuid,
+                     isShareable:boolean,
                      isPublic:boolean,
                      viewers:(string|cassandra.types.Uuid)[],
                      editors:(string|cassandra.types.Uuid)[],
@@ -352,7 +354,7 @@ export default class FileService {
                             }
                         }
                     }
-                    parent.file.shareFile(fileId, isPublic, viewers, editors, function (error:ServiceError) {
+                    parent.file.shareFile(fileId, isShareable, isPublic, viewers, editors, function (error:ServiceError) {
                         if (error) return callback(error);
                         parent.getFile(fileId, callback);
                     });
@@ -438,5 +440,5 @@ export default class FileService {
 }
 
 function fileFromRow(row) {
-    return new File(row['id'], row['name'], row['owner'], row['viewers'], row['editors'], row['public'], row['versions'], row['tags']);
+    return new File(row['id'], row['name'], row['owner'], row['viewers'], row['editors'], row['shareable'], row['public'], row['versions'], row['tags']);
 }

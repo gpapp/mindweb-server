@@ -1,20 +1,31 @@
-/// <reference path="../typings/tsd.d.ts" />
-
-import * as async from 'async';
+import ServiceError from "../../classes/ServiceError";
 import * as cassandra from 'cassandra-driver';
+import * as async from 'async';
 
 var client:cassandra.Client;
-
-export default function (inClient:cassandra.Client, next:Function) {
-    client = inClient;
+export default function patch(cassandraClient:cassandra.Client,
+                              afterExecution:(error:ServiceError, pass:string, callback:(error?:ServiceError)=>void)=>void,
+                              callback:(error?:ServiceError)=>void) {
+    client = cassandraClient;
     async.parallel([
+        sessionTable,
         userTable,
         userPersonaTable,
         friendsTable,
         fileTable,
         fileVersionTable
-    ], afterExecution("Error: ", 'Tables created', next));
-};
+    ], function (error:ServiceError) {
+        afterExecution(error, 'Tables created', callback)
+    });
+}
+
+function sessionTable(next) {
+    client.execute(
+        'CREATE TABLE IF NOT EXISTS mindweb.sessions (' +
+        '          sid text PRIMARY KEY,' +
+        '          sobject text);',
+        next);
+}
 
 function userTable(next) {
     client.execute(
@@ -134,16 +145,5 @@ function fileVersionTable(next) {
         'modified timestamp,' +
         'content blob);',
         next);
-}
-
-function afterExecution(errorMessage, successMessage, next:Function) {
-    return function (err) {
-        if (err) {
-            console.error(errorMessage + err);
-        } else {
-            console.log(successMessage);
-        }
-        next();
-    }
 }
 

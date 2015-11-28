@@ -6,6 +6,7 @@ export default class File {
     id:string|cassandra.types.Uuid;
     name:string;
     owner:string|cassandra.types.Uuid;
+    isShareable:boolean;
     isPublic:boolean;
     viewers:(string|cassandra.types.Uuid)[];
     editors:(string|cassandra.types.Uuid)[];
@@ -16,6 +17,7 @@ export default class File {
                        name:string, owner:string|cassandra.types.Uuid,
                        viewers:(string|cassandra.types.Uuid)[],
                        editors:(string|cassandra.types.Uuid)[],
+                       isShareable:boolean,
                        isPublic:boolean,
                        versions:(string|cassandra.types.Uuid)[],
                        tags:string[]) {
@@ -24,6 +26,7 @@ export default class File {
         this.owner = owner;
         this.viewers = viewers;
         this.editors = editors;
+        this.isShareable = isShareable;
         this.isPublic = isPublic;
         this.versions = versions;
         this.tags = tags;
@@ -31,6 +34,7 @@ export default class File {
 
     public canView(userId:string|cassandra.types.Uuid):boolean {
         if (this.isPublic) return true;
+        if (this.isShareable) return true;
         if(!userId) {
             return false;
         }

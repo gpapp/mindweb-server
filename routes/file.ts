@@ -7,8 +7,6 @@ import File from '../classes/File';
 import ServiceError from '../classes/ServiceError';
 import EditAction from "../classes/EditAction";
 
-import StorageSchema from '../db/storage_schema';
-
 import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
 import * as EditorHelper from '../services/EditorHelper';
@@ -26,20 +24,11 @@ const upload = multer({inMemory: true});
 var fileService:FileService;
 export default class FileRouter extends BaseRouter {
 
-    constructor(cassandraOptions:cassandra.client.Options, next:Function) {
+    constructor(cassandraClient:cassandra.Client) {
         super();
 
         console.log("Setting up DB connection for file service");
-        var cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error) {
-            if (error) {
-                console.error(error);
-                throw new Error('Cannot connect to database');
-            }
-            console.log('Building storage schema');
-            StorageSchema(cassandraClient, next);
-            fileService = new FileService(cassandraClient);
-        });
+        fileService = new FileService(cassandraClient);
 
         this.router
             .get('/files', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
@@ -217,6 +206,7 @@ export default class FileRouter extends BaseRouter {
             })
             .put('/share', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
                 var fileId = request.body.fileId;
+                var isShareable = request.body.isShareable;
                 var isPublic = request.body.isPublic;
                 var viewers = request.body.viewers;
                 var editors = request.body.editors;
@@ -229,7 +219,7 @@ export default class FileRouter extends BaseRouter {
                             if (!fileInfo.canRemove(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.shareFile(fileId, isPublic, viewers, editors, next);
+                            fileService.shareFile(fileId, isShareable, isPublic, viewers, editors, next);
                         },
                         function (fileInfo, next) {
                             response.json(fileInfo);
@@ -244,6 +234,7 @@ export default class FileRouter extends BaseRouter {
             .post('/create', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
 
                 var name = request.body.name + '.mm';
+                var isShareable = request.body.isShareable;
                 var isPublic = request.body.isPublic;
                 var viewers = request.body.viewers;
                 var editors = request.body.editors;
@@ -251,7 +242,7 @@ export default class FileRouter extends BaseRouter {
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.createNewVersion(request.user.id, name, isPublic, viewers, editors, tags, JSON.stringify(EMPTY_MAP), next);
+                            fileService.createNewVersion(request.user.id, name, isShareable, isPublic, viewers, editors, tags, JSON.stringify(EMPTY_MAP), next);
                         },
                         function (fileInfo, next) {
                             response.json(fileInfo);
@@ -343,7 +334,7 @@ export default class FileRouter extends BaseRouter {
                         ConverterHelper.fromFreeplane(file.buffer, function (error, rawmap) {
                             if (error) return appCallback(error);
 
-                            fileService.createNewVersion(request.user.id, file.originalname, false, null, null, null, JSON.stringify(rawmap), next);
+                            fileService.createNewVersion(request.user.id, file.originalname, true, false, null, null, null, JSON.stringify(rawmap), next);
                         });
                     },
                     function (error) {
