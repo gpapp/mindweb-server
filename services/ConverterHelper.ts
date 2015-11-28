@@ -92,6 +92,7 @@ function removeMarkdown(nodes:MapNode[]):void {
     for (var i in nodes) {
         var curnode:MapNode = nodes[i];
         var content:string = markdown.parse(curnode.nodeMarkdown);
+        delete curnode['richcontent'];
         if (content!="<p>"+curnode.nodeMarkdown+"</p>") {
             var richContent = markdownToHTML(content);
             if (richContent) {
@@ -120,9 +121,9 @@ function removeMarkdown(nodes:MapNode[]):void {
 
                 richnode.$['HIDDEN'] = !curnode.detailOpen;
             }
-            delete curnode.detailOpen;
-            delete curnode.detailMarkdown;
         }
+        delete curnode.detailOpen;
+        delete curnode.detailMarkdown;
         if (curnode.noteMarkdown) {
             var richnode = {
                 $: {TYPE: 'NOTE'},
@@ -133,12 +134,12 @@ function removeMarkdown(nodes:MapNode[]):void {
             }
             curnode['richcontent'].push(richnode);
 
-            delete curnode.noteMarkdown;
         }
+        delete curnode.noteMarkdown;
         if (curnode.open != null) {
             curnode.$['OPEN'] = curnode.open;
-            delete curnode.open;
         }
+        delete curnode.open;
         if (curnode.node) {
             removeMarkdown(curnode.node);
         }
