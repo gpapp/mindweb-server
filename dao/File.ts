@@ -45,6 +45,11 @@ export default class File extends DAOBase {
         this.execute(query, {fileId: fileId}, next);
     }
 
+    public getFileByUserAndName(userId:string|cassandra.types.Uuid, fileName:string, next:(error:ServiceError, result:cassandra.ExecuteResult)=>void) {
+        var query = 'SELECT id,versions FROM mindweb.file WHERE owner=:userId AND name=:fileName ALLOW FILTERING';
+        this.execute(query, {userId: userId, fileName: fileName}, next);
+    }
+
     public createFile(fileId:string|cassandra.types.Uuid, fileName:string, userId:string|cassandra.types.Uuid,
                       isShareable:boolean, isPublic:boolean, viewers:(string|cassandra.types.Uuid)[], editors:(string|cassandra.types.Uuid)[],
                       versions:(string|cassandra.types.Uuid)[], tags:string[], next:(error:ServiceError, result:cassandra.ExecuteResult)=>void) {
@@ -63,11 +68,10 @@ export default class File extends DAOBase {
         }, next);
     }
 
-    public updateFile(fileId:string|cassandra.types.Uuid, fileName:string,
+    public updateFile(fileId:string|cassandra.types.Uuid,
                       isShareable:boolean, isPublic:boolean, viewers:(string|cassandra.types.Uuid)[], editors:(string|cassandra.types.Uuid)[],
                       versions:(string|cassandra.types.Uuid)[], tags:string[], next:(error:ServiceError, result:cassandra.ExecuteResult)=>void) {
         var query = 'UPDATE mindweb.file SET' +
-            ' name = :name,' +
             ' shareable = :isShareable,' +
             ' public = :isPublic,' +
             ' viewers = :viewers,' +
@@ -78,7 +82,6 @@ export default class File extends DAOBase {
             ' WHERE id = :fileId';
         this.execute(query, {
             fileId: fileId,
-            name: fileName,
             isShareable: isShareable,
             isPublic: isPublic,
             viewers: viewers,
@@ -98,10 +101,6 @@ export default class File extends DAOBase {
         this.execute(query, {fileId: fileId, tag: [tag]}, next);
     }
 
-    public getFileByUserAndName(userId:string|cassandra.types.Uuid, fileName:string, next:(error:ServiceError, result:cassandra.ExecuteResult)=>void) {
-        var query = 'SELECT id,versions FROM mindweb.file WHERE owner=:userId AND name=:fileName ALLOW FILTERING';
-        this.execute(query, {userId: userId, fileName: fileName}, next);
-    }
 
     public deleteById(fileId:string|cassandra.types.Uuid, next:(error:ServiceError, result:cassandra.ExecuteResult)=>void) {
         var query = 'DELETE FROM mindweb.file WHERE id = :fileId';

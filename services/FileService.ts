@@ -56,7 +56,7 @@ export default class FileService {
 
     public getPublicFilesForTags(query:string, tags:string[], callback:(error:ServiceError, result?:File[])=>void) {
         var parent:FileService = this;
-        async.waterfall ([
+        async.waterfall([
             function (waterNext:(error:ServiceError, result?:File[])=>void) {
                 if (tags.length == 0) {
                     parent.file.getPublicFiles(function (error:ServiceError, result:cassandra.ExecuteResult) {
@@ -260,22 +260,33 @@ export default class FileService {
                     });
                 },
                 function (fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[],
-                          next) {
-                    var newFileVersionId:cassandra.types.Uuid = Uuid.random();
+                          next:(error:ServiceError, file:File, fileId?:cassandra.types.Uuid, versions?:cassandra.types.Uuid[])=>void) {
                     if (versions.length > 0) {
+                        parent.getFile(fileId, function (error:ServiceError, file:File) {
+                            if (error) return callback(error);
+                            next(null, file, fileId, versions);
+                        });
+                    } else {
+                        next(null, null, fileId, versions);
+                    }
+                },
+                function (file:File, fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[],
+                          next:(error:ServiceError, file:File, fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[])=>void) {
+                    var newFileVersionId:cassandra.types.Uuid = Uuid.random();
+                    if (file) {
                         var oldFileVersionId = versions[0];
                         parent.fileVersion.getContent(oldFileVersionId, function (error:ServiceError, result:cassandra.ExecuteResult) {
                             if (error) return callback(error);
                             var row = result.first();
                             if (content === row.content) {
-                                next(null, fileId, versions);
+                                next(null, file, fileId, versions);
                             }
                             else {
                                 parent.fileVersion.createNewVersion(newFileVersionId, versions.length + 1, content,
                                     function (error:ServiceError) {
                                         if (error) return callback(error);
                                         versions.unshift(newFileVersionId);
-                                        next(null, fileId, versions);
+                                        next(null, file, fileId, versions);
                                     });
                             }
                         });
@@ -285,14 +296,15 @@ export default class FileService {
                             function (error:ServiceError) {
                                 if (error) return callback(error);
                                 versions.unshift(newFileVersionId);
-                                next(null, fileId, versions);
+                                next(null, null, fileId, versions);
                             });
                     }
                 },
-                function (fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[], next:(error:ServiceError, fileId?:cassandra.types.Uuid)=>void) {
-                    var isUpdate:boolean = versions.length > 1;
-                    if (isUpdate) {
-                        parent.file.updateFile(fileId, fileName, isShareable, isPublic, viewers, editors, versions, tags,
+                function (file:File, fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[], next:(error:ServiceError, fileId?:cassandra.types.Uuid)=>void) {
+                    if (file) {
+                        parent.file.updateFile(fileId,
+                            isShareable, isPublic, viewers ? viewers : file.viewers, editors ? editors : file.editors,
+                            versions, tags ? tags : file.tags,
                             function (error:ServiceError) {
                                 if (error) return callback(error);
                                 next(null, fileId);
