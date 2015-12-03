@@ -30,6 +30,7 @@ export function fromFreeplane(buffer:Buffer, callback:(error:ServiceError, resul
 }
 
 function buildMarkdownContent(node:MapNode):void {
+    cleanNode(node);
     if (node.$ && node.$['TEXT']) {
         node.nodeMarkdown = node.$['TEXT'];
     }
@@ -37,6 +38,9 @@ function buildMarkdownContent(node:MapNode):void {
     if (richcontent) {
         for (var i = 0, len = richcontent.length; i < len; i++) {
             var richNode = richcontent[i];
+            if (richNode === '') {
+                continue;
+            }
             var markdown = buildMarkdownContentForNode(richNode);
             if (markdown) {
                 switch (richNode.$['TYPE']) {
@@ -112,7 +116,6 @@ function removeMarkdown(nodes:MapNode[]):void {
             }
         }
         curnode.$['TEXT'] = curnode.nodeMarkdown;
-        delete curnode.nodeMarkdown;
         if (curnode.detailMarkdown) {
             var richnode = {
                 $: {TYPE: 'DETAILS'},
@@ -127,8 +130,6 @@ function removeMarkdown(nodes:MapNode[]):void {
                 richnode.$['HIDDEN'] = !curnode.detailOpen;
             }
         }
-        delete curnode.detailOpen;
-        delete curnode.detailMarkdown;
         if (curnode.noteMarkdown) {
             var richnode = {
                 $: {TYPE: 'NOTE'},
@@ -140,17 +141,23 @@ function removeMarkdown(nodes:MapNode[]):void {
             curnode['richcontent'].push(richnode);
 
         }
-        delete curnode.noteMarkdown;
         if (curnode.open != null) {
             curnode.$['OPEN'] = curnode.open;
         }
-        delete curnode.open;
         if (curnode.node) {
             removeMarkdown(curnode.node);
         }
+        cleanNode(curnode);
     }
 }
 
+function cleanNode(curnode) {
+    delete curnode.open;
+    delete curnode.nodeMarkdown;
+    delete curnode.noteMarkdown;
+    delete curnode.detailOpen;
+    delete curnode.detailMarkdown;
+}
 
 function markdownToHTML(content:string):Object {
     xml2js.parseString('<body>' + content + '</body>', {trim: true, async: false}, function (error, result) {

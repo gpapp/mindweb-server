@@ -16,12 +16,24 @@ export default class MapNode extends MapNodeCore {
 
     constructor(toCopy:any) {
         super(toCopy.$);
-        this.open = toCopy.open;
-        this.nodeMarkdown = toCopy.nodeMarkdown;
-        this.detailMarkdown = toCopy.detailMarkdown;
-        this.detailOpen = toCopy.detailOpen;
-        this.noteMarkdown = toCopy.noteMarkdown;
-        this.richcontent = toCopy.richcontent;
+        if (toCopy.open) {
+            this.open = toCopy.open;
+        }
+        if (toCopy.nodeMarkdown) {
+            this.nodeMarkdown = toCopy.nodeMarkdown;
+        }
+        if (toCopy.detailMarkdown) {
+            this.detailMarkdown = toCopy.detailMarkdown;
+        }
+        if (toCopy.detailOpen) {
+            this.detailOpen = toCopy.detailOpen;
+        }
+        if (toCopy.noteMarkdown) {
+            this.noteMarkdown = toCopy.noteMarkdown;
+        }
+        if (toCopy.richcontent) {
+            this.richcontent = toCopy.richcontent;
+        }
 
         if (toCopy.node) {
             this.node = [];
@@ -78,7 +90,7 @@ export default class MapNode extends MapNodeCore {
                     this.attribute[i].$['VALUE'] = value;
                     done = true;
                 } else {
-                    this.attribute.splice(i,1);
+                    this.attribute.splice(i, 1);
                 }
             }
         }
