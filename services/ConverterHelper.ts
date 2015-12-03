@@ -38,19 +38,21 @@ function buildMarkdownContent(node:MapNode):void {
         for (var i = 0, len = richcontent.length; i < len; i++) {
             var richNode = richcontent[i];
             var markdown = buildMarkdownContentForNode(richNode);
-            switch (richNode.$['TYPE']) {
-                case 'NODE':
-                    node.nodeMarkdown = markdown;
-                    break;
-                case 'DETAILS':
-                    node.detailMarkdown = markdown;
-                    node.detailOpen = richNode.$['HIDDEN'] != 'true';
-                    break;
-                case 'NOTE':
-                    node.noteMarkdown = markdown;
-                    break;
-                default:
-                    console.warn("Unknown richcontent type:" + richNode.$['TYPE']);
+            if (markdown) {
+                switch (richNode.$['TYPE']) {
+                    case 'NODE':
+                        node.nodeMarkdown = markdown;
+                        break;
+                    case 'DETAILS':
+                        node.detailMarkdown = markdown;
+                        node.detailOpen = richNode.$['HIDDEN'] != 'true';
+                        break;
+                    case 'NOTE':
+                        node.noteMarkdown = markdown;
+                        break;
+                    default:
+                        console.warn("Unknown richcontent type:" + richNode.$['TYPE']);
+                }
             }
         }
         delete node['richcontent'];
@@ -73,7 +75,7 @@ function buildMarkdownContent(node:MapNode):void {
 }
 
 function buildMarkdownContentForNode(node:MapNode):string {
-    if (!node['html']){
+    if (!node['html']) {
         return null;
     }
     var buildObject = htmlBuilder.buildObject(node['html'][0]);
@@ -96,7 +98,7 @@ function removeMarkdown(nodes:MapNode[]):void {
         var curnode:MapNode = nodes[i];
         var content:string = markdown.parse(curnode.nodeMarkdown);
         delete curnode['richcontent'];
-        if (content!="<p>"+curnode.nodeMarkdown+"</p>") {
+        if (content != "<p>" + curnode.nodeMarkdown + "</p>") {
             var richContent = markdownToHTML(content);
             if (richContent) {
                 var richnode = {
