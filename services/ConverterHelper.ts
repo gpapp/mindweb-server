@@ -73,6 +73,9 @@ function buildMarkdownContent(node:MapNode):void {
 }
 
 function buildMarkdownContentForNode(node:MapNode):string {
+    if (!node['html']){
+        return null;
+    }
     var buildObject = htmlBuilder.buildObject(node['html'][0]);
     return toMarkdown(buildObject, {gfm: true});
 }
