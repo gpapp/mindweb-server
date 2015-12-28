@@ -11,7 +11,13 @@ import FileVersion from "../classes/FileVersion";
 import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
 
+import * as ConverterHelper from '../services/ConverterHelper'
+import FileContent from "../classes/FileContent";
+
+var multer = require('multer');
 var fileService:FileService;
+const upload = multer({inMemory: true});
+
 export default class PublicRouter extends BaseRouter {
 
     constructor(cassandraClient:cassandra.Client) {
@@ -50,7 +56,7 @@ export default class PublicRouter extends BaseRouter {
             })
             .get('/file/:id', function (request, response, appCallback) {
                 var fileId = request.params.id;
-                var userId = request.user?request.user.id:null;
+                var userId = request.user ? request.user.id : null;
                 async.waterfall(
                     [
                         function (next:(error:ServiceError, file?:File)=>void) {
@@ -80,6 +86,23 @@ export default class PublicRouter extends BaseRouter {
                     function (error) {
                         if (error) appCallback(error);
                     })
+            })
+            .post('/display', upload.single('file'), function (request, response, appCallback) {
+                var file = request.file;
+                console.log("Received request to transform file: " + file.originalname + " length:" + file.size);
+                ConverterHelper.fromFreeplane(file.buffer, function (error, fileContent:FileContent) {
+                        if (error) return appCallback(error);
+                        var retval:FileVersion = new FileVersion(0, fileContent);
+                        var dummyFile:File = new File('DUMMY_ID', file.originalName, null, null, null, false, false, null, null);
+                        retval.file = dummyFile;
+                        retval.file['owned'] = false;
+                        retval.file['editable'] = false;
+                        retval.file['viewable'] = false;
+                        response.json(fileContent);
+                        response.end();
+                    }
+                );
+
             });
     }
 }

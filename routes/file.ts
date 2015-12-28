@@ -11,6 +11,7 @@ import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
 import * as EditorHelper from '../services/EditorHelper';
 import * as ConverterHelper from '../services/ConverterHelper'
+import FileContent from "../classes/FileContent";
 
 var multer = require('multer');
 
@@ -331,7 +332,7 @@ export default class FileRouter extends BaseRouter {
                     request.files,
                     function (file, index, next) {
                         console.log("Received request to store file: " + file.originalname + " length:" + file.size);
-                        ConverterHelper.fromFreeplane(file.buffer, function (error, rawmap) {
+                        ConverterHelper.fromFreeplane(file.buffer, function (error, rawmap:FileContent) {
                             if (error) return appCallback(error);
 
                             fileService.createNewVersion(request.user.id, file.originalname, true, false, null, null, null, JSON.stringify(rawmap), next);
