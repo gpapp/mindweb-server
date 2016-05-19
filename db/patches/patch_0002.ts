@@ -27,14 +27,18 @@ function updateValues(next) {
     client.execute(
         'SELECT id FROM mindweb.file;',
         function (err, res) {
-            async.each(res.rows,
-                function (row, nextI) {
-                    client.execute('UPDATE mindweb.file SET shareable=true WHERE id=:id;',
-                        {id: row['id']},
-                        {prepare: true},
-                        nextI);
-                }
-                , next
-            );
+            if (res) {
+                async.each(res.rows,
+                        function (row, nextI) {
+                            client.execute('UPDATE mindweb.file SET shareable=true WHERE id=:id;',
+                	    {id: row['id']},
+                    	    {prepare: true},
+                    	    nextI);
+            		}
+            		, next
+        	    );
+            } else {
+        	next();
+    	    }
         });
 }
