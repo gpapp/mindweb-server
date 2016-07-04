@@ -6,6 +6,7 @@ import * as cassandra from 'cassandra-driver';
 
 import * as fs from 'fs';
 import File from "../../classes/File";
+import CoreSchema from '../../db/core_schema';
 import FileService from '../../services/FileService';
 import UserService from '../../services/UserService';
 
@@ -40,6 +41,12 @@ cassandraClient.connect(function (error) {
     console.log('Connected to database');
 });
 
+CoreSchema(cassandraClient, function (error) {
+    if (error) {
+        throw 'Cannot create schema';
+    }
+    console.log('Schema created');
+});
 
 describe('FileDAO file create', function () {
     var userId1;
