@@ -59,6 +59,7 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
             }
         ],
         function (error:ServiceError) {
+            console.log(error.message);
             done(error);
         }
     )
