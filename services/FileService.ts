@@ -361,7 +361,7 @@ export default class FileService {
                             var curV = viewers[i].toString();
                             for (var j in editors) {
                                 if (editors[j].toString() === curV) {
-                                    viewers.splice(i, 1);
+                                    viewers.splice(viewers.indexOf(i), 1);
                                 }
                             }
                         }

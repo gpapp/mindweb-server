@@ -98,7 +98,7 @@ export default class PublicRouter extends BaseRouter {
                         retval.file['owned'] = false;
                         retval.file['editable'] = false;
                         retval.file['viewable'] = false;
-                        response.json(fileContent);
+                        response.json(retval);
                         response.end();
                     }
                 );

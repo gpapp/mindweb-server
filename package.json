@@ -18,7 +18,7 @@
     "es6-module-loader": "^0.17.8",
     "express": "~4.13.1",
     "express-session": "^1.11.3",
-    "jade": "~1.11.0",
+    "pug": "^2.0.0-beta",
     "markdown": "^0.5.0",
     "morgan": "~1.6.1",
     "multer": "^1.0.6",
