@@ -30,7 +30,7 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
                         }
                         if (patches.length) {
                             patches = patches.sort();
-                            async.each(patches, function (patch, nextPatch:(error?:ServiceError)=>void) {
+                            async.eachSeries(patches, function (patch, nextPatch:(error?:ServiceError)=>void) {
                                     var patchversion:number = parseInt(/^patch_([0-9]{4})$/.exec(patch)[1]);
                                     if (patchversion > lastVersion) {
                                         console.log('Running patch:' + patch);
@@ -47,9 +47,13 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
                                     }
                                 },
                                 function (error:ServiceError) {
+                                    if(error) {
+                                        console.error('Error in execution: '+error.message);
+                                    }
                                     next(error);
                                 });
                         } else {
+                            console.log('No patch required');
                             next();
                         }
                     } else {
@@ -59,7 +63,9 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
             }
         ],
         function (error:ServiceError) {
-            console.log(error.message);
+            if (error) {
+                console.log(error.message);
+            }
             done(error);
         }
     )

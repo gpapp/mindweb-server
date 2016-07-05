@@ -1,19 +1,14 @@
 /// <reference path="../../typings/tsd.d.ts" />
-import * as mocha from 'mocha';
-import * as chai from 'chai';
-import * as async from 'async';
-import * as cassandra from 'cassandra-driver';
-
-import * as fs from 'fs';
+import * as chai from "chai";
+import * as cassandra from "cassandra-driver";
+import * as fs from "fs";
 import File from "../../classes/File";
-import CoreSchema from '../../db/core_schema';
-import FileService from '../../services/FileService';
-import UserService from '../../services/UserService';
+import FileService from "../../services/FileService";
+import UserService from "../../services/UserService";
 
 var assert = chai.assert;
 var rawConfig = fs.readFileSync('config/config.json');
 var config = rawConfig.toString();
-
 for (var key in process.env) {
     if (!process.env.hasOwnProperty(key)) {
         continue;
@@ -41,19 +36,14 @@ cassandraClient.connect(function (error) {
     console.log('Connected to database');
 });
 
-CoreSchema(cassandraClient, function (error) {
-    if (error) {
-        throw 'Cannot create schema';
-    }
-    console.log('Schema created');
-});
-
 describe('FileDAO file create', function () {
     var userId1;
     var userId2;
     var testFileId;
-    var fileService = new FileService(cassandraClient);
-    var userService = new UserService(cassandraClient);
+    var fileService:FileService;
+    var userService:UserService;
+    fileService = new FileService(cassandraClient);
+    userService = new UserService(cassandraClient);
     before(function (next) {
         userService.createUser("fileTest:ID1", "Test File User 1", "test1@file.com", "Test File Avatar 1", function (error, result) {
             if (error) {
@@ -434,11 +424,13 @@ describe('FileDAO file create', function () {
 
 
 describe('File taging', function () {
-    var fileService = new FileService(cassandraClient);
-    var userService = new UserService(cassandraClient);
     var user;
     var fileId1;
     var fileId2;
+    var fileService:FileService;
+    var userService:UserService;
+    fileService = new FileService(cassandraClient);
+    userService = new UserService(cassandraClient);
     before(function (done) {
         userService.createUser("FileTagTest:ID", "Test File Tag ", "test@Filetag.com", "Test File Tag Avatar ", function (error, result) {
             if (error) console.error(error.message);

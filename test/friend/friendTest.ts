@@ -50,7 +50,7 @@ describe('Friend management', function () {
     var users = [];
     var friendIds = [];
     var createdUsers = 2;
-    var timeout = 100;
+    var timeout = 1000;
     before(function (done) {
         this.timeout(createdUsers * timeout);
         var i = 0;
@@ -166,7 +166,7 @@ describe('Friend taging', function () {
     var users = [];
     var friendIds = [];
     var createdFriends = 10;
-    var timeout = 200;
+    var timeout = 1000;
     before(function (done) {
         this.timeout(createdFriends * timeout);
         var i = 0;
