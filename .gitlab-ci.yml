@@ -7,6 +7,7 @@ image: node:latest
 # Only needed when using a docker container to run your tests in.
 # Check out: http://docs.gitlab.com/ce/ci/docker/using_docker_images.html#what-is-service
 services:
+  - cassandra:latest
 
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
@@ -17,4 +18,5 @@ cache:
 test_async:
   script:
    - npm install
+   - ls
    - npm test
