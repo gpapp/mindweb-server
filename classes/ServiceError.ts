@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 export default class ServiceError extends Error {
     public statusCode:number;
     public message:string;

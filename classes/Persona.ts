@@ -1,6 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
-import * as cassandra from 'cassandra-driver';
-
 export default class User {
     public authId:string;
     public  name:string;

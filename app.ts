@@ -1,4 +1,3 @@
-/// <reference path="typings/tsd.d.ts" />
 import * as session from 'express-session';
 import * as express from 'express';
 import * as passport from 'passport';
@@ -21,8 +20,7 @@ import FriendRoute from './routes/friend';
 import TaskRoute from './routes/task';
 
 var options;
-var cassandraOptions:cassandra.client.Options;
-
+var cassandraOptions:cassandra.ClientOptions;
 
 var app = express();
 var cassandraClient:cassandra.Client;
@@ -43,13 +41,11 @@ async.waterfall([
                 options.db.host
             ],
             protocolOptions: {
-                "port": options.db.port
+                "port": options.db.port as number,
+                "maxSchemaAgreementWaitSeconds" : 5,
+                "maxVersion" : 0
             },
             keyspace: "",
-            authProvider: {
-                username: "",
-                password: ""
-            }
         };
         DbKeyspace(cassandraOptions, next);
     },

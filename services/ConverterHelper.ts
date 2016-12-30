@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import * as xml2js from 'xml2js';
 import * as markdown from 'markdown';
 

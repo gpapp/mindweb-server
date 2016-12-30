@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import * as cassandra from 'cassandra-driver';
 
 export default function (cassandraOptions, callback) {

@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import EditAction from "../classes/EditAction";
 import FileContent from "../classes/FileContent";
 import MapNode from "../classes/MapNode";

@@ -1,5 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
-
 import MapNode from "./MapNode";
 
 export default class FileContent {

@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import * as async from 'async';
 
 import File from '../classes/File';
@@ -39,7 +38,7 @@ export default class FileService {
     // TODO: this is ugly, all tags are collected from the entire DB, and then collected in JS
     public getPublicFileTags(query:string,
                              callback:(error:ServiceError, tagCloud?:Object)=>void) {
-        this.file.getPublicFileTags(function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.file.getPublicFileTags(function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return callback(error);
             var tags:string[] = [];
             for (var i = 0; i < result.rows.length; i++) {
@@ -59,7 +58,7 @@ export default class FileService {
         async.waterfall([
             function (waterNext:(error:ServiceError, result?:File[])=>void) {
                 if (tags.length == 0) {
-                    parent.file.getPublicFiles(function (error:ServiceError, result:cassandra.ExecuteResult) {
+                    parent.file.getPublicFiles(function (error:ServiceError, result:cassandra.types.ResultSet) {
                         if (error) {
                             return callback(error, null);
                         }
@@ -72,7 +71,7 @@ export default class FileService {
                 } else {
                     var retval:File[] = [];
                     async.each(tags, function (tag:string, next:()=>void) {
-                            parent.file.getPublicFilesForTag(tag, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                            parent.file.getPublicFilesForTag(tag, function (error:ServiceError, result:cassandra.types.ResultSet) {
                                 if (error) {
                                     return callback(error, null);
                                 }
@@ -125,7 +124,7 @@ export default class FileService {
     }
 
     public getFiles(userId:string|cassandra.types.Uuid, callback:(error:ServiceError, result?:File[])=>void) {
-        this.file.getFiles(userId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.file.getFiles(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) {
                 return callback(error, null);
             }
@@ -142,7 +141,7 @@ export default class FileService {
         var retval:File[] = [];
         async.parallel([
             function (next:Function) {
-                parent.file.getSharedFilesForEdit(userId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.file.getSharedFilesForEdit(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) {
                         return callback(error, null);
                     }
@@ -154,7 +153,7 @@ export default class FileService {
                 })
             },
             function (next:Function) {
-                parent.file.getSharedFilesForView(userId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.file.getSharedFilesForView(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) {
                         return callback(error, null);
                     }
@@ -171,7 +170,7 @@ export default class FileService {
     }
 
     public getFile(fileId:string|cassandra.types.Uuid, callback:(error:ServiceError, result?:File)=>void) {
-        this.file.getFile(fileId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.file.getFile(fileId, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return callback(error);
 
             var row = result.first();
@@ -185,10 +184,10 @@ export default class FileService {
     public deleteFile(fileId:string|cassandra.types.Uuid, callback:(error:ServiceError, result?:string)=>void) {
         var parent:FileService = this;
 
-        this.file.getFile(fileId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.file.getFile(fileId, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return callback(error);
             if (result.rows.length > 0) {
-                async.each(result.rows[0].versions, function (fileVersionId:string|cassandra.types.Uuid, next:(error?:ServiceError)=>void) {
+                async.each(result.rows[0]["versions"], function (fileVersionId:string|cassandra.types.Uuid, next:(error?:ServiceError)=>void) {
                     parent.fileVersion.deleteById(fileVersionId, function () {
                         next();
                     });
@@ -220,11 +219,11 @@ export default class FileService {
     }
 
     public getFileVersion(fileVersionId:string|cassandra.types.Uuid, callback:(error:ServiceError, file?:FileVersion)=>void) {
-        this.fileVersion.getContent(fileVersionId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.fileVersion.getContent(fileVersionId, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return callback(error, null);
             var row = result.first();
             if (row != null) {
-                callback(null, new FileVersion(row.version, new FileContent(row.content)));
+                callback(null, new FileVersion(row["version"], new FileContent(row["content"])));
             }
             else {
                 callback(new ServiceError(403, 'No such file version by that id', 'getFileVersion'));
@@ -244,13 +243,13 @@ export default class FileService {
         var parent:FileService = this;
         async.waterfall([
                 function (next:(error:ServiceError, fileId?:cassandra.types.Uuid, versions?:cassandra.types.Uuid[]) => void) {
-                    parent.file.getFileByUserAndName(userId, fileName, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                    parent.file.getFileByUserAndName(userId, fileName, function (error:ServiceError, result:cassandra.types.ResultSet) {
                         if (error) return callback(error);
                         var fileId:cassandra.types.Uuid;
                         var versions:cassandra.types.Uuid[];
                         if (result.rows.length > 0) {
-                            fileId = result.rows[0].id;
-                            versions = result.rows[0].versions;
+                            fileId = result.rows[0]["id"];
+                            versions = result.rows[0]["versions"];
                         }
                         else {
                             fileId = Uuid.random();
@@ -275,10 +274,10 @@ export default class FileService {
                     var newFileVersionId:cassandra.types.Uuid = Uuid.random();
                     if (file) {
                         var oldFileVersionId = versions[0];
-                        parent.fileVersion.getContent(oldFileVersionId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                        parent.fileVersion.getContent(oldFileVersionId, function (error:ServiceError, result:cassandra.types.ResultSet) {
                             if (error) return callback(error);
                             var row = result.first();
-                            if (content === row.content) {
+                            if (content === row["content"]) {
                                 next(null, file, fileId, versions);
                             }
                             else {
@@ -391,7 +390,7 @@ export default class FileService {
                 });
             },
             function (file:File, next:(error:ServiceError, tags?:string[], file?:File)=>void) {
-                parent.file.tagQuery(userId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.file.tagQuery(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     var retval:string[] = [];
                     for (var i = 0; i < result.rows.length; i++) {
@@ -423,7 +422,7 @@ export default class FileService {
                 })
             },
             function (file:File, next) {
-                parent.file.tagFile(fileId, tag, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.file.tagFile(fileId, tag, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getFile(fileId, callback);
                 })
@@ -443,7 +442,7 @@ export default class FileService {
                 })
             },
             function (file:File) {
-                parent.file.untagFile(fileId, tag, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.file.untagFile(fileId, tag, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getFile(fileId, callback);
                 })

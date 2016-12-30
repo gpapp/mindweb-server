@@ -1,4 +1,3 @@
-/// <reference path="../../typings/tsd.d.ts" />
 import * as mocha from 'mocha';
 import * as chai from 'chai';
 import * as async from 'async';
@@ -31,18 +30,16 @@ describe("DB initialization", function () {
 
     console.log('Expecting DB on ' + options.db.host + ':' + options.db.port);
     var cassandraOptions = {
-        contactPoints: [
-            options.db.host
-        ],
-        protocolOptions: {
-            "port": options.db.port
-        },
-        keyspace: "",
-        authProvider: {
-            username: "",
-            password: ""
-        }
-    };
+            contactPoints: [
+                options.db.host
+            ],
+            protocolOptions: {
+                "port": options.db.port as number,
+                "maxSchemaAgreementWaitSeconds" : 5,
+                "maxVersion" : 0
+            },
+            keyspace: "",
+        };
     var innerCassandraClient;
     it("Creates keyspace", function (done) {
 

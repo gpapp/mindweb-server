@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import MapNodeCore from "./MapNodeCore";
 
 export default class MapNode extends MapNodeCore {

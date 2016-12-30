@@ -1,4 +1,3 @@
-/// <reference path="../../typings/tsd.d.ts" />
 import * as mocha from 'mocha';
 import * as chai from 'chai';
 import * as async from 'async';
@@ -34,8 +33,11 @@ var cassandraClient = new cassandra.Client({
         options.db.host
     ],
     protocolOptions: {
-        port: options.db.port
-    }
+        "port": options.db.port as number,
+        "maxSchemaAgreementWaitSeconds" : 5,
+        "maxVersion" : 0
+    },
+    keyspace: "",
 });
 
 cassandraClient.connect(function (error) {

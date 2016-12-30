@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import * as async from 'async';
 import * as bodyParser from 'body-parser';
 import * as cassandra from 'cassandra-driver';

@@ -1,5 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
-
 import * as fs from 'fs';
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
@@ -76,7 +74,7 @@ function versionTable(next) {
         'CREATE TABLE IF NOT EXISTS mindweb.version (' +
         '          object text PRIMARY KEY,' +
         '          version int);',
-        function (error, result:cassandra.ExecuteResult) {
+        function (error, result:cassandra.types.ResultSet) {
             if (error) return next(error);
             next();
         });
@@ -85,7 +83,7 @@ function versionTable(next) {
 function lastVersion(next:(error:ServiceError, version?:number)=>void):void {
     client.execute(
         "SELECT version FROM mindweb.version WHERE object='mindweb';",
-        function (error, result:cassandra.ExecuteResult) {
+        function (error, result:cassandra.types.ResultSet) {
             if (error) return next(error);
             if (result.rows.length > 0) {
                 next(null, result.rows[0]['version']);
@@ -100,7 +98,7 @@ function updateVersion(version:number, next:(error?:ServiceError)=>void):void {
         'INSERT INTO mindweb.version (object, version) VALUES (:object,:version);',
         {object: "mindweb", version: version},
         {prepare: true},
-        function (error, result:cassandra.ExecuteResult) {
+        function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return next(error);
             next();
         });

@@ -51,7 +51,7 @@ export default class UserService {
     }
 
     public getUserByAuthId(authId:string, next:(error:ServiceError, user?:User)=>void) {
-        this.user.getUserByAuthId(authId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.user.getUserByAuthId(authId, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) {
                 return next(error, null);
             }
@@ -64,7 +64,7 @@ export default class UserService {
     }
 
     public getUserById(id:string|cassandra.types.Uuid, next:(error:ServiceError, user?:User)=>void) {
-        this.user.getUserById(id, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.user.getUserById(id, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) {
                 return next(error);
             }
@@ -84,7 +84,7 @@ export default class UserService {
                 return callback(new ServiceError(500, "User already exists with authid: " + authId, "User creation error"), result);
             }
             var userId = Uuid.random();
-            parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.ExecuteResult) {
+            parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
                 if (error) return callback(error);
                 parent.user.createUser(userId, [authId], name, email, avatarUrl, function (error) {
                     if (error) return callback(error);
@@ -143,7 +143,7 @@ export default class UserService {
                 })
             },
             function () {
-                parent.user.deleteUser(userId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.user.deleteUser(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     callback();
                 });
@@ -181,12 +181,12 @@ export default class UserService {
             },
             function (user:User, isUpdate:boolean, next:(error:ServiceError, user?:User, isUpdate?:boolean)=>void) {
                 if (isUpdate) {
-                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
                         if (error) return callback(error);
                         next(null, user, isUpdate);
                     });
                 } else {
-                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
                         if (error) return callback(error);
                         next(null, user, isUpdate);
                     });
@@ -196,7 +196,7 @@ export default class UserService {
                 if (!isUpdate) {
                     user.persona.push(authId);
                 }
-                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     return callback(null, user);
                 });
@@ -214,7 +214,7 @@ export default class UserService {
                     next(null, user);
                 });
             }, function (user:User, next:(error:ServiceError, user?:User, persona?:Persona)=>void) {
-                parent.persona.getPersona(authId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.persona.getPersona(authId, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     if (result.rows.length == 0) {
                         return callback(new ServiceError(500, 'Cannot find persona:' + authId, "Main persona selection error"));
@@ -277,7 +277,7 @@ export default class UserService {
                 next(null, user);
             },
             function (user:User, next:(error:ServiceError, user?:User)=>void) {
-                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     next(null, user);
                 });

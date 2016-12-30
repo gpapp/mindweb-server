@@ -1,4 +1,3 @@
-/// <reference path="../../typings/tsd.d.ts" />
 import * as chai from "chai";
 import * as cassandra from "cassandra-driver";
 import * as fs from "fs";
@@ -25,8 +24,11 @@ var cassandraClient = new cassandra.Client({
         options.db.host
     ],
     protocolOptions: {
-        port: options.db.port
-    }
+        "port": options.db.port as number,
+        "maxSchemaAgreementWaitSeconds" : 5,
+        "maxVersion" : 0
+    },
+    keyspace: "",
 });
 
 cassandraClient.connect(function (error) {

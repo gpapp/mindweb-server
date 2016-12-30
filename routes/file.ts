@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import * as async from 'async';
 import * as bodyParser from 'body-parser';
 import * as cassandra from 'cassandra-driver';
@@ -331,11 +330,11 @@ export default class FileRouter extends BaseRouter {
                 async.forEachOf(
                     request.files,
                     function (file, index, next) {
-                        console.log("Received request to store file: " + file.originalname + " length:" + file.size);
-                        ConverterHelper.fromFreeplane(file.buffer, function (error, rawmap:FileContent) {
+                        console.log("Received request to store file: " + file["originalname"] + " length:" + file["size"]);
+                        ConverterHelper.fromFreeplane(file["buffer"], function (error, rawmap:FileContent) {
                             if (error) return appCallback(error);
 
-                            fileService.createNewVersion(request.user.id, file.originalname, true, false, null, null, null, JSON.stringify(rawmap), next);
+                            fileService.createNewVersion(request.user.id, file["originalname"], true, false, null, null, null, JSON.stringify(rawmap), next);
                         });
                     },
                     function (error) {

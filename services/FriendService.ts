@@ -34,7 +34,7 @@ export default class FriendService {
     }
 
     public getFriendById(id:string|cassandra.types.Uuid, callback:(error:ServiceError, friend?:Friend)=>void) {
-        this.friend.getFriendById(id, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.friend.getFriendById(id, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return callback(error);
             if (result.rows.length == 0) {
                 return callback(new ServiceError(500, 'Cannot find friend', 'Error in friend lookup'));
@@ -45,7 +45,7 @@ export default class FriendService {
     }
 
     public getFriends(userId:string|cassandra.types.Uuid, callback:(error:ServiceError, friends?:Friend[])=>void) {
-        this.friend.getFriends(userId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.friend.getFriends(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return callback(error);
             var retval:Friend[] = [];
             for (var i = 0; i < result.rows.length; i++) {
@@ -57,7 +57,7 @@ export default class FriendService {
     }
 
     public getFriendOfList(userId:string|cassandra.types.Uuid, callback:(error:ServiceError, friends?:Friend[])=>void) {
-        this.friend.getFriendOfList(userId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+        this.friend.getFriendOfList(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
             if (error) return callback(error);
             var retval:Friend[] = [];
             for (var i = 0; i < result.rows.length; i++) {
@@ -72,7 +72,7 @@ export default class FriendService {
         var parent = this;
         async.waterfall([
             function (next) {
-                parent.friend.deleteFriend(id, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.deleteFriend(id, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     callback();
                 })
@@ -87,11 +87,11 @@ export default class FriendService {
         var parent = this;
         async.waterfall([
             function (next:()=>void) {
-                parent.friend.getExactFriendById(userId, linkedUserId, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.getExactFriendById(userId, linkedUserId, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     if (result.rows.length > 0) {
                         var row = result.first();
-                        parent.friend.updateFriend(row['id'], alias, tags, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                        parent.friend.updateFriend(row['id'], alias, tags, function (error:ServiceError, result:cassandra.types.ResultSet) {
                             if (error) return callback(error);
                             parent.getFriendById(row['id'], callback);
                         });
@@ -101,7 +101,7 @@ export default class FriendService {
                 })
             },
             function (next:()=>void) {
-                parent.friend.getExactFriendByAlias(userId, alias, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.getExactFriendByAlias(userId, alias, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     if (result.rows.length > 0) {
                         var row = result.first();
@@ -123,7 +123,7 @@ export default class FriendService {
                 })
             }, function (user:User, linkedUser:User) {
                 var newId:cassandra.types.Uuid = Uuid.random();
-                parent.friend.createFriend(newId, userId, alias, linkedUserId, tags, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.createFriend(newId, userId, alias, linkedUserId, tags, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getFriendById(newId, callback);
                 });
@@ -144,7 +144,7 @@ export default class FriendService {
                 })
             },
             function (friend:Friend, next:(error:ServiceError, friend?:Friend)=>void) {
-                parent.friend.getExactFriendByAlias(friend.owner, alias, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.getExactFriendByAlias(friend.owner, alias, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     if (result.rows.length > 0) {
                         var row = result.first();
@@ -155,7 +155,7 @@ export default class FriendService {
                 })
             },
             function (friend:Friend) {
-                parent.friend.updateFriend(friendId, alias, tags, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.updateFriend(friendId, alias, tags, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getFriendById(friendId, callback);
                 })
@@ -185,7 +185,7 @@ export default class FriendService {
                         return array.indexOf(value) == index;
                     });
                 }
-                parent.friend.updateFriend(friendId, friend.alias, tags, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.updateFriend(friendId, friend.alias, tags, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getFriendById(friendId, callback);
                 })
@@ -210,7 +210,7 @@ export default class FriendService {
                 var tags = friend.tags.filter(function (value, index, array) {
                     return (array.indexOf(value) == index && value != tag);
                 });
-                parent.friend.updateFriend(friendId, friend.alias, tags, function (error:ServiceError, result:cassandra.ExecuteResult) {
+                parent.friend.updateFriend(friendId, friend.alias, tags, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getFriendById(friendId, callback);
                 })

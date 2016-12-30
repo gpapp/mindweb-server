@@ -1,6 +1,5 @@
-/// <reference path="../typings/tsd.d.ts" />
 import User from "./User";
-import * as cassandra from 'cassandra-driver';
+import * as cassandra from '@types/cassandra-driver';
 
 export default class File {
     id:string|cassandra.types.Uuid;

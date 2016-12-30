@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 import * as cassandra from 'cassandra-driver';
 
 export default  class DAOBase {
@@ -8,7 +7,7 @@ export default  class DAOBase {
         this.client = client;
     }
 
-    execute(query:string, params:Object, next:(error:Error,result:cassandra.ExecuteResult)=>void) {
+    execute(query:string, params:Object, next:(error:Error,result:cassandra.types.ResultSet)=>void) {
         this.client.execute(query, params, {prepare: true}, next);
     }
 }
