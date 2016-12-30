@@ -19,16 +19,19 @@ import PublicRoute from './routes/public';
 import FriendRoute from './routes/friend';
 import TaskRoute from './routes/task';
 
+var CassandraStore = require("cassandra-store");
+
 var options;
-var cassandraOptions:cassandra.ClientOptions;
+var cassandraOptions: cassandra.ClientOptions;
+var cassandraStore;
 
 var app = express();
-var cassandraClient:cassandra.Client;
-var authRoute:AuthRoute;
-var publicRoute:PublicRoute;
-var fileRoute:FileRoute;
-var friendRoute:FriendRoute;
-var taskRoute:TaskRoute;
+var cassandraClient: cassandra.Client;
+var authRoute: AuthRoute;
+var publicRoute: PublicRoute;
+var fileRoute: FileRoute;
+var friendRoute: FriendRoute;
+var taskRoute: TaskRoute;
 
 async.waterfall([
     function (next) {
@@ -42,8 +45,8 @@ async.waterfall([
             ],
             protocolOptions: {
                 "port": options.db.port as number,
-                "maxSchemaAgreementWaitSeconds" : 5,
-                "maxVersion" : 0
+                "maxSchemaAgreementWaitSeconds": 5,
+                "maxVersion": 0
             },
             keyspace: "",
         };
@@ -82,6 +85,9 @@ async.waterfall([
         next();
     },
     function (next) {
+        cassandraStore = new CassandraStore({clientOptions: cassandraOptions, client: cassandraClient}, next);
+    },
+    function (next) {
         console.log("All set up, starting web server");
         // view engine setup
         app.set('views', path.join(__dirname, 'views'));
@@ -92,9 +98,6 @@ async.waterfall([
         app.use(logger('dev'));
         app.use(express.static(path.join(__dirname, 'public')));
 
-        var CassandraStore = require("cassandra-store")(session);
-
-        var cassandraStore = new CassandraStore(cassandraOptions);
         app.use(session({
             secret: 'J;SDUKLJDFMAP[M OWIO WRXD/L SDF;KZSDVKXCD;fAdslsd:fop$##o(we)tig]',
             name: 'mindweb_session',
@@ -126,7 +129,7 @@ async.waterfall([
         // development error handler
         // will print stacktrace
         if (app.get('env') === 'development') {
-            app.use(function (err:ServiceError, req, res, next) {
+            app.use(function (err: ServiceError, req, res, next) {
                 res.status(err.statusCode || 500);
                 res.render('error', {
                     message: err.message,
@@ -137,7 +140,7 @@ async.waterfall([
 
         // production error handler
         // no stacktraces leaked to user
-        app.use(function (err:ServiceError, req, res, next) {
+        app.use(function (err: ServiceError, req, res, next) {
             res.status(err.statusCode || 500);
             res.render('error', {
                 message: err.message,
