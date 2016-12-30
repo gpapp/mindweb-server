@@ -191,13 +191,36 @@ describe('FileDAO file create', function () {
             }
         });
     });
-    it("Unshares a file publicly", function (done) {
+    it("Unshares a file publicly with share-through-link", function (done) {
         fileService.shareFile(testFileId, true, false, null, null, function (error, result) {
             try {
                 assert.isNull(error, "Cannot share file: " + error);
                 assert.isNotNull(result, "Result is empty");
                 assert.equal(result.id.toString(), testFileId.toString(), "Wrong file loaded");
                 assert.isTrue(result.isShareable, "File is not shareable");
+                assert.isFalse(result.isPublic, "File is public");
+                assert.isNull(result.editors, "Editors is not null");
+                assert.isNull(result.viewers, "Viewers is not null");
+                assert.isTrue(result.canView(userId1), "View rights missing");
+                assert.isTrue(result.canEdit(userId1), "Edit rights missing");
+                assert.isTrue(result.canRemove(userId1), "Remove rights missing");
+                assert.isTrue(result.canView(userId2), "Missing view rights");
+                assert.isFalse(result.canEdit(userId2), "Bogus edit rights");
+                assert.isFalse(result.canRemove(userId2), "Bogus remove rights");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Unshares a file publicly without share-through link", function (done) {
+        fileService.shareFile(testFileId, false, false, null, null, function (error, result) {
+            try {
+                assert.isNull(error, "Cannot share file: " + error);
+                assert.isNotNull(result, "Result is empty");
+                assert.equal(result.id.toString(), testFileId.toString(), "Wrong file loaded");
+                assert.isFalse(result.isShareable, "File is not shareable");
                 assert.isFalse(result.isPublic, "File is public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
@@ -356,12 +379,34 @@ describe('FileDAO file create', function () {
             }
         });
     });
-    it("Unshares a file from all editors and viewers and makes it non-public", function (done) {
+    it("Unshares a file from all editors and viewers and makes it non-public, with share-through-link", function (done) {
         fileService.shareFile(testFileId, true, false, null, null, function (error, result) {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
                 assert.isTrue(result.isShareable, "File is not shareable");
+                assert.isFalse(result.isPublic, "File is public");
+                assert.isNull(result.editors, "Editors is not null");
+                assert.isNull(result.viewers, "Viewers is not null");
+                assert.isTrue(result.canView(userId1), "View rights missing");
+                assert.isTrue(result.canEdit(userId1), "Edit rights missing");
+                assert.isTrue(result.canRemove(userId1), "Remove rights missing");
+                assert.isTrue(result.canView(userId2), "Missing view rights");
+                assert.isFalse(result.canEdit(userId2), "Bogus edit rights");
+                assert.isFalse(result.canRemove(userId2), "Bogus remove rights");
+                done();
+            }
+            catch (e) {
+                done(e);
+            }
+        });
+    });
+    it("Unshares a file from all editors and viewers and makes it non-public, without share-through-link", function (done) {
+        fileService.shareFile(testFileId, false, false, null, null, function (error, result) {
+            try {
+                assert.isNull(error, "Cannot unshare test file: " + error);
+                assert.isNotNull(result, "Result is empty");
+                assert.isFalse(result.isShareable, "File is shareable");
                 assert.isFalse(result.isPublic, "File is public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
