@@ -1,31 +1,29 @@
-import * as session from 'express-session';
-import * as express from 'express';
-import * as passport from 'passport';
-import * as logger from 'morgan';
-import * as async from 'async';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as cassandra from 'cassandra-driver';
-
-import ServiceError from './classes/ServiceError';
-import DbKeyspace from './db/keyspace'
-import CoreSchema from './db/core_schema';
-
+import * as session from "express-session";
+import * as express from "express";
+import * as passport from "passport";
+import * as logger from "morgan";
+import * as async from "async";
+import * as fs from "fs";
+import * as path from "path";
+import * as cassandra from "cassandra-driver";
+import ServiceError from "./classes/ServiceError";
+import DbKeyspace from "./db/keyspace";
+import CoreSchema from "./db/core_schema";
 import BaseRouter from "./routes/BaseRouter";
-import routes from './routes/index';
-import AuthRoute from './routes/auth';
-import FileRoute from './routes/file';
-import PublicRoute from './routes/public';
-import FriendRoute from './routes/friend';
-import TaskRoute from './routes/task';
+import routes from "./routes/index";
+import AuthRoute from "./routes/auth";
+import FileRoute from "./routes/file";
+import PublicRoute from "./routes/public";
+import FriendRoute from "./routes/friend";
+import TaskRoute from "./routes/task";
 
 var CassandraStore = require("cassandra-store");
 
-var options;
+export let options;
 var cassandraOptions: cassandra.ClientOptions;
-var cassandraStore;
+export let cassandraStore;
 
-var app = express();
+export const app = express();
 var cassandraClient: cassandra.Client;
 var authRoute: AuthRoute;
 var publicRoute: PublicRoute;
@@ -33,36 +31,49 @@ var fileRoute: FileRoute;
 var friendRoute: FriendRoute;
 var taskRoute: TaskRoute;
 
+export function initialize(done) {
+    async.waterfall([
+        function (next) {
+            options = processConfig();
+            next();
+        },
+        function (next) {
+            cassandraOptions = {
+                contactPoints: [
+                    options.db.host
+                ],
+                protocolOptions: {
+                    "port": options.db.port as number,
+                    "maxSchemaAgreementWaitSeconds": 5,
+                    "maxVersion": 0
+                },
+                keyspace: "",
+            };
+            DbKeyspace(cassandraOptions, next);
+        },
+        function (next) {
+            cassandraOptions.keyspace = "mindweb";
+            cassandraClient = new cassandra.Client(cassandraOptions);
+            cassandraClient.connect(function (error) {
+                if (error) {
+                    console.error(error);
+                    throw new Error('Cannot connect to database');
+                }
+                console.log('Building session schema');
+                CoreSchema(cassandraClient, next);
+            });
+        },
+        function (next) {
+            cassandraStore = new CassandraStore({client: cassandraClient}, next);
+        },
+        function (next) {
+            done();
+        }]);
+}
+
 async.waterfall([
     function (next) {
-        options = processConfig();
-        next();
-    },
-    function (next) {
-        cassandraOptions = {
-            contactPoints: [
-                options.db.host
-            ],
-            protocolOptions: {
-                "port": options.db.port as number,
-                "maxSchemaAgreementWaitSeconds": 5,
-                "maxVersion": 0
-            },
-            keyspace: "",
-        };
-        DbKeyspace(cassandraOptions, next);
-    },
-    function (next) {
-        cassandraOptions.keyspace = "mindweb";
-        cassandraClient = new cassandra.Client(cassandraOptions);
-        cassandraClient.connect(function (error) {
-            if (error) {
-                console.error(error);
-                throw new Error('Cannot connect to database');
-            }
-            console.log('Building session schema');
-            CoreSchema(cassandraClient, next);
-        });
+        initialize(next);
     },
     function (next) {
         authRoute = new AuthRoute(cassandraClient, options.url);
@@ -83,9 +94,6 @@ async.waterfall([
     function (next) {
         taskRoute = new TaskRoute(cassandraClient);
         next();
-    },
-    function (next) {
-        cassandraStore = new CassandraStore({clientOptions: cassandraOptions, client: cassandraClient}, next);
     },
     function (next) {
         console.log("All set up, starting web server");
@@ -147,6 +155,7 @@ async.waterfall([
                 error: {}
             });
         });
+        next();
     }
 ]);
 
@@ -157,7 +166,7 @@ function nocache(req, res, next) {
     next();
 }
 
-function processConfig() {
+export function processConfig() {
     var rawConfig = fs.readFileSync('config/config.json');
     var config = rawConfig.toString();
     for (var key in process.env) {
@@ -170,4 +179,4 @@ function processConfig() {
     return JSON.parse(config);
 }
 
-module.exports = app;
+//module.exports = app;

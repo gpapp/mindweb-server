@@ -3,26 +3,24 @@
 /**
  * Module dependencies.
  */
-//require("babel/register")({
-//    extensions: [".es6"],
-//    retainLines: true
-//});
+
 var app = require('../app');
 var debug = require('debug')('server:server');
 var http = require('http');
+var WSServer = require('../services/WSServer');
 
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort('8081');
-app.set('port', port);
+app.app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = http.createServer(app.app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -90,4 +88,8 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     debug('Listening on ' + bind);
+
+
+    debug("All set up, starting web socket server");
+    new WSServer.default(server);
 }
