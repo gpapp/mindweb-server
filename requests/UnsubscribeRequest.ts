@@ -24,18 +24,19 @@ export default class UnsubscribeRequest extends AbstractRequest {
             UnsubscribeRequest.fileService = new FileService(app.cassandraClient);
             UnsubscribeRequest.initialized = true;
         }
+        const sessionId = this.sessionId;
         const fileId = this.fileId;
 
-        UnsubscribeRequest.fileService.getFile(fileId, function (error: ServiceError, file:File) {
+        UnsubscribeRequest.fileService.getFile(fileId, function (error: ServiceError, file: File) {
             if (error) {
                 next(new ErrorResponse(error));
                 return;
             }
-            if(!file.canView(userId)){
+            if (!file.canView(userId)) {
                 next(new ErrorResponse({name: "Permission denied", message: "User cannot read file"}));
                 return;
             }
-            kafkaService.unsubscribeToFile(fileId, function (error: Error) {
+            kafkaService.unsubscribeToFile(sessionId, fileId, function (error: Error) {
                 let response;
                 if (error) {
                     response = new ErrorResponse(error);

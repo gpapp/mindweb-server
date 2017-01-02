@@ -19,6 +19,8 @@ import UnsubscribeRequest from "../../requests/UnsubscribeRequest";
 import ErrorResponse from "../../responses/ErrorResponse";
 import EditRequest from "../../requests/EditRequest";
 import EditAction from "../../classes/EditAction";
+import RequestFactory from "../../requests/RequestFactory";
+import {AbstractRequest} from "../../requests/AbstractRequest";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18084;
