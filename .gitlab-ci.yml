@@ -20,6 +20,5 @@ cache:
 
 test_async:
   script:
-   - npm install
-   - ls
-   - npm test
+   - npm install --quiet --dev
+   - grunt test
