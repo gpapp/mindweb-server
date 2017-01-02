@@ -23,5 +23,4 @@ test_async:
   script:
    - npm install --quiet
    - npm install --quiet grunt mocha-cli -g
-   - grunt
-   - mocha --recursive test
+   - grunt dev
