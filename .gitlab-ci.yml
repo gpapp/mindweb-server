@@ -22,6 +22,6 @@ cache:
 test_async:
   script:
    - npm install --quiet
-   - npm install --quiet grunt mocha -g
+   - npm install --quiet grunt mocha-cli -g
    - grunt
-   - grunt dev
+   - mocha --recursive test
