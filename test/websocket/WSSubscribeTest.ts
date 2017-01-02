@@ -227,7 +227,7 @@ describe('WebSocket subscription tests', function () {
                 done();
             });
             connection.on('message', function (message: IMessage) {
-                const response: AbstractResponse = ResponseFactory.create(message);
+                const response: AbstractRequest = RequestFactory.create(message);
 
                 if (messageCount++ > 3) {
                     editConnection.close();
