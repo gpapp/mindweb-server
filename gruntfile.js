@@ -35,7 +35,7 @@ module.exports = function (grunt) {
                 },
                 src: ['test/**/*.js']
             }
-        },
+        }
     });
     grunt.registerTask('default', ['clean', 'ts']);
     grunt.registerTask('dev', ['clean', 'ts', 'mochaTest']);
