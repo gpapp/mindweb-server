@@ -1,51 +1,26 @@
-import * as chai from "chai";
-import * as cassandra from "cassandra-driver";
-import * as fs from "fs";
+import {assert} from "chai";
+import * as app from "../../app";
 import File from "../../classes/File";
 import FileService from "../../services/FileService";
 import UserService from "../../services/UserService";
 
-var assert = chai.assert;
-var rawConfig = fs.readFileSync('config/config.json');
-var config = rawConfig.toString();
-for (var key in process.env) {
-    if (!process.env.hasOwnProperty(key)) {
-        continue;
-    }
-    var re = new RegExp('\\$\\{' + key + '\\}', 'g');
-    config = config.replace(re, process.env[key]);
-}
-var options = JSON.parse(config);
+let userService: UserService;
+let fileService: FileService;
 
-console.log('Expecting DB on ' + options.db.host + ':' + options.db.port);
-
-var cassandraClient = new cassandra.Client({
-    contactPoints: [
-        options.db.host
-    ],
-    protocolOptions: {
-        "port": options.db.port as number,
-        "maxSchemaAgreementWaitSeconds" : 5,
-        "maxVersion" : 0
-    },
-    keyspace: "",
+before(function (next) {
+    app.initialize(next);
+});
+before(function (next) {
+    userService = new UserService(app.cassandraClient);
+    fileService = new FileService(app.cassandraClient);
+    next();
 });
 
-cassandraClient.connect(function (error) {
-    if (error) {
-        throw 'Cannot connect to database';
-    }
-    console.log('Connected to database');
-});
 
 describe('FileDAO file create', function () {
     var userId1;
     var userId2;
     var testFileId;
-    var fileService:FileService;
-    var userService:UserService;
-    fileService = new FileService(cassandraClient);
-    userService = new UserService(cassandraClient);
     before(function (next) {
         userService.createUser("fileTest:ID1", "Test File User 1", "test1@file.com", "Test File Avatar 1", function (error, result) {
             if (error) {
@@ -79,7 +54,7 @@ describe('FileDAO file create', function () {
         });
     });
     it("creates a file in the database", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", false, false, null, null, ['tag1', 'tag2'], "Test Content", function (error, result:File) {
+        fileService.createNewVersion(userId1, "Test fajl 1", false, false, null, null, ['tag1', 'tag2'], "Test Content", function (error, result: File) {
             try {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -102,7 +77,7 @@ describe('FileDAO file create', function () {
         });
     });
     it("Saves a file with identical content (no new version)", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", true, true, null, null, ['tag1', 'tag2'], "Test Content", function (error, result:File) {
+        fileService.createNewVersion(userId1, "Test fajl 1", true, true, null, null, ['tag1', 'tag2'], "Test Content", function (error, result: File) {
             try {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -148,7 +123,7 @@ describe('FileDAO file create', function () {
         });
     });
     it("Renames a file", function (done) {
-        fileService.renameFile(testFileId, "Test fajl 1 (renamed)", function (error, result:File) {
+        fileService.renameFile(testFileId, "Test fajl 1 (renamed)", function (error, result: File) {
             try {
                 assert.isNull(error, "Cannot rename test file: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -173,7 +148,7 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot share file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                fileService.getFile(testFileId, function (error, result:File) {
+                fileService.getFile(testFileId, function (error, result: File) {
                     assert.equal(result.id.toString(), testFileId.toString(), "Wrong file loaded");
                     assert.isTrue(result.isShareable, "File is not shareable");
                     assert.isTrue(result.isPublic, "File is not public");
@@ -474,10 +449,6 @@ describe('File taging', function () {
     var user;
     var fileId1;
     var fileId2;
-    var fileService:FileService;
-    var userService:UserService;
-    fileService = new FileService(cassandraClient);
-    userService = new UserService(cassandraClient);
     before(function (done) {
         userService.createUser("FileTagTest:ID", "Test File Tag ", "test@Filetag.com", "Test File Tag Avatar ", function (error, result) {
             if (error) console.error(error.message);

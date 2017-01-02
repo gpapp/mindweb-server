@@ -1,18 +1,17 @@
 /**
  * Created by gpapp on 2016.12.30..
  */
-import * as chai from "chai";
+import {assert} from "chai";
 import * as http from "http";
 import * as websocket from "websocket";
-import * as cassandra from "cassandra-driver";
 import {IMessage} from "websocket";
+import * as cassandra from "cassandra-driver";
+import * as app from "../../app";
 import WSServer from "../../services/WSServer";
 import ResponseFactory from "../../responses/ResponseFactory";
 import EchoRequest from "../../requests/EchoRequest";
 import AbstractResponse from "../../responses/AbstractResponse";
-import EchoResponse from "../../responses/EchoResponse";
-
-const assert = chai.assert;
+import EchoResponse from "../../responses/TextResponse";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18082;
@@ -20,26 +19,9 @@ const SESSION_ID = "SESSION-TEST-1234567890";
 let cassandraClient: cassandra.Client;
 let wsServer: WSServer;
 
-const app = require("../../app");
 
 before(function (next) {
     app.initialize(next);
-});
-before(function (next) {
-    const options = app.options;
-    console.log('Expecting DB on ' + options.db.host + ':' + options.db.port);
-    cassandraClient = new cassandra.Client({
-        contactPoints: [
-            options.db.host
-        ],
-        protocolOptions: {
-            "port": options.db.port as number,
-            "maxSchemaAgreementWaitSeconds": 5,
-            "maxVersion": 0
-        },
-        keyspace: "mindweb",
-    });
-    next();
 });
 
 before(function (next) {
@@ -55,7 +37,7 @@ before(function (next) {
     });
 });
 before(function (next) {
-    cassandraClient.execute(
+    app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
         {sessionId: SESSION_ID, session: JSON.stringify({user: "Pumukli"})}, {}, next
     );
@@ -128,7 +110,7 @@ describe('WebSocket connection tests', function () {
                 assert.isNotNull(message.utf8Data, "Message body must exist");
                 try {
                     const response: AbstractResponse = ResponseFactory.create(message);
-                    assert.equal("EchoResponse", response.name);
+                    assert.equal("TextResponse", response.name);
                     assert.instanceOf(response, EchoResponse);
                     const echoResponse: EchoResponse = response as EchoResponse;
                     assert.equal("Blabla", echoResponse.message);
@@ -165,7 +147,7 @@ describe('WebSocket connection tests', function () {
                 assert.isNotNull(message.utf8Data, "Message body must exist");
                 try {
                     const response: AbstractResponse = ResponseFactory.create(message);
-                    assert.equal("EchoResponse", response.name);
+                    assert.equal("TextResponse", response.name);
                     assert.instanceOf(response, EchoResponse);
                     const echoResponse: EchoResponse = response as EchoResponse;
                     assert.equal("Blabla" + pos, echoResponse.message);
@@ -191,7 +173,7 @@ after(function (next) {
     next();
 });
 after(function (next) {
-    cassandraClient.execute(
+    app.cassandraClient.execute(
         "delete from mindweb.sessions where sid=:sessionId",
         {sessionId: SESSION_ID}, {}, next
     );

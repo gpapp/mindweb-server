@@ -1,54 +1,25 @@
-import * as mocha from 'mocha';
-import * as chai from 'chai';
-import * as async from 'async';
-import * as cassandra from 'cassandra-driver';
-
-import * as fs from 'fs';
-import Friend from '../../classes/Friend';
-
-import FriendService from '../../services/FriendService';
-import UserService from '../../services/UserService';
+import {assert} from "chai";
+import * as app from "../../app";
+import * as async from "async";
+import Friend from "../../classes/Friend";
+import FriendService from "../../services/FriendService";
+import UserService from "../../services/UserService";
 import ServiceError from "../../classes/ServiceError";
 
+let userService: UserService;
+let friendService: FriendService;
 
-var rawConfig = fs.readFileSync('config/config.json');
-var config = rawConfig.toString();
-var assert = chai.assert;
-
-for (var key in process.env) {
-    if (!process.env.hasOwnProperty(key)) {
-        continue;
-    }
-    var re = new RegExp('\\$\\{' + key + '\\}', 'g');
-    config = config.replace(re, process.env[key]);
-}
-var options = JSON.parse(config);
-
-console.log('Expecting DB on ' + options.db.host + ':' + options.db.port);
-
-var cassandraClient = new cassandra.Client({
-    contactPoints: [
-        options.db.host
-    ],
-    protocolOptions: {
-        "port": options.db.port as number,
-        "maxSchemaAgreementWaitSeconds" : 5,
-        "maxVersion" : 0
-    },
-    keyspace: "",
+before(function (next) {
+    app.initialize(next);
 });
-
-cassandraClient.connect(function (error) {
-    if (error) {
-        throw 'Cannot connect to database';
-    }
-    console.log('Connected to database');
+before(function (next) {
+    userService = new UserService(app.cassandraClient);
+    friendService = new FriendService(app.cassandraClient);
+    next();
 });
 
 
 describe('Friend management', function () {
-    var friendService = new FriendService(cassandraClient);
-    var userService = new UserService(cassandraClient);
     var users = [];
     var friendIds = [];
     var createdUsers = 2;
@@ -78,7 +49,7 @@ describe('Friend management', function () {
         async.whilst(function () {
             return i < createdUsers;
         }, function (next) {
-            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag1', 'tag2'], function (error, result:Friend) {
+            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag1', 'tag2'], function (error, result: Friend) {
                 try {
                     assert.isNull(error);
                     friendIds.push(result.id);
@@ -104,7 +75,7 @@ describe('Friend management', function () {
         async.whilst(function () {
             return i < createdUsers;
         }, function (next) {
-            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag3', 'tag4', 'tag5'], function (error, result:Friend) {
+            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag3', 'tag4', 'tag5'], function (error, result: Friend) {
                 try {
                     assert.isNull(error);
                     assert.equal(result.owner.toString(), users[0].id.toString(), 'Owner mismatch');
@@ -131,7 +102,7 @@ describe('Friend management', function () {
         async.whilst(function () {
             return i < createdUsers - 1;
         }, function (next) {
-            friendService.deleteFriend(friendIds[i], function (error:ServiceError) {
+            friendService.deleteFriend(friendIds[i], function (error: ServiceError) {
                 try {
                     if (error) return done(error);
                     assert.isUndefined(error);
@@ -163,8 +134,6 @@ describe('Friend management', function () {
 });
 
 describe('Friend taging', function () {
-    var friendService = new FriendService(cassandraClient);
-    var userService = new UserService(cassandraClient);
     var users = [];
     var friendIds = [];
     var createdFriends = 10;

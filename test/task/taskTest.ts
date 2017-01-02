@@ -1,63 +1,27 @@
-import * as mocha from 'mocha';
-import * as chai from 'chai';
-import * as async from 'async';
-import * as cassandra from 'cassandra-driver';
-
-import * as fs from 'fs';
-import File from "../../classes/File";
-import FileService from '../../services/FileService';
-import UserService from '../../services/UserService';
-import * as TaskHelper from '../../services/TaskHelper';
-import * as ConverterHelper from '../../services/ConverterHelper';
+import {assert} from "chai";
+import * as app from "../../app";
+import * as fs from "fs";
+import * as TaskHelper from "../../services/TaskHelper";
+import * as ConverterHelper from "../../services/ConverterHelper";
 import ServiceError from "../../classes/ServiceError";
 import MapNode from "../../classes/MapNode";
 import FileContent from "../../classes/FileContent";
 
-var assert = chai.assert;
-var rawConfig = fs.readFileSync('config/config.json');
-var config = rawConfig.toString();
 
-for (var key in process.env) {
-    if (!process.env.hasOwnProperty(key)) {
-        continue;
-    }
-    var re = new RegExp('\\$\\{' + key + '\\}', 'g');
-    config = config.replace(re, process.env[key]);
-}
-var options = JSON.parse(config);
-
-console.log('Expecting DB on ' + options.db.host + ':' + options.db.port);
-
-var cassandraClient = new cassandra.Client({
-    contactPoints: [
-        options.db.host
-    ],
-    protocolOptions: {
-        "port": options.db.port as number,
-        "maxSchemaAgreementWaitSeconds" : 5,
-        "maxVersion" : 0
-    },
-    keyspace: "",
+before(function (next) {
+    app.initialize(next);
 });
-
-cassandraClient.connect(function (error) {
-    if (error) {
-        throw 'Cannot connect to database';
-    }
-    console.log('Connected to database');
-});
-
 
 describe('FileHelper node empty map parse', function () {
-    var testFileRaw:Buffer;
-    var testFile:FileContent;
+    var testFileRaw: Buffer;
+    var testFile: FileContent;
     before(function (next) {
-        fs.readFile("test/task/tasktest1.mm", function (err, data:Buffer) {
+        fs.readFile("test/task/tasktest1.mm", function (err, data: Buffer) {
             if (err) {
                 console.error("Could not create file", err);
             }
             testFileRaw = data;
-            ConverterHelper.fromFreeplane(data, function (error:ServiceError, result:FileContent) {
+            ConverterHelper.fromFreeplane(data, function (error: ServiceError, result: FileContent) {
                 if (error) {
                     console.error("Could not create file", error);
                     next();
@@ -72,9 +36,9 @@ describe('FileHelper node empty map parse', function () {
     });
     it("Parses an empty map for config", function (done) {
         TaskHelper.parseTasks(testFile);
-        ConverterHelper.fromFreeplane(testFileRaw, function (error:ServiceError, result:FileContent) {
-            result.recurseNodes(function (node:MapNode):boolean {
-                var origNode:MapNode = testFile.findNodeById(node.$['ID']);
+        ConverterHelper.fromFreeplane(testFileRaw, function (error: ServiceError, result: FileContent) {
+            result.recurseNodes(function (node: MapNode): boolean {
+                var origNode: MapNode = testFile.findNodeById(node.$['ID']);
                 assert.equal(origNode.detailMarkdown, node.detailMarkdown);
                 assert.equal(origNode.icon ? origNode.icon.length : -1, node.icon ? node.icon.length : -1);
                 return false;
@@ -85,15 +49,15 @@ describe('FileHelper node empty map parse', function () {
 });
 
 describe('FileHelper node simple parse', function () {
-    var testFileRaw:Buffer;
-    var testFile:FileContent;
+    var testFileRaw: Buffer;
+    var testFile: FileContent;
     before(function (next) {
-        fs.readFile("test/task/tasktest2.mm", function (err, data:Buffer) {
+        fs.readFile("test/task/tasktest2.mm", function (err, data: Buffer) {
             if (err) {
                 console.error("Could not create file", err);
             }
             testFileRaw = data;
-            ConverterHelper.fromFreeplane(data, function (error:ServiceError, result:FileContent) {
+            ConverterHelper.fromFreeplane(data, function (error: ServiceError, result: FileContent) {
                 if (error) {
                     console.error("Could not create file", error);
                     next();
@@ -108,10 +72,10 @@ describe('FileHelper node simple parse', function () {
     });
     it("Parses an example map for tasks", function (done) {
         TaskHelper.parseTasks(testFile);
-        ConverterHelper.fromFreeplane(testFileRaw, function (error:ServiceError, testFileOrig:FileContent) {
-            testFileOrig.recurseNodes(function (node:MapNode):boolean {
+        ConverterHelper.fromFreeplane(testFileRaw, function (error: ServiceError, testFileOrig: FileContent) {
+            testFileOrig.recurseNodes(function (node: MapNode): boolean {
                 var nodeId = node.$['ID'];
-                var origNode:MapNode = testFile.findNodeById(nodeId);
+                var origNode: MapNode = testFile.findNodeById(nodeId);
                 if (['ID_825572237',
                         'ID_805969038', 'ID_1460792926', 'ID_972517531', 'ID_391734240',
                         'ID_1916348085', 'ID_1190980308', 'ID_1900184887', 'ID_759486144',
@@ -123,7 +87,7 @@ describe('FileHelper node simple parse', function () {
                 }
                 return false;
             });
-            var testNodeNew:MapNode;
+            var testNodeNew: MapNode;
             testNodeNew = testFile.findNodeById('ID_825572237');
             assert(testNodeNew.hasIcon('yes'));
             assert(testNodeNew.hasIcon('male1'));
@@ -209,15 +173,15 @@ describe('FileHelper node simple parse', function () {
 });
 
 describe('FileHelper node cornercases parse', function () {
-    var testFileRaw:Buffer;
-    var testFile:FileContent;
+    var testFileRaw: Buffer;
+    var testFile: FileContent;
     before(function (next) {
-        fs.readFile("test/task/tasktest3.mm", function (err, data:Buffer) {
+        fs.readFile("test/task/tasktest3.mm", function (err, data: Buffer) {
             if (err) {
                 console.error("Could not create file", err);
             }
             testFileRaw = data;
-            ConverterHelper.fromFreeplane(data, function (error:ServiceError, result:FileContent) {
+            ConverterHelper.fromFreeplane(data, function (error: ServiceError, result: FileContent) {
                 if (error) {
                     console.error("Could not create file", error);
                     next();
@@ -230,20 +194,20 @@ describe('FileHelper node cornercases parse', function () {
 
         });
     });
-     it("Parses a map with corner cases for tasks", function (done) {
+    it("Parses a map with corner cases for tasks", function (done) {
         TaskHelper.parseTasks(testFile);
-        ConverterHelper.fromFreeplane(testFileRaw, function (error:ServiceError, testFileOrig:FileContent) {
-            testFileOrig.recurseNodes(function (node:MapNode):boolean {
+        ConverterHelper.fromFreeplane(testFileRaw, function (error: ServiceError, testFileOrig: FileContent) {
+            testFileOrig.recurseNodes(function (node: MapNode): boolean {
                 var nodeId = node.$['ID'];
-                var origNode:MapNode = testFile.findNodeById(nodeId);
-                if (['ID_1976506990','ID_1221496068','ID_254804742','ID_875861497','ID_1546734060','ID_1166725155','ID_17589400'].indexOf(nodeId) < 0) {
+                var origNode: MapNode = testFile.findNodeById(nodeId);
+                if (['ID_1976506990', 'ID_1221496068', 'ID_254804742', 'ID_875861497', 'ID_1546734060', 'ID_1166725155', 'ID_17589400'].indexOf(nodeId) < 0) {
                     assert.equal(origNode.nodeMarkdown, node.nodeMarkdown, "" + nodeId);
                     assert.equal(origNode.detailMarkdown, node.detailMarkdown, "" + nodeId);
                     assert.equal(origNode.icon ? origNode.icon.length : -1, node.icon ? node.icon.length : -1, "" + nodeId);
                 }
                 return false;
             });
-            var testNodeNew:MapNode;
+            var testNodeNew: MapNode;
             testNodeNew = testFile.findNodeById('ID_1976506990');
             assert(testNodeNew.hasIcon('ksmiletris'));
             assert.equal(testNodeNew.nodeMarkdown, "Just 2");
@@ -297,7 +261,7 @@ describe('FileHelper node cornercases parse', function () {
             assert(testNodeNew.hasIcon('ksmiletris'));
             assert.equal(testNodeNew.nodeMarkdown, "This should overwrite the already set date");
             assert.isNull(testNodeNew.getAttribute('Priority'));
-            assert.equal(testNodeNew.getAttribute('When'),'now');
+            assert.equal(testNodeNew.getAttribute('When'), 'now');
             assert.isNull(testNodeNew.getAttribute('Where'));
             assert.isNull(testNodeNew.getAttribute('Who'));
             done();

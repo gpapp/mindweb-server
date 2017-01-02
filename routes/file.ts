@@ -1,6 +1,7 @@
 import * as async from 'async';
 import * as bodyParser from 'body-parser';
 import * as cassandra from 'cassandra-driver';
+import * as multer from "multer";
 
 import File from '../classes/File';
 import ServiceError from '../classes/ServiceError';
@@ -12,27 +13,26 @@ import * as EditorHelper from '../services/EditorHelper';
 import * as ConverterHelper from '../services/ConverterHelper'
 import FileContent from "../classes/FileContent";
 
-var multer = require('multer');
 
 const EMPTY_MAP = {
     $: {version: "freeplane 1.3.0"},
     rootNode: {$: {ID: "ID_" + (Math.random() * 10000000000).toFixed()}, nodeMarkdown: 'New map', open: true}
 };
 
-const upload = multer({inMemory: true});
+const upload = multer({storage: multer.memoryStorage()});
 
-var fileService:FileService;
 export default class FileRouter extends BaseRouter {
+    private fileService: FileService;
 
-    constructor(cassandraClient:cassandra.Client) {
+    constructor(cassandraClient: cassandra.Client) {
         super();
 
         console.log("Setting up DB connection for file service");
-        fileService = new FileService(cassandraClient);
+        this.fileService = new FileService(cassandraClient);
 
         this.router
             .get('/files', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                fileService.getFiles(request.user.id, function (error, result) {
+                this.fileService.getFiles(request.user.id, function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -40,7 +40,7 @@ export default class FileRouter extends BaseRouter {
                 });
             })
             .get('/sharedfiles', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                fileService.getSharedFiles(request.user.id, function (error, result) {
+                this.fileService.getSharedFiles(request.user.id, function (error, result) {
                     if (error) return appCallback(error);
 
                     response.json(result);
@@ -48,8 +48,8 @@ export default class FileRouter extends BaseRouter {
                 });
             })
             .put('/tagQuery', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
-                var fileId = request.body.id;
-                var query = request.body.query;
+                const fileId = request.body.id;
+                const query = request.body.query;
                 if (undefined == fileId) {
                     return appCallback(new ServiceError(400, 'File not specified', 'Tag query file'));
                 }
@@ -59,20 +59,20 @@ export default class FileRouter extends BaseRouter {
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
-                        function (friend:File, next) {
+                        function (friend: File, next) {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.tagQuery(request.user.id, fileId, query, function (error, result) {
+                            this.fileService.tagQuery(request.user.id, fileId, query, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (tags:string[], next) {
-                            var retval = [];
-                            for (var i = 0; i < tags.length; i++) {
+                        function (tags: string[], next) {
+                            const retval = [];
+                            for (let i = 0; i < tags.length; i++) {
                                 retval.push({text: tags[i]});
                             }
                             response.json(retval);
@@ -85,8 +85,8 @@ export default class FileRouter extends BaseRouter {
                     });
             })
             .put('/tag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
-                var fileId = request.body.id;
-                var tag = request.body.tag;
+                const fileId = request.body.id;
+                const tag = request.body.tag;
                 if (undefined == fileId) {
                     return appCallback(new ServiceError(400, 'File not specified', 'Tag file'));
                 }
@@ -96,18 +96,18 @@ export default class FileRouter extends BaseRouter {
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
-                        function (friend:File, next) {
+                        function (friend: File, next) {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.tagFile(fileId, tag, function (error, result) {
+                            this.fileService.tagFile(fileId, tag, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (friend:File, next) {
+                        function (friend: File, next) {
                             response.json(friend);
                             response.end();
                             next();
@@ -118,8 +118,8 @@ export default class FileRouter extends BaseRouter {
                     });
             })
             .put('/untag', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
-                var fileId = request.body.id;
-                var tag = request.body.tag;
+                const fileId = request.body.id;
+                const tag = request.body.tag;
                 if (undefined == fileId) {
                     return appCallback(new ServiceError(400, 'File not specified', 'Untag file'));
                 }
@@ -129,18 +129,18 @@ export default class FileRouter extends BaseRouter {
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
-                        function (friend:File, next) {
+                        function (friend: File, next) {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.untagFile(fileId, tag, function (error, result) {
+                            this.fileService.untagFile(fileId, tag, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (friend:File, next) {
+                        function (friend: File, next) {
                             response.json(friend);
                             response.end();
                             next();
@@ -151,17 +151,17 @@ export default class FileRouter extends BaseRouter {
                     });
             })
             .delete('/file/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                var fileId = request.params.id;
+                const fileId = request.params.id;
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
                             if (!fileInfo.canRemove(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.deleteFile(fileId, function (error, result) {
+                            this.fileService.deleteFile(fileId, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, fileInfo);
                             });
@@ -177,18 +177,18 @@ export default class FileRouter extends BaseRouter {
                     })
             })
             .post('/rename/:id', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
-                var fileId = request.params.id;
-                var newName = request.body.newName + '.mm';
+                const fileId = request.params.id;
+                const newName = request.body.newName + '.mm';
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
                             if (!fileInfo.canRemove(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.renameFile(fileId, newName, function (error, result) {
+                            this.fileService.renameFile(fileId, newName, function (error, result) {
                                 if (error) return appCallback(error);
                                 next(null, fileInfo);
                             });
@@ -205,21 +205,21 @@ export default class FileRouter extends BaseRouter {
                     })
             })
             .put('/share', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
-                var fileId = request.body.fileId;
-                var isShareable = request.body.isShareable;
-                var isPublic = request.body.isPublic;
-                var viewers = request.body.viewers;
-                var editors = request.body.editors;
+                const fileId = request.body.fileId;
+                const isShareable = request.body.isShareable;
+                const isPublic = request.body.isPublic;
+                const viewers = request.body.viewers;
+                const editors = request.body.editors;
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
                             if (!fileInfo.canRemove(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.shareFile(fileId, isShareable, isPublic, viewers, editors, next);
+                            this.fileService.shareFile(fileId, isShareable, isPublic, viewers, editors, next);
                         },
                         function (fileInfo, next) {
                             response.json(fileInfo);
@@ -233,16 +233,16 @@ export default class FileRouter extends BaseRouter {
             })
             .post('/create', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
 
-                var name = request.body.name + '.mm';
-                var isShareable = request.body.isShareable;
-                var isPublic = request.body.isPublic;
-                var viewers = request.body.viewers;
-                var editors = request.body.editors;
-                var tags = request.body.tags;
+                const name = request.body.name + '.mm';
+                const isShareable = request.body.isShareable;
+                const isPublic = request.body.isPublic;
+                const viewers = request.body.viewers;
+                const editors = request.body.editors;
+                const tags = request.body.tags;
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.createNewVersion(request.user.id, name, isShareable, isPublic, viewers, editors, tags, JSON.stringify(EMPTY_MAP), next);
+                            this.fileService.createNewVersion(request.user.id, name, isShareable, isPublic, viewers, editors, tags, JSON.stringify(EMPTY_MAP), next);
                         },
                         function (fileInfo, next) {
                             response.json(fileInfo);
@@ -255,19 +255,19 @@ export default class FileRouter extends BaseRouter {
                     })
             })
             .put('/change/:id', BaseRouter.ensureAuthenticated, bodyParser.json(), function (request, response, appCallback) {
-                var fileId = request.params.id;
-                var actions = request.body.actions;
+                const fileId = request.params.id;
+                const actions = request.body.actions;
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
                             if (!fileInfo.canEdit(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            var fileVersionId = fileInfo.versions[0];
-                            fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
+                            const fileVersionId = fileInfo.versions[0];
+                            this.fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
                                 if (error) return appCallback(error);
                                 next(null, fileVersionId, fileVersion.content)
                             });
@@ -275,7 +275,7 @@ export default class FileRouter extends BaseRouter {
                         function (fileVersionId, fileContent, next) {
                             async.each(
                                 actions,
-                                function (action:EditAction, callback) {
+                                function (action: EditAction, callback) {
                                     EditorHelper.applyAction(fileContent, action, callback);
                                 },
                                 function (error) {
@@ -287,7 +287,7 @@ export default class FileRouter extends BaseRouter {
                             );
                         },
                         function (fileVersionId, fileContent, next) {
-                            fileService.updateFileVersion(fileVersionId, JSON.stringify(fileContent), next);
+                            this.fileService.updateFileVersion(fileVersionId, JSON.stringify(fileContent), next);
                         },
                         function (result, next) {
                             response.end();
@@ -299,18 +299,18 @@ export default class FileRouter extends BaseRouter {
                     })
             })
             .get('/convert/freeplane/:id', BaseRouter.ensureAuthenticated, function (request, response, appCallback) {
-                var fileId = request.params.id;
+                const fileId = request.params.id;
                 async.waterfall(
                     [
                         function (next) {
-                            fileService.getFile(fileId, next);
+                            this.fileService.getFile(fileId, next);
                         },
                         function (fileInfo, next) {
                             if (!fileInfo.canView(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            var fileVersionId = fileInfo.versions[0];
-                            fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
+                            const fileVersionId = fileInfo.versions[0];
+                            this.fileService.getFileVersion(fileVersionId, function (error, fileVersion) {
                                 if (error) return appCallback(error);
                                 next(null, fileInfo, fileVersion)
                             });
@@ -331,10 +331,10 @@ export default class FileRouter extends BaseRouter {
                     request.files,
                     function (file, index, next) {
                         console.log("Received request to store file: " + file["originalname"] + " length:" + file["size"]);
-                        ConverterHelper.fromFreeplane(file["buffer"], function (error, rawmap:FileContent) {
+                        ConverterHelper.fromFreeplane(file["buffer"], function (error, rawmap: FileContent) {
                             if (error) return appCallback(error);
 
-                            fileService.createNewVersion(request.user.id, file["originalname"], true, false, null, null, null, JSON.stringify(rawmap), next);
+                            this.fileService.createNewVersion(request.user.id, file["originalname"], true, false, null, null, null, JSON.stringify(rawmap), next);
                         });
                     },
                     function (error) {

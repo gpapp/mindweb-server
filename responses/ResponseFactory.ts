@@ -15,7 +15,7 @@ export default class ResponseFactory {
             throw new Error("Invalid payload class");
         }
         for (var prop  in payload) {
-            if (newclass.hasOwnProperty(prop)) {
+            if (payload.hasOwnProperty(prop)) {
                 newclass[prop] = payload[prop];
             }
         }

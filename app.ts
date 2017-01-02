@@ -17,19 +17,14 @@ import PublicRoute from "./routes/public";
 import FriendRoute from "./routes/friend";
 import TaskRoute from "./routes/task";
 
-var CassandraStore = require("cassandra-store");
+const CassandraStore = require("cassandra-store");
 
 export let options;
-var cassandraOptions: cassandra.ClientOptions;
+let cassandraOptions: cassandra.ClientOptions;
 export let cassandraStore;
 
 export const app = express();
-var cassandraClient: cassandra.Client;
-var authRoute: AuthRoute;
-var publicRoute: PublicRoute;
-var fileRoute: FileRoute;
-var friendRoute: FriendRoute;
-var taskRoute: TaskRoute;
+export let cassandraClient: cassandra.Client;
 
 export function initialize(done) {
     async.waterfall([
@@ -66,7 +61,7 @@ export function initialize(done) {
         function (next) {
             cassandraStore = new CassandraStore({client: cassandraClient}, next);
         },
-        function (next) {
+        function () {
             done();
         }]);
 }
@@ -76,26 +71,12 @@ async.waterfall([
         initialize(next);
     },
     function (next) {
-        authRoute = new AuthRoute(cassandraClient, options.url);
-        next();
-    },
-    function (next) {
-        publicRoute = new PublicRoute(cassandraClient);
-        next();
-    },
-    function (next) {
-        fileRoute = new FileRoute(cassandraClient);
-        next();
-    },
-    function (next) {
-        friendRoute = new FriendRoute(cassandraClient);
-        next();
-    },
-    function (next) {
-        taskRoute = new TaskRoute(cassandraClient);
-        next();
-    },
-    function (next) {
+        const authRoute: AuthRoute = new AuthRoute(cassandraClient, options.url);
+        const publicRoute: PublicRoute = new PublicRoute(cassandraClient);
+        const fileRoute: FileRoute = new FileRoute(cassandraClient);
+        const friendRoute: FriendRoute = new FriendRoute(cassandraClient);
+        const taskRoute: TaskRoute = new TaskRoute(cassandraClient);
+
         console.log("All set up, starting web server");
         // view engine setup
         app.set('views', path.join(__dirname, 'views'));
@@ -128,8 +109,7 @@ async.waterfall([
 
         // catch 404 and forward to error handler
         app.use(function (req, res, next) {
-            var err = new ServiceError(404, 'Page not found', 'Not Found');
-            next(err);
+            next(new ServiceError(404, 'Page not found', 'Not Found'));
         });
 
         // error handlers
@@ -137,23 +117,25 @@ async.waterfall([
         // development error handler
         // will print stacktrace
         if (app.get('env') === 'development') {
-            app.use(function (err: ServiceError, req, res, next) {
+            app.use(function (err: ServiceError, req, res, next2) {
                 res.status(err.statusCode || 500);
                 res.render('error', {
                     message: err.message,
                     error: err
                 });
+                next2();
             });
         }
 
         // production error handler
         // no stacktraces leaked to user
-        app.use(function (err: ServiceError, req, res, next) {
+        app.use(function (err: ServiceError, req, res, next2) {
             res.status(err.statusCode || 500);
             res.render('error', {
                 message: err.message,
                 error: {}
             });
+            next2();
         });
         next();
     }
@@ -167,16 +149,13 @@ function nocache(req, res, next) {
 }
 
 export function processConfig() {
-    var rawConfig = fs.readFileSync('config/config.json');
-    var config = rawConfig.toString();
-    for (var key in process.env) {
+    let config = fs.readFileSync('config/config.json').toString();
+    for (let key in process.env) {
         if (!process.env.hasOwnProperty(key)) {
             continue;
         }
-        var re = new RegExp('\\$\\{' + key + '\\}', 'g');
+        const re = new RegExp('\\$\\{' + key + '\\}', 'g');
         config = config.replace(re, process.env[key]);
     }
     return JSON.parse(config);
 }
-
-//module.exports = app;

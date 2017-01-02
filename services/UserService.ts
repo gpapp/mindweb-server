@@ -13,7 +13,6 @@ import UserPersonaDAO from '../dao/UserPersona';
 import FileService from './FileService';
 import FriendService from "./FriendService";
 
-var Uuid = require('cassandra-driver').types.Uuid;
 
 export default class UserService {
     private connection;
@@ -83,7 +82,7 @@ export default class UserService {
             if (result != null) {
                 return callback(new ServiceError(500, "User already exists with authid: " + authId, "User creation error"), result);
             }
-            var userId = Uuid.random();
+            var userId = cassandra.types.Uuid.random();
             parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
                 if (error) return callback(error);
                 parent.user.createUser(userId, [authId], name, email, avatarUrl, function (error) {

@@ -3,9 +3,13 @@
  */
 import * as http from "http";
 import * as websocket from "websocket";
-import {IMessage, ICookie} from "websocket";
+import {IMessage, connection, IStringified} from "websocket";
 import RequestFactory from "../requests/RequestFactory";
 import {AbstractRequest} from "../requests/AbstractRequest";
+import KafkaService from "./KafkaService";
+import {cassandraClient, cassandraStore} from "../app";
+import ActionResponse from "../requests/TopicRequest";
+import TopicRequest from "../requests/TopicRequest";
 
 export default class WSServer {
     private webSocketServer: websocket.server;
@@ -16,7 +20,6 @@ export default class WSServer {
             httpServer: server,
             autoAcceptConnections: false
         });
-
         this.webSocketServer.on('request', this.handleRequest);
         WSServer.url = url;
     }
@@ -25,28 +28,33 @@ export default class WSServer {
         return origin == WSServer.url;
     }
 
-    private static error(connection: websocket.connection, message: IMessage) {
-        connection.send(JSON.stringify({result: "error", message: message}));
-        connection.sendCloseFrame(501, "Invalid message", true);
-    }
-
     private handleRequest(request: websocket.request) {
+
         if (!WSServer.isOriginAllowed(request.origin)) {
             console.log((new Date()) + " Connection rejected from: " + request.origin);
             request.reject(203, "Origin not allowed");
             return;
         }
-        const r = request.resourceURL.query;
-        if (r["mindweb-session"]) {
+        const requestParams = request.resourceURL.query;
+        const sessionId = requestParams["mindweb-session"];
+        if (sessionId) {
             // find session in DB
-            const cassandraStore = require("../app").cassandraStore;
-
-            cassandraStore.get(r["mindweb-session"], function (error, session: string) {
+            cassandraStore.get(sessionId, function (error, session) {
                 if (error || session == null) {
                     request.reject(201, "Session not found");
                     return;
                 } else {
-                    var connection = request.accept('mindweb-protocol', request.origin, request.cookies);
+                    if (!session.user) {
+                        request.reject(201, "User not found in session");
+                        return;
+                    }
+                    const connection: connection = request.accept('mindweb-protocol', request.origin, request.cookies);
+                    const kafkaService: KafkaService = new KafkaService(cassandraClient, function (message) {
+                        const request: AbstractRequest = RequestFactory.create(JSON.parse(message['value'])) as AbstractRequest;
+                        if (sessionId != request.sessionId) {
+                            connection.send(JSON.stringify(request));
+                        }
+                    });
                     connection.on('error', function () {
                         console.log((new Date()) + "Invalid protocol requested");
                         connection.drop(510, "Invalid protocol requested");
@@ -56,12 +64,17 @@ export default class WSServer {
                         if (message.type == "utf8" && message.utf8Data != null) {
                             try {
                                 var request: AbstractRequest = RequestFactory.create(message);
-                                connection.sendUTF(request.do());
+                                request.do(sessionId, session.user, kafkaService, function (response: IStringified) {
+                                    connection.sendUTF(response);
+                                })
                             } catch (e) {
-                                WSServer.error(connection, e);
+                                connection.drop(500, "Error in client:" + e.message);
+                                connection.close();
                             }
-                        } else
-                            WSServer.error(connection, message);
+                        } else {
+                            connection.drop(500, "Invalid message type or missing message body:" + message.type);
+                            connection.close();
+                        }
                     });
                     connection.on('close', function (reasonCode: number, description) {
                         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');

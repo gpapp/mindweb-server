@@ -1,16 +1,12 @@
-import * as async from 'async';
-
-import File from '../classes/File';
+import * as async from "async";
+import File from "../classes/File";
 import ServiceError from "../classes/ServiceError";
 import FileVersion from "../classes/FileVersion";
-
-import FileDAO from '../dao/File';
-import FileVersionDAO from '../dao/FileVersion';
-import * as cassandra from 'cassandra-driver';
-import * as FilterHelper from './FilterHelper';
+import FileDAO from "../dao/File";
+import FileVersionDAO from "../dao/FileVersion";
+import * as cassandra from "cassandra-driver";
+import * as FilterHelper from "./FilterHelper";
 import FileContent from "../classes/FileContent";
-
-var Uuid = require('cassandra-driver').types.Uuid;
 
 export default class FileService {
     private connection;
@@ -252,7 +248,7 @@ export default class FileService {
                             versions = result.rows[0]["versions"];
                         }
                         else {
-                            fileId = Uuid.random();
+                            fileId = cassandra.types.Uuid.random();
                             versions = [];
                         }
                         next(null, fileId, versions);
@@ -271,7 +267,7 @@ export default class FileService {
                 },
                 function (file:File, fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[],
                           next:(error:ServiceError, file:File, fileId:cassandra.types.Uuid, versions:cassandra.types.Uuid[])=>void) {
-                    var newFileVersionId:cassandra.types.Uuid = Uuid.random();
+                    var newFileVersionId:cassandra.types.Uuid = cassandra.types.Uuid.random();
                     if (file) {
                         var oldFileVersionId = versions[0];
                         parent.fileVersion.getContent(oldFileVersionId, function (error:ServiceError, result:cassandra.types.ResultSet) {

@@ -1,20 +1,16 @@
 /**
  * Created by gpapp on 2016.12.30..
  */
-import * as chai from "chai";
-import * as fs from "fs";
+import {assert} from "chai";
 import * as http from "http";
 import * as websocket from "websocket";
-import * as cassandra from "cassandra-driver";
 import {IMessage} from "websocket";
+import * as cassandra from "cassandra-driver";
 import WSServer from "../../services/WSServer";
 import ResponseFactory from "../../responses/ResponseFactory";
-import EchoCommand from "../../requests/EchoRequest";
+import EchoRequest from "../../requests/EchoRequest";
 import AbstractResponse from "../../responses/AbstractResponse";
-import EchoResponse from "../../responses/EchoResponse";
-import {Client} from "cassandra-driver";
-
-const assert = chai.assert;
+import EchoResponse from "../../responses/TextResponse";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18083;
@@ -93,18 +89,14 @@ describe('WebSocket session tests', function () {
                 assert.isNotNull(message, "Message cannot be empty");
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
-                try {
-                    const response: AbstractResponse = ResponseFactory.create(message);
-                    assert.equal("EchoResponse", response.name);
-                    assert.instanceOf(response, EchoResponse);
-                    const echoResponse: EchoResponse = response as EchoResponse;
-                    assert.equal("Blabla", echoResponse.message);
-                } catch (e) {
-                    assert.ok(false, "Error:" + e);
-                }
+                const response: AbstractResponse = ResponseFactory.create(message);
+                assert.equal("TextResponse", response.name);
+                assert.instanceOf(response, EchoResponse);
+                const echoResponse: EchoResponse = response as EchoResponse;
+                assert.equal("Blabla", echoResponse.message);
                 connection.close();
             });
-            connection.send(JSON.stringify(new EchoCommand("Blabla")));
+            connection.send(JSON.stringify(new EchoRequest("Blabla")));
 
         });
         client.connect('ws://localhost:' + PORT + "?mindweb-session=BAD_ID", "mindweb-protocol", "http://myorigin:8080");
@@ -127,18 +119,14 @@ describe('WebSocket session tests', function () {
                 assert.isNotNull(message, "Message cannot be empty");
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
-                try {
-                    const response: AbstractResponse = ResponseFactory.create(message);
-                    assert.equal("EchoResponse", response.name);
-                    assert.instanceOf(response, EchoResponse);
-                    const echoResponse: EchoResponse = response as EchoResponse;
-                    assert.equal("Blabla", echoResponse.message);
-                } catch (e) {
-                    assert.ok(false, "Error:" + e);
-                }
+                const response: AbstractResponse = ResponseFactory.create(message);
+                assert.equal("TextResponse", response.name);
+                assert.instanceOf(response, EchoResponse);
+                const echoResponse: EchoResponse = response as EchoResponse;
+                assert.equal("Blabla", echoResponse.message);
                 connection.close();
             });
-            connection.send(JSON.stringify(new EchoCommand("Blabla")));
+            connection.send(JSON.stringify(new EchoRequest("Blabla")));
         });
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", "http://myorigin:8080");
 

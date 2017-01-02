@@ -1,53 +1,27 @@
-import * as mocha from 'mocha';
-import * as chai from 'chai';
-import * as async from 'async';
-import * as cassandra from 'cassandra-driver';
-import * as fs from 'fs';
-
+import {assert} from "chai";
+import * as app from "../../app";
 import File from "../../classes/File";
 import Friend from "../../classes/Friend";
-import FileVersion from "../../classes/FileVersion";
 import ServiceError from "../../classes/ServiceError";
-import FileService from '../../services/FileService';
-import UserService from '../../services/UserService';
+import FileService from "../../services/FileService";
+import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";
 
-var assert = chai.assert;
-
-var rawConfig = fs.readFileSync('config/config.json');
-var config = rawConfig.toString();
-for (var key in process.env) {
-    if (!process.env.hasOwnProperty(key)) {
-        continue;
-    }
-    var re = new RegExp('\\$\\{' + key + '\\}', 'g');
-    config = config.replace(re, process.env[key]);
-}
-var options = JSON.parse(config);
-console.log('Expecting DB on ' + options.db.host + ':' + options.db.port);
-var cassandraClient = new cassandra.Client({
-    contactPoints: [
-        options.db.host
-    ],
-    protocolOptions: {
-        "port": options.db.port as number,
-        "maxSchemaAgreementWaitSeconds" : 5,
-        "maxVersion" : 0
-    },
-    keyspace: "",
-});
+let userService: UserService;
+let fileService:FileService;
+let friendService:FriendService;
 
 before(function (next) {
-    cassandraClient.connect(function (error) {
-        if (error) {
-            throw 'Cannot connect to database';
-        }
-        console.log('Connected to database');
-        next();
-    });
+    app.initialize(next);
 });
+before(function (next) {
+    userService = new UserService(app.cassandraClient);
+    fileService = new FileService(app.cassandraClient);
+    friendService = new FriendService(app.cassandraClient);
+    next();
+});
+
 describe('UserDAO userCreate', function () {
-    var userService = new UserService(cassandraClient);
     it("creates a user in the database", function (done) {
         userService.createUser("TestID 1", "Test User 1", "test@a.com", "Test Avatar 1", function (error, result) {
             try {
@@ -69,7 +43,7 @@ describe('UserDAO userCreate', function () {
     it("recreates a user in the database", function (done) {
         userService.createUser("TestID 1", "Test User 11", "test1@a.com", "Test Avatar 11", function (error, result) {
             try {
-                chai.assert(error != null, "Should throw error");
+                assert(error != null, "Should throw error");
                 assert.isNotNull(result, "Result is empty");
                 assert.equal(result.persona.length, 1, "Persona length is not 1");
                 assert.equal(result.persona[0], 'TestID 1', "Auth id mismatch");
@@ -86,7 +60,6 @@ describe('UserDAO userCreate', function () {
     });
 });
 describe('UserDAO getUser', function () {
-    var userService = new UserService(cassandraClient);
     it("finds a user from the database", function (done) {
         userService.getUserByAuthId("TestID 1", function (error, result) {
             try {
@@ -107,7 +80,6 @@ describe('UserDAO getUser', function () {
     });
 });
 describe('UserDAO Persona test', function () {
-    var userService = new UserService(cassandraClient);
     var userId1;
     var userId2;
     before(function (done) {
@@ -141,7 +113,7 @@ describe('UserDAO Persona test', function () {
                 assert.isNull(error, "Cannot add new persona: " + error);
                 assert.isNotNull(result, "Result is empty");
                 assert.equal(result.persona.length, 2, "Persona length is not 2");
-                chai.assert(result.persona[1] === 'TestID 3', "Auth id mismatch");
+                assert(result.persona[1] === 'TestID 3', "Auth id mismatch");
                 assert.isNotNull(result.id, "Result userId is empty");
                 assert.equal(result.email, "test@a.com");
                 assert.equal(result.name, "Test User 1");
@@ -269,15 +241,12 @@ describe('UserDAO Persona test', function () {
         });
     });
     after(function (done) {
-        userService.deleteUser(userId2, function (error:ServiceError) {
+        userService.deleteUser(userId2, function (error: ServiceError) {
             done();
         });
     });
 });
 describe('UserDAO userDelete', function () {
-    var userService = new UserService(cassandraClient);
-    var fileService = new FileService(cassandraClient);
-    var friendService = new FriendService(cassandraClient);
     var userId1;
     var userId2;
     before(function (next) {
@@ -293,23 +262,23 @@ describe('UserDAO userDelete', function () {
         });
     });
     before(function (next) {
-        fileService.createNewVersion(userId1, "Test fajl 1", true,  false, null, null, ['tag1','tag2'], "Test Content",
-            function (error:ServiceError, result:File) {
+        fileService.createNewVersion(userId1, "Test fajl 1", true, false, null, null, ['tag1', 'tag2'], "Test Content",
+            function (error: ServiceError, result: File) {
+                next();
+            });
+    });
+    before(function (next) {
+        friendService.createFriend(userId1, "Alias User  1-2", userId2, [], function (error: ServiceError, result: Friend) {
             next();
         });
     });
     before(function (next) {
-        friendService.createFriend(userId1, "Alias User  1-2", userId2, [], function (error:ServiceError, result:Friend) {
-            next();
-        });
-    });
-    before(function (next) {
-        friendService.createFriend(userId2, "Alias User  2-1", userId1, [], function (error:ServiceError, result:Friend) {
+        friendService.createFriend(userId2, "Alias User  2-1", userId1, [], function (error: ServiceError, result: Friend) {
             next();
         });
     });
     it("removes a user from the database", function (done) {
-        userService.deleteUser(userId1, function (error:ServiceError) {
+        userService.deleteUser(userId1, function (error: ServiceError) {
             try {
                 assert.isUndefined(error, "Cannot remove test user: " + error);
                 done();
@@ -320,7 +289,7 @@ describe('UserDAO userDelete', function () {
         });
     });
     after(function (next) {
-        userService.deleteUser(userId2, function (error:ServiceError) {
+        userService.deleteUser(userId2, function (error: ServiceError) {
             next();
         });
     });

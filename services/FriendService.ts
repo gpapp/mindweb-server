@@ -8,7 +8,6 @@ import ServiceError from "../classes/ServiceError";
 import FriendDAO from '../dao/Friend';
 import UserService from "./UserService";
 
-var Uuid = require('cassandra-driver').types.Uuid;
 
 export default class FriendService {
     private connection;
@@ -122,7 +121,7 @@ export default class FriendService {
                     next(null, user, linkedUser);
                 })
             }, function (user:User, linkedUser:User) {
-                var newId:cassandra.types.Uuid = Uuid.random();
+                var newId:cassandra.types.Uuid = cassandra.types.Uuid.random();
                 parent.friend.createFriend(newId, userId, alias, linkedUserId, tags, function (error:ServiceError, result:cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getFriendById(newId, callback);
