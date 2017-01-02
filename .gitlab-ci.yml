@@ -22,6 +22,4 @@ test_async:
   script:
    - npm install --quiet
    - npm install --quiet -g grunt-cli
-   - ls
-   - npm test
    - grunt test
