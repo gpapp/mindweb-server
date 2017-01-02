@@ -22,5 +22,5 @@ cache:
 test_async:
   script:
    - npm install --quiet
-   - npm install --quiet -g grunt-cli mocha
+   - npm install --quiet -g --only-dev
    - grunt dev
