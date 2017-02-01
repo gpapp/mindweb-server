@@ -8,8 +8,9 @@ import RequestFactory from "../requests/RequestFactory";
 import {AbstractRequest} from "../requests/AbstractRequest";
 import KafkaService from "./KafkaService";
 import {cassandraClient, cassandraStore} from "../app";
-import ActionResponse from "../requests/TopicRequest";
-import TopicRequest from "../requests/TopicRequest";
+import ResponseFactory from "../responses/ResponseFactory";
+import AbstractResponse from "../responses/AbstractResponse";
+import PublishedResponse from "../responses/PublishedResponse";
 
 export default class WSServer {
     private webSocketServer: websocket.server;
@@ -50,11 +51,13 @@ export default class WSServer {
                     }
                     const connection: connection = request.accept('mindweb-protocol', request.origin, request.cookies);
                     const kafkaService: KafkaService = new KafkaService(cassandraClient, function (message) {
-                        const request: AbstractRequest = RequestFactory.create(JSON.parse(message['value'])) as AbstractRequest;
-                        if (sessionId != request.sessionId) {
-                            connection.send(JSON.stringify(request));
+                            const publishedResponse: PublishedResponse = PublishedResponse.create(message);
+                            const response: AbstractResponse = publishedResponse.response;
+                            if (sessionId != publishedResponse.originSessionId) {
+                                connection.send(JSON.stringify(response));
+                            }
                         }
-                    });
+                    );
                     connection.on('error', function () {
                         console.log((new Date()) + "Invalid protocol requested");
                         connection.drop(510, "Invalid protocol requested");
@@ -86,6 +89,7 @@ export default class WSServer {
             return;
         }
     }
+
 
     public shutdown(next?) {
         this.webSocketServer.closeAllConnections();

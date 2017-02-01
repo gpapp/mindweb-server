@@ -21,10 +21,14 @@ import EditRequest from "../../requests/EditRequest";
 import EditAction from "../../classes/EditAction";
 import RequestFactory from "../../requests/RequestFactory";
 import {AbstractRequest} from "../../requests/AbstractRequest";
+import JoinResponse from "../../responses/JoinResponse";
+import EditResponse from "../../responses/EditResponse";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18084;
-const SESSION_ID = "SESSION-TEST-1234567890";
+const SESSION_ID1 = "SESSION-TEST-1234567890-1";
+const SESSION_ID2 = "SESSION-TEST-1234567890-2";
+const SESSION_ID3 = "SESSION-TEST-1234567890-3";
 
 let wsServer: WSServer;
 let userService: UserService;
@@ -79,7 +83,7 @@ before(function (next) {
 });
 before(function (next) {
     before(function (done) {
-        fileService.createNewVersion(userId1, "SUBSCRIBEText2", true, false, null, null, ['SUBSCRIBE-TEST'], "File SUBSCRIBE content", function (error, result) {
+        fileService.createNewVersion(userId1, "SUBSCRIBEText1", true, false, null, null, ['SUBSCRIBE-TEST'], "File SUBSCRIBE content", function (error, result) {
             if (error) console.error(error.message);
             fileId1 = result.id;
             done();
@@ -113,7 +117,19 @@ before(function (next) {
 before(function (next) {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
-        {sessionId: SESSION_ID, session: JSON.stringify({user: userId1})}, {}, next
+        {sessionId: SESSION_ID1, session: JSON.stringify({user: userId1})}, {}, next
+    );
+});
+before(function (next) {
+    app.cassandraClient.execute(
+        "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
+        {sessionId: SESSION_ID2, session: JSON.stringify({user: userId1})}, {}, next
+    );
+});
+before(function (next) {
+    app.cassandraClient.execute(
+        "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
+        {sessionId: SESSION_ID3, session: JSON.stringify({user: userId1})}, {}, next
     );
 });
 describe('WebSocket subscription tests', function () {
@@ -145,7 +161,7 @@ describe('WebSocket subscription tests', function () {
             });
             connection.send(JSON.stringify(new SubscribeRequest("INVALID")));
         });
-        client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", "http://myorigin:8080");
+        client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
     it("Subscribes to an existing file", function (done) {
         this.timeout(12000);
@@ -174,7 +190,7 @@ describe('WebSocket subscription tests', function () {
             });
             connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
         });
-        client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", "http://myorigin:8080");
+        client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
     it("Unsubscribes from a file", function (done) {
         const client: websocket.client = new websocket.client();
@@ -202,13 +218,14 @@ describe('WebSocket subscription tests', function () {
             });
             connection.send(JSON.stringify(new UnsubscribeRequest(fileId1)));
         });
-        client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", "http://myorigin:8080");
+        client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
     it("Subscribes to an existing file and send updates", function (done) {
         this.timeout(12000);
         const client1: websocket.client = new websocket.client();
         let editConnection: websocket.connection;
         let receiveConnection: websocket.connection;
+        let dummyConnection: websocket.connection;
         client1.on('connectFailed', function (err) {
             assert.ok(false, 'Connection should not fail');
             done();
@@ -218,8 +235,14 @@ describe('WebSocket subscription tests', function () {
             assert.ok(false, 'Connection should not fail');
             done();
         });
-        let messageCount = 0;
+        const client3: websocket.client = new websocket.client();
+        client3.on('connectFailed', function (err) {
+            assert.ok(false, 'Connection should not fail');
+            done();
+        });
         client1.on('connect', function (connection: websocket.connection) {
+            receiveConnection = connection;
+            let messageCount = 0;
             connection.on('error', function (error: Error) {
                 assert.fail('got error' + error.message);
             });
@@ -227,18 +250,40 @@ describe('WebSocket subscription tests', function () {
                 done();
             });
             connection.on('message', function (message: IMessage) {
-                const response: AbstractRequest = RequestFactory.create(message);
-
-                if (messageCount++ > 3) {
-                    editConnection.close();
+                const response: AbstractResponse = ResponseFactory.create(message);
+                let textResponse: TextResponse;
+                let joinResponse: JoinResponse;
+                let editResponse: EditResponse;
+                switch (messageCount++) {
+                    case 0:
+                        assert.equal('TextResponse', response.name);
+                        assert.isTrue(response instanceof TextResponse);
+                        textResponse = response as TextResponse;
+                        assert.equal('ok', response.result);
+                        assert.equal('Subscription done', textResponse.message);
+                        break;
+                    case 1:
+                        assert.equal('JoinResponse', response.name);
+                        assert.isTrue(response instanceof JoinResponse);
+                        joinResponse = response as JoinResponse;
+                        assert.equal(userId1.toString(), joinResponse.userId);
+                        break;
+                    case 2:
+                        assert.equal('EditResponse', response.name);
+                        assert.isTrue(response instanceof EditResponse);
+                        editResponse = response as EditResponse;
+                        assert.equal("del", editResponse.action.event);
+                        editConnection.close();
+                        dummyConnection.close();
+                        receiveConnection.close();
                 }
             });
-            receiveConnection = connection;
+
             connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
-            client2.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", "http://myorigin:8080");
         });
-        client1.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", "http://myorigin:8080");
         client2.on('connect', function (connection: websocket.connection) {
+            let messageCount = 0;
+            editConnection = connection;
             connection.on('error', function (error: Error) {
                 assert.fail('got error' + error.message);
             });
@@ -246,19 +291,69 @@ describe('WebSocket subscription tests', function () {
                 receiveConnection.close();
             });
             connection.on('message', function (message: IMessage) {
-                assert.isNotNull(message, "Message cannot be empty");
-                assert.equal("utf8", message.type, "Message type must be utf8");
-                assert.isNotNull(message.utf8Data, "Message body must exist");
                 const response: AbstractResponse = ResponseFactory.create(message);
-                assert.equal("TextResponse", response.name);
-                assert.instanceOf(response, TextResponse);
-                const echoResponse: TextResponse = response as TextResponse;
-                assert.equal("Edit accepted", echoResponse.message);
+                let textResponse: TextResponse;
+                let joinResponse: JoinResponse;
+                switch (messageCount++) {
+                    case 0:
+                        assert.equal('TextResponse', response.name);
+                        assert.isTrue(response instanceof TextResponse);
+                        textResponse = response as TextResponse;
+                        assert.equal('ok', response.result);
+                        assert.equal('Subscription done', textResponse.message);
+                        connection.send(JSON.stringify(new EditRequest(fileId1, {
+                            event: "del",
+                            parent: "root",
+                            payload: ""
+                        })));
+                        break;
+                    case 1:
+                        assert.equal('JoinResponse', response.name);
+                        assert.isTrue(response instanceof JoinResponse);
+                        joinResponse = response as JoinResponse;
+                        assert.equal(userId1.toString(), joinResponse.userId);
+                        break;
+                    case 2:
+                        assert.equal('TextResponse', response.name);
+                        assert.isTrue(response instanceof TextResponse);
+                        textResponse = response as TextResponse;
+                        assert.equal("Edit accepted", textResponse.message);
+                        break;
+                    default:
+                        assert.fail('Must not receive anything');
+                }
             });
-            connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
-            connection.send(JSON.stringify(new EditRequest(fileId1, new EditAction())));
-            editConnection = connection;
+
+            editConnection.send(JSON.stringify(new SubscribeRequest(fileId1)));
         });
+        client3.on('connect', function (connection: websocket.connection) {
+            dummyConnection = connection;
+            let messageCount = 0;
+            connection.on('error', function (error: Error) {
+                assert.fail('got error' + error.message);
+            });
+            connection.on('close', function () {
+                receiveConnection.close();
+            });
+            connection.on('message', function (message: IMessage) {
+                const response: AbstractResponse = ResponseFactory.create(message);
+                switch (messageCount++) {
+                    case 0:
+                        assert.equal('TextResponse', response.name);
+                        assert.isTrue(response instanceof TextResponse);
+                        const textResponse: TextResponse = response as TextResponse;
+                        assert.equal('ok', response.result);
+                        assert.equal('Subscription done', textResponse.message);
+                        break;
+                    default:
+                        assert.fail('Must not receive anything');
+                }
+            });
+            connection.send(JSON.stringify(new SubscribeRequest(fileId2)))
+        });
+        client1.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
+        client2.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID2, "mindweb-protocol", "http://myorigin:8080");
+        client3.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID3, "mindweb-protocol", "http://myorigin:8080");
     });
 
 });
@@ -280,6 +375,18 @@ after(function (next) {
 after(function (next) {
     app.cassandraClient.execute(
         "delete from mindweb.sessions where sid=:sessionId",
-        {sessionId: SESSION_ID}, {}, next
+        {sessionId: SESSION_ID1}, {}, next
+    );
+});
+after(function (next) {
+    app.cassandraClient.execute(
+        "delete from mindweb.sessions where sid=:sessionId",
+        {sessionId: SESSION_ID2}, {}, next
+    );
+});
+after(function (next) {
+    app.cassandraClient.execute(
+        "delete from mindweb.sessions where sid=:sessionId",
+        {sessionId: SESSION_ID3}, {}, next
     );
 });

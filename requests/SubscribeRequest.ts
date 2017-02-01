@@ -35,7 +35,7 @@ export default class SubscribeRequest extends AbstractRequest {
                 next(new ErrorResponse({name: "Permission denied", message: "User cannot read file"}));
                 return;
             }
-            kafkaService.subscribeToFile(sessionId, fileId, function (error: Error) {
+            kafkaService.subscribeToFile(sessionId, userId, fileId, function (error: Error) {
                 let response;
                 if (error) {
                     response = new ErrorResponse(error);

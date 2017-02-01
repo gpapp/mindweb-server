@@ -7,7 +7,7 @@ export default class ErrorResponse extends AbstractResponse {
     errorMessage: string;
 
     constructor(e?: Error) {
-        super("ErrorResponse");
+        super();
         this.result = "error";
         if (e) {
             this.errorName = e.name;

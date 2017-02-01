@@ -6,7 +6,7 @@ export default class TextResponse extends AbstractResponse {
     message: string;
 
     constructor(msg?: string) {
-        super("TextResponse");
+        super();
         this.message = msg;
     }
 }

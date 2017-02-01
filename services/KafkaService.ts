@@ -4,9 +4,10 @@ import * as app from "../app";
 import ServiceError from "../classes/ServiceError";
 import EditAction from "../classes/EditAction";
 import FileService from "./FileService";
-import TopicRequest from "../requests/TopicRequest";
-import EditRequest from "../requests/EditRequest";
-import {AbstractRequest} from "../requests/AbstractRequest";
+import AbstractResponse from "../responses/AbstractResponse";
+import JoinResponse from "../responses/JoinResponse";
+import EditResponse from "../responses/EditResponse";
+import PublishedResponse from "../responses/PublishedResponse";
 
 export default class KafkaService {
     private fileService: FileService;
@@ -38,20 +39,12 @@ export default class KafkaService {
         }
     }
 
-    public subscribeToFile(sessionId: string, fileId: string|cassandra.types.Uuid, callback: (error: ServiceError) => void) {
+    public subscribeToFile(sessionId: string, userId: string|cassandra.types.Uuid, fileId: string|cassandra.types.Uuid, callback: (error: ServiceError) => void) {
         const newTopic = 'editor-' + fileId.toString();
         const parent: KafkaService = this;
         this.isProducerReady(function (error: ServiceError) {
-                const payload: AbstractRequest = new TopicRequest('editor-' + fileId.toString(), "New user listening in");
-                payload.sessionId = sessionId;
-                parent.producer.send([{
-                        topic: newTopic,
-                        messages: JSON.stringify({
-                            type: 'utf8',
-                            utf8Data: JSON.stringify(payload)
-                        })
-                    }
-                    ],
+                const payload: AbstractResponse = new JoinResponse(userId);
+                parent.publishResponse(sessionId, newTopic, payload,
                     function (error: Error) {
                         if (error) {
                             let message = "Error creating items:" + "" + newTopic + "\t" + error[0] + "\n";
@@ -66,8 +59,7 @@ export default class KafkaService {
                             callback(null);
                         });
                     }
-                )
-                ;
+                )                ;
             }
         );
     }
@@ -87,15 +79,8 @@ export default class KafkaService {
     public    sendUpdateToFile(sessionId: string, fileId: string | cassandra.types.Uuid, action: EditAction, callback: (error: Error, result?: any) => void) {
         const parent: KafkaService = this;
         this.isProducerReady(function (error: ServiceError) {
-            const payload: AbstractRequest = new EditRequest('editor-' + fileId, action);
-            payload.sessionId = sessionId;
-            parent.producer.send([{
-                topic: "editor-" + fileId,
-                messages: JSON.stringify({
-                    type: 'utf8',
-                    utf8Data: JSON.stringify(payload)
-                })
-            }], function (error: any, data: any) {
+            const payload: AbstractResponse = new EditResponse(action);
+            parent.publishResponse(sessionId, "editor-" + fileId, payload, function (error: any, data: any) {
                 if (error) {
                     callback(new ServiceError(500, error.message, "Error in sending update"));
                     return;
@@ -103,6 +88,16 @@ export default class KafkaService {
                 callback(null, data);
             });
         });
+    }
+
+    private publishResponse(sessionId: string, topic: string, payload: AbstractResponse, callback: (error: any, data: any) => void) {
+        const response: PublishedResponse = new PublishedResponse(sessionId, payload);
+        this.producer.send([{
+                topic: topic,
+                messages: JSON.stringify(response)
+            }],
+            callback
+        );
     }
 }
 

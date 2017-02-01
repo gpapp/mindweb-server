@@ -5,7 +5,7 @@ export default class AbstractResponse {
     result: string;
     name: string;
 
-    constructor(name: string) {
-        this.name = name;
+    constructor() {
+        this.name = this.constructor.name;
     }
 }
