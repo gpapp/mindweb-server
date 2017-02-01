@@ -13,17 +13,16 @@ module.exports = function (grunt) {
                     '**/*.js.map',
                     '!**/gruntfile.js',
                     '**/*.d.ts',
-                    '!**/typings/**',
                     '!**/node_modules/**']
             },
         },
         ts: {
             default: {
-                src: ['**/*.ts', '!**/typings/**', '!**/node_modules/**'],
+                src: ['**/*.ts','!**/node_modules/**'],
                 dest: '.',
                 options: {
                     module: 'commonjs', //or commonjs
-                    target: 'es5', //or es3
+                    target: 'es6', //or es3
                     sourceMap: true,
                     declaration: false
                 }
@@ -36,23 +35,8 @@ module.exports = function (grunt) {
                 },
                 src: ['test/**/*.js']
             }
-        },
-        babel: {
-            options: {
-                sourceMap: true,
-                retainLines: true
-            },
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '.',
-                    src: ['**/*.es6'],
-                    dest: '.',
-                    ext: '.js'
-                }]
-            }
         }
     });
     grunt.registerTask('default', ['clean', 'ts']);
-    grunt.registerTask('dev', ['clean', 'ts', 'mochatest']);
+    grunt.registerTask('dev', ['clean', 'ts', 'mochaTest']);
 }
