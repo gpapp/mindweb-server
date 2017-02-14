@@ -80,6 +80,7 @@ export default class WSServer {
                         }
                     });
                     connection.on('close', function (reasonCode: number, description) {
+                        kafkaService.closeAll(sessionId);
                         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
                     });
                 }

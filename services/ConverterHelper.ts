@@ -1,9 +1,9 @@
 import * as xml2js from 'xml2js';
 import * as markdown from 'markdown';
 
-import MapNode from '../classes/MapNode';
-import FileContent from "../classes/FileContent";
-import ServiceError from "../classes/ServiceError";
+import MapNode from 'map-editor/dist/classes/MapNode';
+import FileContent from "map-editor/dist/classes/FileContent";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 
 
 const mapBuilder = new xml2js.Builder({rootName: 'map', headless: true, renderOpts: {pretty: true}});

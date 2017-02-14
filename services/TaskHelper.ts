@@ -1,8 +1,8 @@
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
 
-import FileContent from "../classes/FileContent";
-import MapNode from "../classes/MapNode";
+import FileContent from "map-editor/dist/classes/FileContent";
+import MapNode from "map-editor/dist/classes/MapNode";
 import Task from "../classes/Task";
 
 import * as ConverterHelper from './ConverterHelper';

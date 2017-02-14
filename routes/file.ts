@@ -4,14 +4,14 @@ import * as cassandra from 'cassandra-driver';
 import * as multer from "multer";
 
 import File from '../classes/File';
-import ServiceError from '../classes/ServiceError';
-import EditAction from "../classes/EditAction";
+import ServiceError from 'map-editor/dist/classes/ServiceError';
+import EditAction from "map-editor/dist/classes/EditAction";
 
 import BaseRouter from './BaseRouter';
 import FileService from '../services/FileService';
-import * as EditorHelper from '../services/EditorHelper';
+import * as EditorHelper from 'map-editor/dist/map-editor';
 import * as ConverterHelper from '../services/ConverterHelper'
-import FileContent from "../classes/FileContent";
+import FileContent from "map-editor/dist/classes/FileContent";
 
 
 const EMPTY_MAP = {

@@ -5,10 +5,9 @@ import KafkaService from "../services/KafkaService";
 import AbstractResponse from "../responses/AbstractResponse";
 import ErrorResponse from "../responses/ErrorResponse";
 import FileService from "../services/FileService";
-import ServiceError from "../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 import File from "../classes/File";
-import EditAction from "../classes/EditAction";
-
+import EditAction from "map-editor/dist/classes/EditAction";
 
 export default class EditRequest extends AbstractRequest {
     static initialized: boolean;

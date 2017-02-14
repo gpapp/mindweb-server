@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
-import ServiceError from "../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 
 var client:cassandra.Client;
 

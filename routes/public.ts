@@ -3,12 +3,12 @@ import * as bodyParser from "body-parser";
 import * as cassandra from "cassandra-driver";
 import * as multer from "multer";
 import File from "../classes/File";
-import ServiceError from "../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 import FileVersion from "../classes/FileVersion";
 import BaseRouter from "./BaseRouter";
 import FileService from "../services/FileService";
 import * as ConverterHelper from "../services/ConverterHelper";
-import FileContent from "../classes/FileContent";
+import FileContent from "map-editor/dist/classes/FileContent";
 
 const upload = multer({storage: multer.memoryStorage()});
 

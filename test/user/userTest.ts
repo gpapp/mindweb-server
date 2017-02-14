@@ -2,7 +2,7 @@ import {assert} from "chai";
 import * as app from "../../app";
 import File from "../../classes/File";
 import Friend from "../../classes/Friend";
-import ServiceError from "../../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 import FileService from "../../services/FileService";
 import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";

@@ -3,9 +3,9 @@ import * as app from "../../app";
 import * as fs from "fs";
 import * as TaskHelper from "../../services/TaskHelper";
 import * as ConverterHelper from "../../services/ConverterHelper";
-import ServiceError from "../../classes/ServiceError";
-import MapNode from "../../classes/MapNode";
-import FileContent from "../../classes/FileContent";
+import ServiceError from "map-editor/dist/classes/ServiceError";
+import MapNode from "map-editor/dist/classes/MapNode";
+import FileContent from "map-editor/dist/classes/FileContent";
 
 
 before(function (next) {

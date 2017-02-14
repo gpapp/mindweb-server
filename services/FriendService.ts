@@ -3,7 +3,7 @@ import * as cassandra from 'cassandra-driver';
 
 import Friend from '../classes/Friend';
 import User from '../classes/User';
-import ServiceError from "../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 
 import FriendDAO from '../dao/Friend';
 import UserService from "./UserService";
