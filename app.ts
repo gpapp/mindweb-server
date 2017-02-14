@@ -6,7 +6,7 @@ import * as async from "async";
 import * as fs from "fs";
 import * as path from "path";
 import * as cassandra from "cassandra-driver";
-import ServiceError from "./classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 import DbKeyspace from "./db/keyspace";
 import CoreSchema from "./db/core_schema";
 import BaseRouter from "./routes/BaseRouter";

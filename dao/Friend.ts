@@ -1,6 +1,6 @@
 import DAOBase from './DAOBase';
 import * as cassandra from 'cassandra-driver';
-import ServiceError from "../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 
 export default class Friend extends DAOBase {
 

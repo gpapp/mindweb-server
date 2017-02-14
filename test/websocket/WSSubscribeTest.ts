@@ -14,11 +14,11 @@ import FileService from "../../services/FileService";
 import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";
 import SubscribeRequest from "../../requests/SubscribeRequest";
-import ServiceError from "../../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 import UnsubscribeRequest from "../../requests/UnsubscribeRequest";
 import ErrorResponse from "../../responses/ErrorResponse";
 import EditRequest from "../../requests/EditRequest";
-import EditAction from "../../classes/EditAction";
+import EditAction from "map-editor/dist/classes/EditAction";
 import RequestFactory from "../../requests/RequestFactory";
 import {AbstractRequest} from "../../requests/AbstractRequest";
 import JoinResponse from "../../responses/JoinResponse";
@@ -29,7 +29,7 @@ const PORT = 18084;
 const SESSION_ID1 = "SESSION-TEST-1234567890-1";
 const SESSION_ID2 = "SESSION-TEST-1234567890-2";
 const SESSION_ID3 = "SESSION-TEST-1234567890-3";
-
+const FILE_CONTENT = {'$': '', 'rootNode': 'File SUBSCRIBE content'};
 let wsServer: WSServer;
 let userService: UserService;
 let fileService: FileService;
@@ -83,7 +83,7 @@ before(function (next) {
 });
 before(function (next) {
     before(function (done) {
-        fileService.createNewVersion(userId1, "SUBSCRIBEText1", true, false, null, null, ['SUBSCRIBE-TEST'], "File SUBSCRIBE content", function (error, result) {
+        fileService.createNewVersion(userId1, "SUBSCRIBEText1", true, false, null, null, ['SUBSCRIBE-TEST'], JSON.stringify(FILE_CONTENT), function (error, result) {
             if (error) console.error(error.message);
             fileId1 = result.id;
             done();
@@ -93,7 +93,7 @@ before(function (next) {
 });
 before(function (next) {
     before(function (done) {
-        fileService.createNewVersion(userId1, "SUBSCRIBEText2", true, false, null, null, ['SUBSCRIBE-TEST'], "File SUBSCRIBE content", function (error, result) {
+        fileService.createNewVersion(userId1, "SUBSCRIBEText2", true, false, null, null, ['SUBSCRIBE-TEST'], JSON.stringify(FILE_CONTENT), function (error, result) {
             if (error) console.error(error.message);
             fileId2 = result.id;
             done();
@@ -173,9 +173,9 @@ describe('WebSocket subscription tests', function () {
         client.on('connect', function (connection: websocket.connection) {
             connection.on('error', function (error: Error) {
                 assert.fail('got error' + error.message);
+                done();
             });
             connection.on('close', function () {
-                done();
             });
             connection.on('message', function (message: IMessage) {
                 assert.isNotNull(message, "Message cannot be empty");
@@ -187,6 +187,7 @@ describe('WebSocket subscription tests', function () {
                 const echoResponse: TextResponse = response as TextResponse;
                 assert.equal("Subscription done", echoResponse.message);
                 connection.close();
+                done();
             });
             connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
         });
@@ -201,9 +202,9 @@ describe('WebSocket subscription tests', function () {
         client.on('connect', function (connection: websocket.connection) {
             connection.on('error', function (error: Error) {
                 assert.fail('got error' + error.message);
+                done();
             });
             connection.on('close', function () {
-                done();
             });
             connection.on('message', function (message: IMessage) {
                 assert.isNotNull(message, "Message cannot be empty");
@@ -215,6 +216,7 @@ describe('WebSocket subscription tests', function () {
                 const echoResponse: TextResponse = response as TextResponse;
                 assert.equal("Unsubscribe done", echoResponse.message);
                 connection.close();
+                done();
             });
             connection.send(JSON.stringify(new UnsubscribeRequest(fileId1)));
         });
@@ -223,20 +225,14 @@ describe('WebSocket subscription tests', function () {
     it("Subscribes to an existing file and send updates", function (done) {
         this.timeout(12000);
         const client1: websocket.client = new websocket.client();
+        const client2: websocket.client = new websocket.client();
         let editConnection: websocket.connection;
         let receiveConnection: websocket.connection;
-        let dummyConnection: websocket.connection;
         client1.on('connectFailed', function (err) {
             assert.ok(false, 'Connection should not fail');
             done();
         });
-        const client2: websocket.client = new websocket.client();
         client2.on('connectFailed', function (err) {
-            assert.ok(false, 'Connection should not fail');
-            done();
-        });
-        const client3: websocket.client = new websocket.client();
-        client3.on('connectFailed', function (err) {
             assert.ok(false, 'Connection should not fail');
             done();
         });
@@ -245,9 +241,9 @@ describe('WebSocket subscription tests', function () {
             let messageCount = 0;
             connection.on('error', function (error: Error) {
                 assert.fail('got error' + error.message);
+                done();
             });
             connection.on('close', function () {
-                done();
             });
             connection.on('message', function (message: IMessage) {
                 const response: AbstractResponse = ResponseFactory.create(message);
@@ -274,11 +270,10 @@ describe('WebSocket subscription tests', function () {
                         editResponse = response as EditResponse;
                         assert.equal("del", editResponse.action.event);
                         editConnection.close();
-                        dummyConnection.close();
                         receiveConnection.close();
+                        done();
                 }
             });
-
             connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
         });
         client2.on('connect', function (connection: websocket.connection) {
@@ -326,37 +321,12 @@ describe('WebSocket subscription tests', function () {
 
             editConnection.send(JSON.stringify(new SubscribeRequest(fileId1)));
         });
-        client3.on('connect', function (connection: websocket.connection) {
-            dummyConnection = connection;
-            let messageCount = 0;
-            connection.on('error', function (error: Error) {
-                assert.fail('got error' + error.message);
-            });
-            connection.on('close', function () {
-                receiveConnection.close();
-            });
-            connection.on('message', function (message: IMessage) {
-                const response: AbstractResponse = ResponseFactory.create(message);
-                switch (messageCount++) {
-                    case 0:
-                        assert.equal('TextResponse', response.name);
-                        assert.isTrue(response instanceof TextResponse);
-                        const textResponse: TextResponse = response as TextResponse;
-                        assert.equal('ok', response.result);
-                        assert.equal('Subscription done', textResponse.message);
-                        break;
-                    default:
-                        assert.fail('Must not receive anything');
-                }
-            });
-            connection.send(JSON.stringify(new SubscribeRequest(fileId2)))
-        });
+
         client1.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
         client2.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID2, "mindweb-protocol", "http://myorigin:8080");
-        client3.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID3, "mindweb-protocol", "http://myorigin:8080");
     });
-
-});
+})
+;
 after(function (next) {
     userService.deleteUser(userId1, function (error: ServiceError) {
         next();

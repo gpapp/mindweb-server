@@ -5,7 +5,7 @@ import File from '../classes/File';
 import User from '../classes/User';
 import Persona from '../classes/Persona';
 import Friend from "../classes/Friend";
-import ServiceError from "../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 
 import UserDAO from '../dao/User';
 import UserPersonaDAO from '../dao/UserPersona';

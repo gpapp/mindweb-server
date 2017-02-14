@@ -5,7 +5,7 @@ import KafkaService from "../services/KafkaService";
 import AbstractResponse from "../responses/AbstractResponse";
 import ErrorResponse from "../responses/ErrorResponse";
 import FileService from "../services/FileService";
-import ServiceError from "../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 import File from "../classes/File";
 
 export default class UnsubscribeRequest extends AbstractRequest {

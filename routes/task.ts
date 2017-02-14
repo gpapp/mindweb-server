@@ -4,9 +4,9 @@ import * as cassandra from 'cassandra-driver';
 
 import File from '../classes/File';
 import FileVersion from "../classes/FileVersion";
-import FileContent from "../classes/FileContent";
+import FileContent from "map-editor/dist/classes/FileContent";
 import Task from "../classes/Task";
-import ServiceError from '../classes/ServiceError';
+import ServiceError from 'map-editor/dist/classes/ServiceError';
 
 import BaseRouter from './BaseRouter';
 import FileService from "../services/FileService";

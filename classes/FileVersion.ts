@@ -1,6 +1,6 @@
 import File from "./File";
 import * as cassandra from 'cassandra-driver';
-import FileContent from "./FileContent";
+import FileContent from "map-editor/dist/classes/FileContent";
 
 export default class FileVersion {
     version:number;

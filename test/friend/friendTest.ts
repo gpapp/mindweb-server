@@ -4,7 +4,7 @@ import * as async from "async";
 import Friend from "../../classes/Friend";
 import FriendService from "../../services/FriendService";
 import UserService from "../../services/UserService";
-import ServiceError from "../../classes/ServiceError";
+import ServiceError from "map-editor/dist/classes/ServiceError";
 
 let userService: UserService;
 let friendService: FriendService;

@@ -6,7 +6,7 @@ import * as cassandra from 'cassandra-driver';
 import Friend from "../classes/Friend";
 
 import BaseRouter from "./BaseRouter";
-import ServiceError from '../classes/ServiceError';
+import ServiceError from 'map-editor/dist/classes/ServiceError';
 import FriendService from '../services/FriendService';
 
 var friendService:FriendService;

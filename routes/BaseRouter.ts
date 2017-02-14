@@ -1,5 +1,5 @@
 import * as express from 'express';
-import ServiceError from '../classes/ServiceError';
+import ServiceError from 'map-editor/dist/classes/ServiceError';
 
 export default class BaseRouter {
     private _router;

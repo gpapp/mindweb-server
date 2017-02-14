@@ -1,5 +1,5 @@
 import AbstractResponse from "./AbstractResponse";
-import EditAction from "../classes/EditAction";
+import EditAction from "map-editor/dist/classes/EditAction";
 /**
  * Created by gpapp on 2016.12.30..
  */
