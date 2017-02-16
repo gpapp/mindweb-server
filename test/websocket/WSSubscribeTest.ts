@@ -18,9 +18,6 @@ import ServiceError from "map-editor/dist/classes/ServiceError";
 import UnsubscribeRequest from "../../requests/UnsubscribeRequest";
 import ErrorResponse from "../../responses/ErrorResponse";
 import EditRequest from "../../requests/EditRequest";
-import EditAction from "map-editor/dist/classes/EditAction";
-import RequestFactory from "../../requests/RequestFactory";
-import {AbstractRequest} from "../../requests/AbstractRequest";
 import JoinResponse from "../../responses/JoinResponse";
 import EditResponse from "../../responses/EditResponse";
 
@@ -250,22 +247,23 @@ describe('WebSocket subscription tests', function () {
                 let textResponse: TextResponse;
                 let joinResponse: JoinResponse;
                 let editResponse: EditResponse;
-                console.log('pipe1:'+response.name);
-                switch (messageCount++) {
-                    case 0:
-                        assert.equal('TextResponse', response.name);
+                console.log('pipe1-' + messageCount + ':' + response.name);
+                messageCount++;
+                switch (response.name) {
+                    case 'TextResponse':
                         assert.isTrue(response instanceof TextResponse);
                         textResponse = response as TextResponse;
                         assert.equal('ok', response.result);
                         assert.equal('Subscription done', textResponse.message);
                         break;
-                    case 1:
+
+                    case 'JoinResponse':
                         assert.equal('JoinResponse', response.name);
                         assert.isTrue(response instanceof JoinResponse);
                         joinResponse = response as JoinResponse;
                         assert.equal(userId1.toString(), joinResponse.userId);
                         break;
-                    case 2:
+                    case 'EditResponse':
                         assert.equal('EditResponse', response.name);
                         assert.isTrue(response instanceof EditResponse);
                         editResponse = response as EditResponse;
@@ -273,6 +271,9 @@ describe('WebSocket subscription tests', function () {
                         editConnection.close();
                         receiveConnection.close();
                         done();
+                        break;
+                    default:
+                        assert.fail('Must not receive ' + response.name);
                 }
             });
             connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
@@ -288,48 +289,50 @@ describe('WebSocket subscription tests', function () {
             });
             connection.on('message', function (message: IMessage) {
                 const response: AbstractResponse = ResponseFactory.create(message);
-                console.log('pipe2:'+response.name);
+                console.log('pipe2-' + messageCount + ':' + response.name);
                 let textResponse: TextResponse;
                 let joinResponse: JoinResponse;
-                switch (messageCount++) {
-                    case 0:
+                messageCount++;
+                switch (response.name) {
+                    case 'TextResponse':
                         assert.equal('TextResponse', response.name);
                         assert.isTrue(response instanceof TextResponse);
                         textResponse = response as TextResponse;
                         assert.equal('ok', response.result);
-                        assert.equal('Subscription done', textResponse.message);
-                        connection.send(JSON.stringify(new EditRequest(fileId1, {
-                            event: "del",
-                            parent: "root",
-                            payload: ""
-                        })));
+                        assert.isTrue('Subscription done' === textResponse.message || 'Edit accepted' === textResponse.message);
+
                         break;
-                    case 1:
-                    case 2:
+
+                    case 'JoinResponse':
                         assert.equal('JoinResponse', response.name);
                         assert.isTrue(response instanceof JoinResponse);
                         joinResponse = response as JoinResponse;
                         assert.equal(userId1.toString(), joinResponse.userId);
                         break;
-                    case 3:
+                    case 'EditResponse':
                         assert.equal('TextResponse', response.name);
                         assert.isTrue(response instanceof TextResponse);
                         textResponse = response as TextResponse;
                         assert.equal("Edit accepted", textResponse.message);
                         break;
                     default:
-                        assert.fail('Must not receive anything');
+                        assert.fail('Must not receive ' + response.name);
                 }
+
             });
 
             editConnection.send(JSON.stringify(new SubscribeRequest(fileId1)));
+            editConnection.send(JSON.stringify(new EditRequest(fileId1, {
+                event: "del",
+                parent: "root",
+                payload: ""
+            })));
         });
 
         client1.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
         client2.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID2, "mindweb-protocol", "http://myorigin:8080");
     });
-})
-;
+});
 after(function (next) {
     userService.deleteUser(userId1, function (error: ServiceError) {
         next();

@@ -16,7 +16,7 @@ export default class EditRequest extends AbstractRequest {
     action: EditAction;
 
     constructor(fileId: string, action: EditAction) {
-        super("EditRequest");
+        super();
         this.fileId = fileId;
         this.action = action;
     }

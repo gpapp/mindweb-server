@@ -7,7 +7,7 @@ export default class EchoRequest extends AbstractRequest {
     content: string;
 
     constructor(content?: string) {
-        super("EchoRequest");
+        super();
         this.content = content;
     }
 

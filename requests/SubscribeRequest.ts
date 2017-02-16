@@ -15,7 +15,7 @@ export default class SubscribeRequest extends AbstractRequest {
     fileId: string;
 
     constructor(fileId: string) {
-        super("SubscribeRequest");
+        super();
         this.fileId = fileId;
     }
 
