@@ -91,9 +91,11 @@ export default class KafkaService {
         const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
         if (!cacheItem) {
             //TODO handle error
+            done();
             return;
         }
         if (--cacheItem.subscribers) {
+            done();
             return;
         }
         fileService.updateFileVersion(fileId, cacheItem.content.toString(), function (error: ServiceError, result?: string): void {
