@@ -126,6 +126,7 @@ describe('WebSocket connection tests', function () {
 
     });
     it("Connects with socket to server and sends many echo commands", function (done) {
+        this.timeout(30000);
         const client: websocket.client = new websocket.client();
         client.on('connectFailed', function (err) {
             assert.ok(false, 'Connection should not fail');
