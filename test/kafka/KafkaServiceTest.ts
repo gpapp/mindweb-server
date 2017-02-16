@@ -128,6 +128,7 @@ function getPromiseFor(fn: () => boolean) {
 describe('Kafka connection tests', function () {
 
     it("open kafka call", function (done) {
+        this.timeout(30000);
         let gotMsg: boolean = false;
         let gotResp: boolean = false;
         const kafkaService = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
@@ -159,6 +160,7 @@ describe('Kafka connection tests', function () {
     });
 
     it("open two sessions", function (done) {
+        this.timeout(30000);
         let gotMsg1: number = 0;
         let gotResp1: number = 0;
         const kafkaService1 = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
