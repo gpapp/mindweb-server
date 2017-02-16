@@ -21,7 +21,7 @@ cache:
 
 test_async:
   script:
-   - sed "/localhost:2181/spotify_kafka:2181/" -i config/config.json
+   - sed "s/192.168.1.20/cassandra/;s/localhost:2181/spotify__kafka:2181/" -i config/config.json
    - cat config/config.json
    - npm install --quiet
    - npm install --quiet grunt -g
