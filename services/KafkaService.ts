@@ -48,7 +48,7 @@ export default class KafkaService {
         });
     }
 
-    private static openFile(fileService: FileService, fileId: string|cassandra.types.Uuid, done: (error: ServiceError) => void): void {
+    private static openFile(fileService: FileService, fileId: string|cassandra.types.Uuid, done: (error?: ServiceError) => void): void {
         const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
         if (cacheItem) {
             cacheItem.subscribers++;
@@ -66,33 +66,43 @@ export default class KafkaService {
                     return;
                 }
                 KafkaService.cache[fileId.toString()] = {subscribers: 1, content: file.content};
-                done(null);
+                done();
             })
         });
     }
 
-    private static updateFile(fileId: string|cassandra.types.Uuid, action: EditAction): void {
+    private static updateFile(fileId: string|cassandra.types.Uuid, action: EditAction, done: (error?: ServiceError) => void): void {
+        const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
+        if (!cacheItem) {
+            //TODO handle error
+                done(null);
+            return;
+        }
+        mapeditor.applyAction(cacheItem.content, action, function (error: ServiceError): void {
+                if (error) {
+                    done(error);
+                    return;
+                }
+                done();
+        });
+    }
+
+    private static closeFile(fileService: FileService, fileId: string|cassandra.types.Uuid, done: (error?: ServiceError) => void): void {
         const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
         if (!cacheItem) {
             //TODO handle error
             return;
-        }
-        mapeditor.applyAction(cacheItem.content, action, function (error: ServiceError): void {
-            //TODO handle error
-        });
-    }
-
-    private static closeFile(fileService: FileService, fileId: string|cassandra.types.Uuid): void {
-        const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
-        if (!cacheItem) {
-            //TODO handle error
         }
         if (--cacheItem.subscribers) {
             return;
         }
         fileService.updateFileVersion(fileId, cacheItem.content.toString(), function (error: ServiceError, result?: string): void {
-            //TODO handle error
-            delete KafkaService.cache[fileId.toString()];
+                if (error) {
+                    done(error);
+                    return;
+                }
+                delete KafkaService.cache[fileId.toString()];
+                done();
         });
     }
 
