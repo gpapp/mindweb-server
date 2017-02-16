@@ -9,8 +9,8 @@ export abstract class AbstractRequest {
 
     abstract execute(userId: string, kafkaService: KafkaService, callback: (response: AbstractResponse) => void): void;
 
-    constructor(name: string) {
-        this.name = name;
+    constructor() {
+        this.name = this.constructor.name;
     }
 
     public do(sessionId: string, userId: string, kafkaService: KafkaService, callback: (response: IStringified) => void): void {

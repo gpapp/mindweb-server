@@ -15,7 +15,7 @@ export default class UnsubscribeRequest extends AbstractRequest {
     fileId: string;
 
     constructor(fileId: string) {
-        super("UnsubscribeRequest");
+        super();
         this.fileId = fileId;
     }
 

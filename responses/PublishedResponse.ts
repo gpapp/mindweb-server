@@ -15,7 +15,7 @@ export default class PublishedResponse {
 
     static create(message: KeyedMessage): PublishedResponse {
         const payload = JSON.parse(message['value']);
-
+        payload.response['fileId'] = message['topic'];
         return new PublishedResponse(payload['originSessionId'], ResponseFactory.create({
             type: 'utf8',
             utf8Data: JSON.stringify(payload['response'])
