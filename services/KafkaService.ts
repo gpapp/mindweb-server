@@ -126,9 +126,7 @@ export default class KafkaService {
                     }
                 });
                 parent.openfiles.add(fileId.toString());
-                KafkaService.openFile(parent.fileService, fileId, function (error: ServiceError) {
-                    callback(error);
-                });
+                KafkaService.openFile(parent.fileService, fileId, callback);
             }
         );
     }
@@ -141,8 +139,7 @@ export default class KafkaService {
                 callback(new ServiceError(500, error.message, "Error in fileId remove"));
                 return;
             }
-            KafkaService.closeFile(parent.fileService, fileId);
-            callback(null);
+            KafkaService.closeFile(parent.fileService, fileId, callback);
         });
     }
 
