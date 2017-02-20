@@ -42,6 +42,7 @@
     "to-markdown": "^3.0.3",
     "websocket": "^1.x.x",
     "xml2js": "^0.4.12",
+    "mindweb-request-classes": "^0.0.6",
     "map-editor": "^1.0.0"
   },
   "devDependencies": {
@@ -55,6 +56,6 @@
     "load-grunt-tasks": "^3.3.0",
     "mocha": "3.2.0",
     "supertest": "^2.0.1",
-    "typescript": "^2.1.4"
+    "typescript": "^2.2.0"
   }
 }

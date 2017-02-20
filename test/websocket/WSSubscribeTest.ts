@@ -7,19 +7,19 @@ import * as websocket from "websocket";
 import {IMessage} from "websocket";
 import * as app from "../../app";
 import WSServer from "../../services/WSServer";
-import ResponseFactory from "../../responses/ResponseFactory";
-import AbstractResponse from "../../responses/AbstractResponse";
-import TextResponse from "../../responses/TextResponse";
+import ResponseFactory from "mindweb-request-classes/dist/response/ResponseFactory";
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
 import FileService from "../../services/FileService";
 import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";
-import SubscribeRequest from "../../requests/SubscribeRequest";
 import ServiceError from "map-editor/dist/classes/ServiceError";
-import UnsubscribeRequest from "../../requests/UnsubscribeRequest";
-import ErrorResponse from "../../responses/ErrorResponse";
-import EditRequest from "../../requests/EditRequest";
-import JoinResponse from "../../responses/JoinResponse";
-import EditResponse from "../../responses/EditResponse";
+import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
+import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
+import EditResponse from "mindweb-request-classes/dist/response/EditResponse";
+import SubscribeRequestImpl from "../../requestImpl/SubscribeRequestImpl";
+import UnsubscribeRequestImpl from "../../requestImpl/UnsubscribeRequestImpl";
+import EditRequestImpl from "../../requestImpl/EditRequestImpl";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18084;
@@ -140,9 +140,9 @@ describe('WebSocket subscription tests', function () {
         client.on('connect', function (connection: websocket.connection) {
             connection.on('error', function (error: Error) {
                 assert.fail('got error' + error.message);
+                done();
             });
             connection.on('close', function () {
-                done();
             });
             connection.on('message', function (message: IMessage) {
                 assert.isNotNull(message, "Message cannot be empty");
@@ -155,8 +155,9 @@ describe('WebSocket subscription tests', function () {
                 const errorResponse: ErrorResponse = response as ErrorResponse;
                 assert.equal("TypeError", errorResponse.errorName);
                 connection.close();
+                done();
             });
-            connection.send(JSON.stringify(new SubscribeRequest("INVALID")));
+            connection.send(JSON.stringify(new SubscribeRequestImpl("INVALID")));
         });
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
@@ -186,7 +187,7 @@ describe('WebSocket subscription tests', function () {
                 connection.close();
                 done();
             });
-            connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
+            connection.send(JSON.stringify(new SubscribeRequestImpl(fileId1)));
         });
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
@@ -215,7 +216,7 @@ describe('WebSocket subscription tests', function () {
                 connection.close();
                 done();
             });
-            connection.send(JSON.stringify(new UnsubscribeRequest(fileId1)));
+            connection.send(JSON.stringify(new UnsubscribeRequestImpl(fileId1)));
         });
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
@@ -276,7 +277,7 @@ describe('WebSocket subscription tests', function () {
                         assert.fail('Must not receive ' + response.name);
                 }
             });
-            connection.send(JSON.stringify(new SubscribeRequest(fileId1)));
+            connection.send(JSON.stringify(new SubscribeRequestImpl(fileId1)));
         });
         client2.on('connect', function (connection: websocket.connection) {
             let messageCount = 0;
@@ -321,8 +322,8 @@ describe('WebSocket subscription tests', function () {
 
             });
 
-            editConnection.send(JSON.stringify(new SubscribeRequest(fileId1)));
-            editConnection.send(JSON.stringify(new EditRequest(fileId1, {
+            editConnection.send(JSON.stringify(new SubscribeRequestImpl(fileId1)));
+            editConnection.send(JSON.stringify(new EditRequestImpl(fileId1, {
                 event: "del",
                 parent: "root",
                 payload: ""

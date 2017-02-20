@@ -7,10 +7,10 @@ import * as websocket from "websocket";
 import {IMessage} from "websocket";
 import * as cassandra from "cassandra-driver";
 import WSServer from "../../services/WSServer";
-import ResponseFactory from "../../responses/ResponseFactory";
-import EchoRequest from "../../requests/EchoRequest";
-import AbstractResponse from "../../responses/AbstractResponse";
-import EchoResponse from "../../responses/TextResponse";
+import ResponseFactory from "mindweb-request-classes/dist/response/ResponseFactory";
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import EchoResponse from "mindweb-request-classes/dist/response/TextResponse";
+import EchoRequestImpl from "../../requestImpl/EchoRequestImpl";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18083;
@@ -96,7 +96,7 @@ describe('WebSocket session tests', function () {
                 assert.equal("Blabla", echoResponse.message);
                 connection.close();
             });
-            connection.send(JSON.stringify(new EchoRequest("Blabla")));
+            connection.send(JSON.stringify(new EchoRequestImpl("Blabla")));
 
         });
         client.connect('ws://localhost:' + PORT + "?mindweb-session=BAD_ID", "mindweb-protocol", "http://myorigin:8080");
@@ -126,7 +126,7 @@ describe('WebSocket session tests', function () {
                 assert.equal("Blabla", echoResponse.message);
                 connection.close();
             });
-            connection.send(JSON.stringify(new EchoRequest("Blabla")));
+            connection.send(JSON.stringify(new EchoRequestImpl("Blabla")));
         });
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", "http://myorigin:8080");
 

@@ -1,31 +1,29 @@
 import * as app from "../app";
-import {AbstractRequest} from "./AbstractRequest";
-import TextResponse from "../responses/TextResponse";
+import SubscribeRequest from 'mindweb-request-classes/dist/request/SubscribeRequest';
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
+import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
 import KafkaService from "../services/KafkaService";
-import AbstractResponse from "../responses/AbstractResponse";
-import ErrorResponse from "../responses/ErrorResponse";
 import FileService from "../services/FileService";
 import ServiceError from "map-editor/dist/classes/ServiceError";
 import File from "../classes/File";
 
 
-export default class SubscribeRequest extends AbstractRequest {
-    static initialized: boolean;
+export default class SubscribeRequestImpl extends SubscribeRequest {
     static fileService: FileService;
-    fileId: string;
+    static initialized: boolean;
 
     constructor(fileId: string) {
-        super();
-        this.fileId = fileId;
+        super(fileId);
     }
 
     execute(userId: string, kafkaService: KafkaService, next: (response: AbstractResponse) => void) {
-        if (!SubscribeRequest.initialized) {
-            SubscribeRequest.fileService = new FileService(app.cassandraClient);
-            SubscribeRequest.initialized = true;
+        if (!SubscribeRequestImpl.initialized) {
+            SubscribeRequestImpl.fileService = new FileService(app.cassandraClient);
+            SubscribeRequestImpl.initialized = true;
         }
-        const fileId = this.fileId;
-        const sessionId = this.sessionId;
+        const fileId = this as SubscribeRequest.fileId;
+        const sessionId = this as SubscribeRequest.sessionId;
         SubscribeRequest.fileService.getFile(fileId, function (error: ServiceError, file: File) {
             if (error) {
                 next(new ErrorResponse(error));

@@ -1,34 +1,31 @@
 import * as app from "../app";
-import {AbstractRequest} from "./AbstractRequest";
-import TextResponse from "../responses/TextResponse";
+import EditRequest from 'mindweb-request-classes/dist/request/EditRequest';
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
+import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
 import KafkaService from "../services/KafkaService";
-import AbstractResponse from "../responses/AbstractResponse";
-import ErrorResponse from "../responses/ErrorResponse";
 import FileService from "../services/FileService";
+import EditAction from "map-editor/dist/classes/EditAction";
 import ServiceError from "map-editor/dist/classes/ServiceError";
 import File from "../classes/File";
-import EditAction from "map-editor/dist/classes/EditAction";
+import * as cassandra from "cassandra-driver";
 
-export default class EditRequest extends AbstractRequest {
-    static initialized: boolean;
+export default class EditRequestImpl extends EditRequest {
     static fileService: FileService;
-    fileId: string;
-    action: EditAction;
+    static initialized: boolean;
 
-    constructor(fileId: string, action: EditAction) {
-        super();
-        this.fileId = fileId;
-        this.action = action;
+    constructor(fileId: string|cassandra.types.Uuid, action: EditAction) {
+        super(fileId.toString(), action);
     }
 
     execute(userId: string, kafkaService: KafkaService, next: (response: AbstractResponse) => void) {
-        if (!EditRequest.initialized) {
-            EditRequest.fileService = new FileService(app.cassandraClient);
-            EditRequest.initialized = true;
+        if (!EditRequestImpl.initialized) {
+            EditRequestImpl.fileService = new FileService(app.cassandraClient);
+            EditRequestImpl.initialized = true;
         }
-        const fileId = this.fileId;
-        const action = this.action;
-        const sessionId: string = this.sessionId;
+        const fileId = this as EditRequest.fileId;
+        const action = this as EditRequest.action;
+        const sessionId: string = this as EditRequest.sessionId;
         EditRequest.fileService.getFile(fileId, function (error: ServiceError, file: File) {
             if (error) {
                 next(new ErrorResponse(error));

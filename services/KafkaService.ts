@@ -4,14 +4,16 @@ import * as app from "../app";
 import ServiceError from "map-editor/dist/classes/ServiceError";
 import EditAction from "map-editor/dist/classes/EditAction";
 import FileService from "./FileService";
-import AbstractResponse from "../responses/AbstractResponse";
-import JoinResponse from "../responses/JoinResponse";
-import EditResponse from "../responses/EditResponse";
-import PublishedResponse from "../responses/PublishedResponse";
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
+import EditResponse from "mindweb-request-classes/dist/response/EditResponse";
+import PublishedResponse from "mindweb-request-classes/dist/response/PublishedResponse";
+import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
 import File from "../classes/File";
 import FileVersion from "../classes/FileVersion";
 import FileContent from "map-editor/dist/classes/FileContent";
 import mapeditor from "map-editor/dist/map-editor";
+import {MindwebService} from "../../mindweb-request-classes/src/service/MindwebService";
 
 class FileCacheItem {
     subscribers: number;
@@ -21,7 +23,7 @@ class FileCacheItem {
 /**
  * One instance per websocket connection
  */
-export default class KafkaService {
+export default class KafkaService implements MindwebService {
     private static cache: Map<string,FileCacheItem> = new Map();
 
     private openfiles: Set<string> = new Set();

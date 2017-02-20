@@ -3,17 +3,16 @@
  */
 import * as app from "../../app";
 import KafkaService from "../../services/KafkaService";
-import * as kafka from "kafka-node";
 import {KeyedMessage} from "kafka-node";
 import ServiceError from "map-editor/dist/classes/ServiceError";
 import {assert} from "chai";
-import ResponseFactory from "../../responses/ResponseFactory";
-import AbstractResponse from "../../responses/AbstractResponse";
-import JoinResponse from "../../responses/JoinResponse";
-import PublishedResponse from "../../responses/PublishedResponse";
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
+import PublishedResponse from "mindweb-request-classes/dist/response/PublishedResponse";
 import UserService from "../../services/UserService";
 import FileService from "../../services/FileService";
 import FriendService from "../../services/FriendService";
+import PublishedResponseFactory from "../../responseImpl/PublishedResponseFactory";
 
 const SESSION_ID1 = "SESSION-TEST-1234567890-1";
 const SESSION_ID2 = "SESSION-TEST-1234567890-2";
@@ -132,7 +131,7 @@ describe('Kafka connection tests', function () {
         let gotMsg: boolean = false;
         let gotResp: boolean = false;
         const kafkaService = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
-            let response: AbstractResponse = PublishedResponse.create(message).response;
+            let response: AbstractResponse = PublishedResponseFactory.create(message).response;
             assert.equal('JoinResponse', response.name);
             assert.equal(fileId1.toString(), response.fileId);
             assert.isTrue(response instanceof JoinResponse);
@@ -143,7 +142,7 @@ describe('Kafka connection tests', function () {
 
 
         kafkaService.subscribeToFile(SESSION_ID1, userId1, fileId1, function (error: ServiceError) {
-            assert.isNull(error, error ? error.message : "WTF");
+            assert.isUndefined(error, error ? error.message : "WTF");
             gotResp = true;
         });
         const messageTest = getPromiseFor(() => {
@@ -165,7 +164,7 @@ describe('Kafka connection tests', function () {
         let gotResp1: number = 0;
         const kafkaService1 = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
 
-            const publishedResponse: PublishedResponse = PublishedResponse.create(message);
+            const publishedResponse: PublishedResponse = PublishedResponseFactory.create(message);
             if (SESSION_ID1 == publishedResponse.originSessionId) {
                 let response: AbstractResponse = publishedResponse.response;
                 assert.equal('JoinResponse', response.name);
@@ -191,7 +190,7 @@ describe('Kafka connection tests', function () {
             let gotResp2: number = 0;
 
             const kafkaService2 = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
-                const publishedResponse = PublishedResponse.create(message);
+                const publishedResponse = PublishedResponseFactory.create(message);
                 if (SESSION_ID2 == publishedResponse.originSessionId) {
                     let response: AbstractResponse = publishedResponse.response;
                     assert.equal('JoinResponse', response.name);

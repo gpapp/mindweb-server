@@ -1,14 +1,14 @@
 import * as app from "../app";
-import {AbstractRequest} from "./AbstractRequest";
-import TextResponse from "../responses/TextResponse";
+import UnsubscribeRequest from 'mindweb-request-classes/dist/request/UnsubscribeRequest';
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
+import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
 import KafkaService from "../services/KafkaService";
-import AbstractResponse from "../responses/AbstractResponse";
-import ErrorResponse from "../responses/ErrorResponse";
 import FileService from "../services/FileService";
 import ServiceError from "map-editor/dist/classes/ServiceError";
 import File from "../classes/File";
 
-export default class UnsubscribeRequest extends AbstractRequest {
+export default class UnsubscribeRequestImpl extends UnsubscribeRequest {
     static initialized: boolean;
     static fileService: FileService;
 
@@ -20,14 +20,14 @@ export default class UnsubscribeRequest extends AbstractRequest {
     }
 
     execute(userId: string, kafkaService: KafkaService, next: (response: AbstractResponse) => void) {
-        if (!UnsubscribeRequest.initialized) {
-            UnsubscribeRequest.fileService = new FileService(app.cassandraClient);
-            UnsubscribeRequest.initialized = true;
+        if (!UnsubscribeRequestImpl.initialized) {
+            UnsubscribeRequestImpl.fileService = new FileService(app.cassandraClient);
+            UnsubscribeRequestImpl.initialized = true;
         }
-        const sessionId = this.sessionId;
+        const sessionId = this as UnsubscribeRequest.sessionId;
         const fileId = this.fileId;
 
-        UnsubscribeRequest.fileService.getFile(fileId, function (error: ServiceError, file: File) {
+        UnsubscribeRequestImpl.fileService.getFile(fileId, function (error: ServiceError, file: File) {
             if (error) {
                 next(new ErrorResponse(error));
                 return;

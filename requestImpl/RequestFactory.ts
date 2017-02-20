@@ -1,5 +1,5 @@
 import {IMessage} from "websocket";
-import {AbstractRequest} from "./AbstractRequest";
+import AbstractRequest from 'mindweb-request-classes/dist/request/AbstractRequest';
 
 export default class RequestFactory {
 

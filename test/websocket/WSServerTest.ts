@@ -8,15 +8,14 @@ import {IMessage} from "websocket";
 import * as cassandra from "cassandra-driver";
 import * as app from "../../app";
 import WSServer from "../../services/WSServer";
-import ResponseFactory from "../../responses/ResponseFactory";
-import EchoRequest from "../../requests/EchoRequest";
-import AbstractResponse from "../../responses/AbstractResponse";
-import EchoResponse from "../../responses/TextResponse";
+import ResponseFactory from "mindweb-request-classes/dist/response/ResponseFactory";
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import EchoResponse from "mindweb-request-classes/dist/response/TextResponse";
+import EchoRequestImpl from "../../requestImpl/EchoRequestImpl";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18082;
 const SESSION_ID = "SESSION-TEST-1234567890";
-let cassandraClient: cassandra.Client;
 let wsServer: WSServer;
 
 
@@ -119,7 +118,7 @@ describe('WebSocket connection tests', function () {
                 }
                 connection.close();
             });
-            connection.send(JSON.stringify(new EchoRequest("Blabla")));
+            connection.send(JSON.stringify(new EchoRequestImpl("Blabla")));
         });
 
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", ORIGIN);
@@ -132,7 +131,7 @@ describe('WebSocket connection tests', function () {
             assert.ok(false, 'Connection should not fail');
             done();
         });
-        let pos = -1;
+        let pos = 0;
         client.on('connect', function (connection: websocket.connection) {
             connection.on('error', function (error: Error) {
                 assert.fail('got error' + error.message);
@@ -142,7 +141,7 @@ describe('WebSocket connection tests', function () {
                 done();
             });
             connection.on('message', function (message: IMessage) {
-                pos++;
+
                 assert.isNotNull(message, "Message cannot be empty");
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
@@ -157,12 +156,12 @@ describe('WebSocket connection tests', function () {
                 }
                 if (pos == 10000) {
                     connection.close();
+                } else {
+                    pos++;
+                    connection.send(JSON.stringify(new EchoRequestImpl("Blabla" + pos)));
                 }
             });
-            for (let i = 0; i < 10001; i++) {
-                connection.send(JSON.stringify(new EchoRequest("Blabla" + i)));
-            }
-
+            connection.send(JSON.stringify(new EchoRequestImpl("Blabla" + 0)));
         });
 
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", ORIGIN);

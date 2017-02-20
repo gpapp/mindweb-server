@@ -4,13 +4,13 @@
 import * as http from "http";
 import * as websocket from "websocket";
 import {IMessage, connection, IStringified} from "websocket";
-import RequestFactory from "../requests/RequestFactory";
-import {AbstractRequest} from "../requests/AbstractRequest";
+import {AbstractRequest} from "mindweb-request-classes/dist/request/AbstractRequest";
 import KafkaService from "./KafkaService";
 import {cassandraClient, cassandraStore} from "../app";
-import ResponseFactory from "../responses/ResponseFactory";
-import AbstractResponse from "../responses/AbstractResponse";
-import PublishedResponse from "../responses/PublishedResponse";
+import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
+import PublishedResponse from "mindweb-request-classes/dist/response/PublishedResponse";
+import RequestFactory from "../requestImpl/RequestFactory";
+import PublishedResponseFactory from "../responseImpl/PublishedResponseFactory";
 
 export default class WSServer {
     private webSocketServer: websocket.server;
@@ -51,7 +51,7 @@ export default class WSServer {
                     }
                     const connection: connection = request.accept('mindweb-protocol', request.origin, request.cookies);
                     const kafkaService: KafkaService = new KafkaService(cassandraClient, function (message) {
-                            const publishedResponse: PublishedResponse = PublishedResponse.create(message);
+                            const publishedResponse: PublishedResponse = PublishedResponseFactory.create(message);
                             const response: AbstractResponse = publishedResponse.response;
                             if (sessionId != publishedResponse.originSessionId) {
                                 connection.send(JSON.stringify(response));
