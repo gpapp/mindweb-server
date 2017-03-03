@@ -7,7 +7,7 @@ import * as websocket from "websocket";
 import {IMessage} from "websocket";
 import * as cassandra from "cassandra-driver";
 import WSServer from "../../services/WSServer";
-import ResponseFactory from "mindweb-request-classes/dist/response/ResponseFactory";
+import ResponseFactory from "mindweb-request-classes/dist/service/ResponseFactory";
 import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
 import EchoResponse from "mindweb-request-classes/dist/response/TextResponse";
 import EchoRequestImpl from "../../requestImpl/EchoRequestImpl";

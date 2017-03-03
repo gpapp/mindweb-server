@@ -1,9 +1,9 @@
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
 
-import FileContent from "map-editor/dist/classes/FileContent";
-import MapNode from "map-editor/dist/classes/MapNode";
-import Task from "../classes/Task";
+import FileContent from "mindweb-request-classes/dist/classes/FileContent";
+import MapNode from "mindweb-request-classes/dist/classes/MapNode";
+import Task from "mindweb-request-classes/dist/classes/Task";
 
 import * as ConverterHelper from './ConverterHelper';
 import * as FilterHelper from './FilterHelper';

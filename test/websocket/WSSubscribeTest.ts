@@ -7,13 +7,13 @@ import * as websocket from "websocket";
 import {IMessage} from "websocket";
 import * as app from "../../app";
 import WSServer from "../../services/WSServer";
-import ResponseFactory from "mindweb-request-classes/dist/response/ResponseFactory";
+import ResponseFactory from "mindweb-request-classes/dist/service/ResponseFactory";
 import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
 import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
 import FileService from "../../services/FileService";
 import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";
-import ServiceError from "map-editor/dist/classes/ServiceError";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
 import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
 import EditResponse from "mindweb-request-classes/dist/response/EditResponse";
@@ -26,7 +26,7 @@ const PORT = 18084;
 const SESSION_ID1 = "SESSION-TEST-1234567890-1";
 const SESSION_ID2 = "SESSION-TEST-1234567890-2";
 const SESSION_ID3 = "SESSION-TEST-1234567890-3";
-const FILE_CONTENT = {'$': '', 'rootNode': 'File SUBSCRIBE content'};
+const FILE_CONTENT = {'$': '', 'rootNode': 'MyFile SUBSCRIBE content'};
 let wsServer: WSServer;
 let userService: UserService;
 let fileService: FileService;
@@ -47,7 +47,7 @@ before(function (next) {
     next();
 });
 before(function (next) {
-    userService.createUser("subscribeTest:ID1", "Test Subscribe User 1", "test1@subscribe.com", "Test File Avatar 1", function (error, result) {
+    userService.createUser("subscribeTest:ID1", "Test Subscribe User 1", "test1@subscribe.com", "Test MyFile Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("subscribeTest:ID1", function (error, result) {
                 userId1 = result.id;
@@ -63,7 +63,7 @@ before(function (next) {
     });
 });
 before(function (next) {
-    userService.createUser("subscribeTest:ID2", "Test Subscribe User 2", "test2@subscribe.com", "Test File Avatar 1", function (error, result) {
+    userService.createUser("subscribeTest:ID2", "Test Subscribe User 2", "test2@subscribe.com", "Test MyFile Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("subscribeTest:ID2", function (error, result) {
                 userId2 = result.id;

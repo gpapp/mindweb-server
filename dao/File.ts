@@ -1,6 +1,6 @@
 import DAOBase from './DAOBase';
 import * as cassandra from 'cassandra-driver';
-import ServiceError from "map-editor/dist/classes/ServiceError";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 
 export default class File extends DAOBase {
     public getFiles(userId:string|cassandra.types.Uuid, next:(error:ServiceError, result:cassandra.types.ResultSet)=>void) {

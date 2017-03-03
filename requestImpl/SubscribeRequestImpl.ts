@@ -5,8 +5,8 @@ import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
 import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
 import KafkaService from "../services/KafkaService";
 import FileService from "../services/FileService";
-import ServiceError from "map-editor/dist/classes/ServiceError";
-import File from "../classes/File";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import File from "mindweb-request-classes/dist/classes/File";
 
 
 export default class SubscribeRequestImpl extends SubscribeRequest {

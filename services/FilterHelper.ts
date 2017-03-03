@@ -1,4 +1,4 @@
-import File from "../classes/File";
+import File from "mindweb-request-classes/dist/classes/File";
 
 
 export function uniqueFilter(value:string, index:number, array:string[]):boolean {

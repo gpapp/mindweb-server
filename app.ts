@@ -1,12 +1,10 @@
 import * as session from "express-session";
 import * as express from "express";
 import * as passport from "passport";
-import * as logger from "morgan";
 import * as async from "async";
 import * as fs from "fs";
 import * as path from "path";
 import * as cassandra from "cassandra-driver";
-import ServiceError from "map-editor/dist/classes/ServiceError";
 import DbKeyspace from "./db/keyspace";
 import CoreSchema from "./db/core_schema";
 import BaseRouter from "./routes/BaseRouter";
@@ -16,7 +14,8 @@ import FileRoute from "./routes/file";
 import PublicRoute from "./routes/public";
 import FriendRoute from "./routes/friend";
 import TaskRoute from "./routes/task";
-
+import * as morgan from "morgan";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 const CassandraStore = require("cassandra-store");
 
 export let options;
@@ -80,11 +79,11 @@ async.waterfall([
         console.log("All set up, starting web server");
         // view engine setup
         app.set('views', path.join(__dirname, 'views'));
-        app.set('view engine', 'jade');
+        app.set('view engine', 'pug');
 
         // uncomment after placing your favicon in /public
         //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-        app.use(logger('dev'));
+        app.use(morgan('dev'));
         app.use(express.static(path.join(__dirname, 'public')));
 
         app.use(session({

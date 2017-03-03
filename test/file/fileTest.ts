@@ -1,6 +1,6 @@
 import {assert} from "chai";
 import * as app from "../../app";
-import File from "../../classes/File";
+import File from "mindweb-request-classes/dist/classes/File";
 import FileService from "../../services/FileService";
 import UserService from "../../services/UserService";
 
@@ -22,7 +22,7 @@ describe('FileDAO file create', function () {
     var userId2;
     var testFileId;
     before(function (next) {
-        userService.createUser("fileTest:ID1", "Test File User 1", "test1@file.com", "Test File Avatar 1", function (error, result) {
+        userService.createUser("fileTest:ID1", "Test MyFile User 1", "test1@file.com", "Test MyFile Avatar 1", function (error, result) {
             if (error) {
                 userService.getUserByAuthId("fileTest:ID1", function (error, result) {
                     userId1 = result.id;
@@ -38,7 +38,7 @@ describe('FileDAO file create', function () {
         });
     });
     before(function (next) {
-        userService.createUser("fileTest:ID2", "Test File User 2", "test2@file.com", "Test File Avatar 2", function (error, result) {
+        userService.createUser("fileTest:ID2", "Test MyFile User 2", "test2@file.com", "Test MyFile Avatar 2", function (error, result) {
             if (error) {
                 userService.getUserByAuthId("fileTest:ID2", function (error, result) {
                     userId2 = result.id;
@@ -58,8 +58,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isFalse(result.isShareable, "File is shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isFalse(result.isShareable, "MyFile is shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -82,8 +82,8 @@ describe('FileDAO file create', function () {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
                 assert.equal(result.id.toString(), testFileId.toString(), "FileService ids mismatched");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isTrue(result.isPublic, "File is not public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isTrue(result.isPublic, "MyFile is not public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -105,8 +105,8 @@ describe('FileDAO file create', function () {
                 assert.isNull(error, "Cannot create test file: " + error);
                 assert.isNotNull(result, "Result is empty");
                 assert.equal(result.id.toString(), testFileId.toString(), "FileService ids mismatched");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isTrue(result.isPublic, "File is not public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isTrue(result.isPublic, "MyFile is not public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -127,7 +127,7 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot rename test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isPublic, "File is not public");
+                assert.isTrue(result.isPublic, "MyFile is not public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -150,8 +150,8 @@ describe('FileDAO file create', function () {
                 assert.isNotNull(result, "Result is empty");
                 fileService.getFile(testFileId, function (error, result: File) {
                     assert.equal(result.id.toString(), testFileId.toString(), "Wrong file loaded");
-                    assert.isTrue(result.isShareable, "File is not shareable");
-                    assert.isTrue(result.isPublic, "File is not public");
+                    assert.isTrue(result.isShareable, "MyFile is not shareable");
+                    assert.isTrue(result.isPublic, "MyFile is not public");
                     assert.isNull(result.editors, "Editors is not null");
                     assert.isNull(result.viewers, "Viewers is not null");
                     assert.isTrue(result.canView(userId1), "View rights missing");
@@ -174,8 +174,8 @@ describe('FileDAO file create', function () {
                 assert.isNull(error, "Cannot share file: " + error);
                 assert.isNotNull(result, "Result is empty");
                 assert.equal(result.id.toString(), testFileId.toString(), "Wrong file loaded");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -197,8 +197,8 @@ describe('FileDAO file create', function () {
                 assert.isNull(error, "Cannot share file: " + error);
                 assert.isNotNull(result, "Result is empty");
                 assert.equal(result.id.toString(), testFileId.toString(), "Wrong file loaded");
-                assert.isFalse(result.isShareable, "File is not shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isFalse(result.isShareable, "MyFile is not shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -219,8 +219,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNotNull(result.viewers, "Viewers is null");
                 assert.equal(result.viewers.length, 1, "Viewers is not 1 long");
                 assert.equal(result.viewers[0].toString(), userId2.toString(), "User doesn't match");
@@ -243,8 +243,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNotNull(result.viewers, "Viewers is null");
                 assert.equal(result.viewers.length, 1, "Viewers is not 1 long");
                 assert.equal(result.viewers[0].toString(), userId2.toString(), "User doesn't match");
@@ -267,8 +267,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNull(result.viewers, "Viewers  is not null");
                 assert.isNotNull(result.editors, "Editors is null");
                 assert.equal(result.editors.length, 1, "Editors is not 1 long");
@@ -291,8 +291,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isTrue(result.isPublic, "File is not public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isTrue(result.isPublic, "MyFile is not public");
                 assert.isNull(result.viewers, "Viewers  is not null");
                 assert.isNotNull(result.editors, "Editors is null");
                 assert.equal(result.editors.length, 1, "Editors is not 1 long");
@@ -315,8 +315,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isTrue(result.isPublic, "File is not public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isTrue(result.isPublic, "MyFile is not public");
                 assert.isNull(result.viewers, "Viewers  is not null");
                 assert.isNotNull(result.editors, "Editors is null");
                 assert.equal(result.editors.length, 1, "Editors is not 1 long");
@@ -339,8 +339,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isTrue(result.isPublic, "File is not public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isTrue(result.isPublic, "MyFile is not public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -361,8 +361,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isTrue(result.isShareable, "File is not shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isTrue(result.isShareable, "MyFile is not shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -383,8 +383,8 @@ describe('FileDAO file create', function () {
             try {
                 assert.isNull(error, "Cannot unshare test file: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.isFalse(result.isShareable, "File is shareable");
-                assert.isFalse(result.isPublic, "File is public");
+                assert.isFalse(result.isShareable, "MyFile is shareable");
+                assert.isFalse(result.isPublic, "MyFile is public");
                 assert.isNull(result.editors, "Editors is not null");
                 assert.isNull(result.viewers, "Viewers is not null");
                 assert.isTrue(result.canView(userId1), "View rights missing");
@@ -445,32 +445,32 @@ describe('FileDAO file create', function () {
 });
 
 
-describe('File taging', function () {
+describe('MyFile taging', function () {
     var user;
     var fileId1;
     var fileId2;
     before(function (done) {
-        userService.createUser("FileTagTest:ID", "Test File Tag ", "test@Filetag.com", "Test File Tag Avatar ", function (error, result) {
+        userService.createUser("FileTagTest:ID", "Test MyFile Tag ", "test@Filetag.com", "Test MyFile Tag Avatar ", function (error, result) {
             if (error) console.error(error.message);
             user = result;
             done();
         });
     });
     before(function (done) {
-        fileService.createNewVersion(user.id, "FileTagText", true, false, null, null, null, "File tagging content", function (error, result) {
+        fileService.createNewVersion(user.id, "FileTagText", true, false, null, null, null, "MyFile tagging content", function (error, result) {
             if (error) console.error(error.message);
             fileId1 = result.id;
             done();
         });
     });
     before(function (done) {
-        fileService.createNewVersion(user.id, "FileTagText2", true, false, null, null, ['TAG-TEST1', 'TAG-TEST2', 'TAG-TEST3', 'TAG-TEST4'], "File tagging content2", function (error, result) {
+        fileService.createNewVersion(user.id, "FileTagText2", true, false, null, null, ['TAG-TEST1', 'TAG-TEST2', 'TAG-TEST3', 'TAG-TEST4'], "MyFile tagging content2", function (error, result) {
             if (error) console.error(error.message);
             fileId2 = result.id;
             done();
         });
     });
-    it("tags a File with new tag", function (done) {
+    it("tags a MyFile with new tag", function (done) {
         fileService.tagFile(fileId1, 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNull(error);
@@ -483,7 +483,7 @@ describe('File taging', function () {
             }
         })
     });
-    it("tags a File with new tag 2", function (done) {
+    it("tags a MyFile with new tag 2", function (done) {
         fileService.tagFile(fileId1, 'TAG-TEST2', function (error, result) {
             try {
                 assert.isNull(error);
@@ -497,7 +497,7 @@ describe('File taging', function () {
             }
         });
     });
-    it("tags a File with existing tag", function (done) {
+    it("tags a MyFile with existing tag", function (done) {
         fileService.tagFile(fileId1, 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNull(error);
@@ -598,7 +598,7 @@ describe('File taging', function () {
             }
         });
     });
-    it("tags invalid File", function (done) {
+    it("tags invalid MyFile", function (done) {
         fileService.tagFile('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNotNull(error);
@@ -609,7 +609,7 @@ describe('File taging', function () {
             }
         });
     });
-    it("untags invalid File", function (done) {
+    it("untags invalid MyFile", function (done) {
         fileService.tagFile('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
             try {
                 assert.isNotNull(error);

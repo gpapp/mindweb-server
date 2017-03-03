@@ -4,7 +4,7 @@
 import * as app from "../../app";
 import KafkaService from "../../services/KafkaService";
 import {KeyedMessage} from "kafka-node";
-import ServiceError from "map-editor/dist/classes/ServiceError";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 import {assert} from "chai";
 import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
 import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
@@ -17,7 +17,7 @@ import PublishedResponseFactory from "../../responseImpl/PublishedResponseFactor
 const SESSION_ID1 = "SESSION-TEST-1234567890-1";
 const SESSION_ID2 = "SESSION-TEST-1234567890-2";
 const SESSION_ID3 = "SESSION-TEST-1234567890-3";
-const FILE_CONTENT = {'$': '', 'rootNode': 'File SUBSCRIBE content'};
+const FILE_CONTENT = {'$': '', 'rootNode': 'MyFile SUBSCRIBE content'};
 
 let userService: UserService;
 let fileService: FileService;
@@ -38,7 +38,7 @@ before(function (next) {
     next();
 });
 before(function (next) {
-    userService.createUser("kafkaTest:ID1", "Test Subscribe User 1", "test1@kafka.com", "Test File Avatar 1", function (error, result) {
+    userService.createUser("kafkaTest:ID1", "Test Subscribe User 1", "test1@kafka.com", "Test MyFile Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("kafkaTest:ID1", function (error, result) {
                 userId1 = result.id;
@@ -54,7 +54,7 @@ before(function (next) {
     });
 });
 before(function (next) {
-    userService.createUser("kafkaTest:ID2", "Test Subscribe User 2", "test2@kafka.com", "Test File Avatar 1", function (error, result) {
+    userService.createUser("kafkaTest:ID2", "Test Subscribe User 2", "test2@kafka.com", "Test MyFile Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("kafkaTest:ID2", function (error, result) {
                 userId2 = result.id;

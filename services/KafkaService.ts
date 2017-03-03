@@ -1,19 +1,17 @@
 import * as cassandra from "cassandra-driver";
 import * as kafka from "kafka-node";
 import * as app from "../app";
-import ServiceError from "map-editor/dist/classes/ServiceError";
-import EditAction from "map-editor/dist/classes/EditAction";
 import FileService from "./FileService";
+import EditAction from "mindweb-request-classes/dist/classes/EditAction";
+import File from "mindweb-request-classes/dist/classes/File";
+import FileContent from "mindweb-request-classes/dist/classes/FileContent";
+import FileVersion from "mindweb-request-classes/dist/classes/FileVersion";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
 import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
 import EditResponse from "mindweb-request-classes/dist/response/EditResponse";
 import PublishedResponse from "mindweb-request-classes/dist/response/PublishedResponse";
-import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
-import File from "../classes/File";
-import FileVersion from "../classes/FileVersion";
-import FileContent from "map-editor/dist/classes/FileContent";
-import mapeditor from "map-editor/dist/map-editor";
-import {MindwebService} from "../../mindweb-request-classes/src/service/MindwebService";
+import MapService from "mindweb-request-classes/dist/service/MapService";
 
 class FileCacheItem {
     subscribers: number;
@@ -23,7 +21,7 @@ class FileCacheItem {
 /**
  * One instance per websocket connection
  */
-export default class KafkaService implements MindwebService {
+export default class KafkaService implements MapService {
     private static cache: Map<string,FileCacheItem> = new Map();
 
     private openfiles: Set<string> = new Set();
@@ -80,7 +78,7 @@ export default class KafkaService implements MindwebService {
                 done(null);
             return;
         }
-        mapeditor.applyAction(cacheItem.content, action, function (error: ServiceError): void {
+        MapService.applyAction(cacheItem.content, action, function (error: ServiceError): void {
                 if (error) {
                     done(error);
                     return;

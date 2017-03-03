@@ -1,5 +1,5 @@
-import * as express from 'express';
-import ServiceError from 'map-editor/dist/classes/ServiceError';
+import * as express from "express";
+import ServiceError from 'mindweb-request-classes/dist/classes/ServiceError';
 
 export default class BaseRouter {
     private _router;

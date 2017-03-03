@@ -1,12 +1,12 @@
 import * as async from "async";
-import File from "../classes/File";
-import ServiceError from "map-editor/dist/classes/ServiceError";
-import FileVersion from "../classes/FileVersion";
+import File from "mindweb-request-classes/dist/classes/File";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import FileVersion from "mindweb-request-classes/dist/classes/FileVersion";
 import FileDAO from "../dao/File";
 import FileVersionDAO from "../dao/FileVersion";
 import * as cassandra from "cassandra-driver";
 import * as FilterHelper from "./FilterHelper";
-import FileContent from "map-editor/dist/classes/FileContent";
+import FileContent from "mindweb-request-classes/dist/classes/FileContent";
 
 export default class FileService {
     private connection;
@@ -339,7 +339,7 @@ export default class FileService {
                     parent.getFile(fileId, function (error: ServiceError, result: File) {
                         if (error) return callback(error);
                         if (result == null) {
-                            return callback(new ServiceError(500, 'Trying to share non-existing file', "File share error"));
+                            return callback(new ServiceError(500, 'Trying to share non-existing file', "MyFile share error"));
                         }
                         next(null, result);
                     });
@@ -408,7 +408,7 @@ export default class FileService {
     public tagFile(fileId: string|cassandra.types.Uuid, tag: string, callback: (error: ServiceError, result?: File) => void) {
         const parent: FileService = this;
         if (tag == null) {
-            return callback(new ServiceError(500, 'Cannot add null tag', 'Error File tagging'));
+            return callback(new ServiceError(500, 'Cannot add null tag', 'Error MyFile tagging'));
         }
         async.waterfall([
             function (next: (error: ServiceError, result?: File) => void) {
@@ -428,7 +428,7 @@ export default class FileService {
     public untagFile(fileId: string|cassandra.types.Uuid, tag: string, callback: (error: ServiceError, result?: File) => void) {
         const parent: FileService = this;
         if (tag == null) {
-            return callback(new ServiceError(500, 'Cannot remove null tag', 'Error File untagging'));
+            return callback(new ServiceError(500, 'Cannot remove null tag', 'Error MyFile untagging'));
         }
         async.waterfall([
             function (next: (error: ServiceError, result?: File) => void) {

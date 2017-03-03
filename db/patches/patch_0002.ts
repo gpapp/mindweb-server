@@ -1,4 +1,4 @@
-import ServiceError from "map-editor/dist/classes/ServiceError";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 import * as cassandra from 'cassandra-driver';
 import * as async from 'async';
 

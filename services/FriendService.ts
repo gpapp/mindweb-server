@@ -1,9 +1,9 @@
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
 
-import Friend from '../classes/Friend';
-import User from '../classes/User';
-import ServiceError from "map-editor/dist/classes/ServiceError";
+import Friend from 'mindweb-request-classes/dist/classes/Friend';
+import User from 'mindweb-request-classes/dist/classes/User';
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 
 import FriendDAO from '../dao/Friend';
 import UserService from "./UserService";

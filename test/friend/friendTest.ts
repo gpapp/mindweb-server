@@ -1,10 +1,10 @@
 import {assert} from "chai";
 import * as app from "../../app";
 import * as async from "async";
-import Friend from "../../classes/Friend";
+import Friend from "mindweb-request-classes/dist/classes/Friend";
 import FriendService from "../../services/FriendService";
 import UserService from "../../services/UserService";
-import ServiceError from "map-editor/dist/classes/ServiceError";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 
 let userService: UserService;
 let friendService: FriendService;

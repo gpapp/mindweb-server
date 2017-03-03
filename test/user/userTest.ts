@@ -1,8 +1,8 @@
 import {assert} from "chai";
 import * as app from "../../app";
-import File from "../../classes/File";
-import Friend from "../../classes/Friend";
-import ServiceError from "map-editor/dist/classes/ServiceError";
+import File from "mindweb-request-classes/dist/classes/File";
+import Friend from "mindweb-request-classes/dist/classes/Friend";
+import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
 import FileService from "../../services/FileService";
 import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";
