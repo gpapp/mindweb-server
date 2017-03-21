@@ -4,20 +4,19 @@
 import * as app from "../../app";
 import KafkaService from "../../services/KafkaService";
 import {KeyedMessage} from "kafka-node";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import {ServiceError, AbstractMessage} from "mindweb-request-classes";
 import {assert} from "chai";
-import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
-import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
-import PublishedResponse from "mindweb-request-classes/dist/response/PublishedResponse";
 import UserService from "../../services/UserService";
-import FileService from "../../services/FileService";
+import FileService from "../../services/MapService";
 import FriendService from "../../services/FriendService";
 import PublishedResponseFactory from "../../responseImpl/PublishedResponseFactory";
+import JoinResponse from "mindweb-request-classes/response/JoinResponse";
+import PublishedResponse from "../../responseImpl/PublishedResponse";
 
 const SESSION_ID1 = "SESSION-TEST-1234567890-1";
 const SESSION_ID2 = "SESSION-TEST-1234567890-2";
 const SESSION_ID3 = "SESSION-TEST-1234567890-3";
-const FILE_CONTENT = {'$': '', 'rootNode': 'MyFile SUBSCRIBE content'};
+const FILE_CONTENT = {'$': '', 'rootNode': 'MapContainer SUBSCRIBE content'};
 
 let userService: UserService;
 let fileService: FileService;
@@ -38,7 +37,7 @@ before(function (next) {
     next();
 });
 before(function (next) {
-    userService.createUser("kafkaTest:ID1", "Test Subscribe User 1", "test1@kafka.com", "Test MyFile Avatar 1", function (error, result) {
+    userService.createUser("kafkaTest:ID1", "Test Subscribe User 1", "test1@kafka.com", "Test MapContainer Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("kafkaTest:ID1", function (error, result) {
                 userId1 = result.id;
@@ -54,7 +53,7 @@ before(function (next) {
     });
 });
 before(function (next) {
-    userService.createUser("kafkaTest:ID2", "Test Subscribe User 2", "test2@kafka.com", "Test MyFile Avatar 1", function (error, result) {
+    userService.createUser("kafkaTest:ID2", "Test Subscribe User 2", "test2@kafka.com", "Test MapContainer Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("kafkaTest:ID2", function (error, result) {
                 userId2 = result.id;
@@ -73,7 +72,7 @@ before(function (next) {
     before(function (done) {
         fileService.createNewVersion(userId1, "KAFKAText1", true, false, null, null, ['KAFKA-TEST'], JSON.stringify(FILE_CONTENT), function (error, result) {
             if (error) console.error(error.message);
-            fileId1 = result.id;
+            fileId1 = result.id.toString();
             done();
         });
     });
@@ -83,7 +82,7 @@ before(function (next) {
     before(function (done) {
         fileService.createNewVersion(userId1, "KAFKAText2", true, false, null, null, ['KAFKA-TEST'], JSON.stringify(FILE_CONTENT), function (error, result) {
             if (error) console.error(error.message);
-            fileId2 = result.id;
+            fileId2 = result.id.toString();
             done();
         });
     });
@@ -127,16 +126,15 @@ function getPromiseFor(fn: () => boolean) {
 describe('Kafka connection tests', function () {
 
     it("open kafka call", function (done) {
-        this.timeout(30000);
+        this.timeout(10000);
         let gotMsg: boolean = false;
         let gotResp: boolean = false;
         const kafkaService = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
-            let response: AbstractResponse = PublishedResponseFactory.create(message).response;
-            assert.equal('JoinResponse', response.name);
-            assert.equal(fileId1.toString(), response.fileId);
+            let response: AbstractMessage = PublishedResponseFactory.create(message).message;
             assert.isTrue(response instanceof JoinResponse);
             const joinResponse = response as JoinResponse;
             assert.equal(userId1.toString(), joinResponse.userId);
+            assert.equal(fileId1.toString(), joinResponse.fileId);
             gotMsg = true;
         });
 
@@ -159,27 +157,25 @@ describe('Kafka connection tests', function () {
     });
 
     it("open two sessions", function (done) {
-        this.timeout(30000);
+        this.timeout(10000);
         let gotMsg1: number = 0;
         let gotResp1: number = 0;
         const kafkaService1 = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
 
             const publishedResponse: PublishedResponse = PublishedResponseFactory.create(message);
             if (SESSION_ID1 == publishedResponse.originSessionId) {
-                let response: AbstractResponse = publishedResponse.response;
-                assert.equal('JoinResponse', response.name);
-                assert.equal(fileId1.toString(), response.fileId);
+                let response: AbstractMessage = publishedResponse.message;
                 assert.isTrue(response instanceof JoinResponse);
                 const joinResponse = response as JoinResponse;
                 assert.equal(userId1.toString(), joinResponse.userId);
-                gotMsg1 ++;
+                gotMsg1++;
             }
         });
         const messageTest = getPromiseFor(() => {
-            return gotMsg1==1;
+            return gotMsg1 == 1;
         });
         const subscribeTest = getPromiseFor(() => {
-            return gotResp1==1;
+            return gotResp1 == 1;
         });
         kafkaService1.subscribeToFile(SESSION_ID1, userId1, fileId1, function (error: ServiceError) {
             assert.isNull(error, error ? error.message : "WTF");
@@ -192,11 +188,10 @@ describe('Kafka connection tests', function () {
             const kafkaService2 = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
                 const publishedResponse = PublishedResponseFactory.create(message);
                 if (SESSION_ID2 == publishedResponse.originSessionId) {
-                    let response: AbstractResponse = publishedResponse.response;
-                    assert.equal('JoinResponse', response.name);
-                    assert.equal(fileId1.toString(), response.fileId);
+                    let response: AbstractMessage = publishedResponse.message;
                     assert.isTrue(response instanceof JoinResponse);
                     const joinResponse = response as JoinResponse;
+                    assert.equal(fileId1.toString(), joinResponse.fileId);
                     assert.equal(userId2.toString(), joinResponse.userId);
                     gotMsg2++;
                 }
@@ -206,13 +201,13 @@ describe('Kafka connection tests', function () {
                 gotResp2 = 1;
             });
             const messageTest1 = getPromiseFor(() => {
-                return gotMsg1>=1
+                return gotMsg1 >= 1
             });
             const messageTest2 = getPromiseFor(() => {
-                return gotMsg2>=1
+                return gotMsg2 >= 1
             });
             const subscribeTest = getPromiseFor(() => {
-                return gotResp2>=1
+                return gotResp2 >= 1
             });
             Promise.all([messageTest1, messageTest2, subscribeTest]).then(() => {
                 kafkaService1.closeAll(SESSION_ID1);

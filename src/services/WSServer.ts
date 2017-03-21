@@ -4,13 +4,13 @@
 import * as http from "http";
 import * as websocket from "websocket";
 import {IMessage, connection, IStringified} from "websocket";
-import {AbstractRequest} from "mindweb-request-classes/dist/request/AbstractRequest";
+import {AbstractRequest, AbstractMessage} from "mindweb-request-classes";
 import KafkaService from "./KafkaService";
-import {cassandraClient, cassandraStore} from "../app";
-import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
-import PublishedResponse from "mindweb-request-classes/dist/response/PublishedResponse";
-import RequestFactory from "../requestImpl/RequestFactory";
+import {app, cassandraClient, options} from "../app";
 import PublishedResponseFactory from "../responseImpl/PublishedResponseFactory";
+import RequestFactory from "../requestImpl/RequestFactory";
+import PublishedResponse from "../responseImpl/PublishedResponse";
+const CassandraStore = require("cassandra-store");
 
 export default class WSServer {
     private webSocketServer: websocket.server;
@@ -36,23 +36,38 @@ export default class WSServer {
             request.reject(203, "Origin not allowed");
             return;
         }
-        const requestParams = request.resourceURL.query;
-        const sessionId = requestParams["mindweb-session"];
+        let sessionId: string;
+        if (!sessionId) {
+            for (let i of request.cookies) {
+                if (i['name'] === "mindweb_session") {
+                    // Slice the first part of the string as seen in  express-session's getcookie method
+                    // Slice the first part of the string as seen in cookie-signature's unsign method
+                    const cs = require("cookie-signature");
+                    sessionId = cs.unsign(i['value'].slice(2), options.cookie_secret);
+                    break;
+                }
+            }
+        }
+        if (!sessionId) {
+            const requestParams = request.resourceURL.query;
+            sessionId = requestParams["mindweb-session"];
+        }
         if (sessionId) {
             // find session in DB
-            cassandraStore.get(sessionId, function (error, session) {
+
+            app.get('cassandraStore').get(sessionId, function (error, session) {
                 if (error || session == null) {
                     request.reject(201, "Session not found");
                     return;
                 } else {
-                    if (!session.user) {
+                    if (!session.passport.user) {
                         request.reject(201, "User not found in session");
                         return;
                     }
                     const connection: connection = request.accept('mindweb-protocol', request.origin, request.cookies);
                     const kafkaService: KafkaService = new KafkaService(cassandraClient, function (message) {
                             const publishedResponse: PublishedResponse = PublishedResponseFactory.create(message);
-                            const response: AbstractResponse = publishedResponse.response;
+                            const response: AbstractMessage = publishedResponse.message;
                             if (sessionId != publishedResponse.originSessionId) {
                                 connection.send(JSON.stringify(response));
                             }
@@ -66,9 +81,9 @@ export default class WSServer {
                     connection.on('message', function (message: IMessage) {
                         if (message.type == "utf8" && message.utf8Data != null) {
                             try {
-                                var request: AbstractRequest = RequestFactory.create(message);
-                                request.do(sessionId, session.user, kafkaService, function (response: IStringified) {
-                                    connection.sendUTF(response);
+                                const request: AbstractRequest = RequestFactory.create(message.utf8Data);
+                                request.execute(sessionId, session.user, kafkaService, function (response: IStringified) {
+                                    connection.sendUTF(JSON.stringify(response));
                                 })
                             } catch (e) {
                                 connection.drop(500, "Error in client:" + e.message);

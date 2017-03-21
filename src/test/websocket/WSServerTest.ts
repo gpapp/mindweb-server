@@ -5,13 +5,12 @@ import {assert} from "chai";
 import * as http from "http";
 import * as websocket from "websocket";
 import {IMessage} from "websocket";
-import * as cassandra from "cassandra-driver";
 import * as app from "../../app";
 import WSServer from "../../services/WSServer";
-import ResponseFactory from "mindweb-request-classes/dist/service/ResponseFactory";
-import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
-import EchoResponse from "mindweb-request-classes/dist/response/TextResponse";
+import {AbstractMessage} from "mindweb-request-classes";
 import EchoRequestImpl from "../../requestImpl/EchoRequestImpl";
+import ResponseFactory from "mindweb-request-classes/service/ResponseFactory";
+import TextResponse from "mindweb-request-classes/response/TextResponse";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18082;
@@ -38,7 +37,7 @@ before(function (next) {
 before(function (next) {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
-        {sessionId: SESSION_ID, session: JSON.stringify({user: "Pumukli"})}, {}, next
+        {sessionId: SESSION_ID, session: JSON.stringify({passport: {user: "Pumukli"}})}, {}, next
     );
 });
 describe('WebSocket connection tests', function () {
@@ -78,7 +77,7 @@ describe('WebSocket connection tests', function () {
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
                 try {
-                    let command: AbstractResponse = ResponseFactory.create(message);
+                    let command: AbstractMessage = ResponseFactory.create(message.utf8Data);
                 } catch (e) {
                     assert.equal("Invalid payload class", e.message);
                 }
@@ -108,17 +107,18 @@ describe('WebSocket connection tests', function () {
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
                 try {
-                    const response: AbstractResponse = ResponseFactory.create(message);
-                    assert.equal("TextResponse", response.name);
-                    assert.instanceOf(response, EchoResponse);
-                    const echoResponse: EchoResponse = response as EchoResponse;
+                    const response: AbstractMessage = ResponseFactory.create(message.utf8Data);
+                    assert.instanceOf(response, TextResponse);
+                    const echoResponse: TextResponse = response as TextResponse;
                     assert.equal("Blabla", echoResponse.message);
                 } catch (e) {
                     assert.ok(false, "Error:" + e);
                 }
                 connection.close();
             });
-            connection.send(JSON.stringify(new EchoRequestImpl("Blabla")));
+            const echoRequest = new EchoRequestImpl("Blabla");
+            echoRequest['name']='EchoRequest';
+            connection.send(JSON.stringify(echoRequest));
         });
 
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", ORIGIN);
@@ -146,10 +146,9 @@ describe('WebSocket connection tests', function () {
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
                 try {
-                    const response: AbstractResponse = ResponseFactory.create(message);
-                    assert.equal("TextResponse", response.name);
-                    assert.instanceOf(response, EchoResponse);
-                    const echoResponse: EchoResponse = response as EchoResponse;
+                    const response: AbstractMessage = ResponseFactory.create(message.utf8Data);
+                    assert.instanceOf(response, TextResponse);
+                    const echoResponse: TextResponse = response as TextResponse;
                     assert.equal("Blabla" + pos, echoResponse.message);
                 } catch (e) {
                     assert.ok(false, "Error:" + e);
@@ -158,10 +157,13 @@ describe('WebSocket connection tests', function () {
                     connection.close();
                 } else {
                     pos++;
-                    connection.send(JSON.stringify(new EchoRequestImpl("Blabla" + pos)));
+                    echoRequest['_content']='Blabla'+pos;
+                    connection.send(JSON.stringify(echoRequest));
                 }
             });
-            connection.send(JSON.stringify(new EchoRequestImpl("Blabla" + 0)));
+            const echoRequest = new EchoRequestImpl("Blabla" + 0);
+            echoRequest['name']='EchoRequest';
+            connection.send(JSON.stringify(echoRequest));
         });
 
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", ORIGIN);

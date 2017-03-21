@@ -8,19 +8,18 @@ import * as cassandra from "cassandra-driver";
 import DbKeyspace from "./db/keyspace";
 import CoreSchema from "./db/core_schema";
 import BaseRouter from "./routes/BaseRouter";
-import routes from "./routes/index";
+import IndexRoute from "./routes/index";
 import AuthRoute from "./routes/auth";
-import FileRoute from "./routes/file";
+import MapRoute from "./routes/map";
 import PublicRoute from "./routes/public";
 import FriendRoute from "./routes/friend";
 import TaskRoute from "./routes/task";
-import * as morgan from "morgan";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import * as logger from "express-logger";
+import {ServiceError} from "mindweb-request-classes";
 const CassandraStore = require("cassandra-store");
 
 export let options;
 let cassandraOptions: cassandra.ClientOptions;
-export let cassandraStore;
 
 export const app = express();
 export let cassandraClient: cassandra.Client;
@@ -57,9 +56,7 @@ export function initialize(done) {
                 CoreSchema(cassandraClient, next);
             });
         },
-        function (next) {
-            cassandraStore = new CassandraStore({client: cassandraClient}, next);
-        },
+
         function () {
             done();
         }]);
@@ -70,9 +67,10 @@ async.waterfall([
         initialize(next);
     },
     function (next) {
+        const _cassandraStore = new CassandraStore({client: cassandraClient});
         const authRoute: AuthRoute = new AuthRoute(cassandraClient, options.url);
         const publicRoute: PublicRoute = new PublicRoute(cassandraClient);
-        const fileRoute: FileRoute = new FileRoute(cassandraClient);
+        const mapRoute: MapRoute = new MapRoute(cassandraClient);
         const friendRoute: FriendRoute = new FriendRoute(cassandraClient);
         const taskRoute: TaskRoute = new TaskRoute(cassandraClient);
 
@@ -83,26 +81,28 @@ async.waterfall([
 
         // uncomment after placing your favicon in /public
         //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-        app.use(morgan('dev'));
+        app.use(logger({path: 'logs/current.log'}));
         app.use(express.static(path.join(__dirname, 'public')));
 
+        app.set('trust proxy', 1); // trust first proxy
+        app.set('cassandraStore',_cassandraStore);
         app.use(session({
-            secret: 'J;SDUKLJDFMAP[M OWIO WRXD/L SDF;KZSDVKXCD;fAdslsd:fop$##o(we)tig]',
+            secret: options.cookie_secret,
             name: 'mindweb_session',
-            cookie: {secure: false},
-            resave: false,
+            cookie: {secure: 'auto'},
+            resave: true,
             saveUninitialized: true,
-            store: cassandraStore
+            store: _cassandraStore
         }));
         app.use(passport.initialize());
         app.use(passport.session());
 
         app.use(nocache);
 
-        app.use('/', routes);
+        app.use('/', IndexRoute);
         app.use('/auth', authRoute.getRouter());
         app.use('/public', publicRoute.getRouter());
-        app.use('/file', BaseRouter.ensureAuthenticated, fileRoute.getRouter());
+        app.use('/map', BaseRouter.ensureAuthenticated, mapRoute.getRouter());
         app.use('/friend', BaseRouter.ensureAuthenticated, friendRoute.getRouter());
         app.use('/task', BaseRouter.ensureAuthenticated, taskRoute.getRouter());
 

@@ -1,12 +1,7 @@
-import * as async from 'async';
-import * as cassandra from 'cassandra-driver';
-
-import FileContent from "mindweb-request-classes/dist/classes/FileContent";
-import MapNode from "mindweb-request-classes/dist/classes/MapNode";
-import Task from "mindweb-request-classes/dist/classes/Task";
-
-import * as ConverterHelper from './ConverterHelper';
-import * as FilterHelper from './FilterHelper';
+import {MapContent} from "mindweb-request-classes";
+import {MapNode} from "mindweb-request-classes";
+import {Task} from "mindweb-request-classes";
+import * as FilterHelper from "./FilterHelper";
 
 const taskRe:RegExp = /^\*\s*(.*)\s*?$/g;
 const contextRe:RegExp = /@([^\s\{\[#]*)/;
@@ -43,8 +38,8 @@ class IconConfig {
     }
 
     configToIcon(name:string):string {
-        for (var i = 0; i < this.config.length; i++) {
-            var cur:IconConfigItem = this.config[i];
+        for (let i = 0; i < this.config.length; i++) {
+            const cur:IconConfigItem = this.config[i];
             if (cur.name.toLowerCase() === name.toLowerCase()) {
                 return cur.value;
             }
@@ -53,8 +48,8 @@ class IconConfig {
     }
 
     iconToConfig(value:string):string {
-        for (var i = 0; i < this.config.length; i++) {
-            var cur:IconConfigItem = this.config[i];
+        for (let i = 0; i < this.config.length; i++) {
+            const cur:IconConfigItem = this.config[i];
             if (cur.value.toLowerCase() === value.toLowerCase()) {
                 return cur.name;
             }
@@ -64,8 +59,8 @@ class IconConfig {
 }
 
 export function nodeToTask(node:MapNode, config:IconConfig):Task {
-    var retval = new Task();
-    var toParse = node.nodeMarkdown;
+    const retval = new Task();
+    let toParse = node.nodeMarkdown;
 
     // Initialize with properties already on the node
     if (node.getAttribute('Where')) {
@@ -80,7 +75,7 @@ export function nodeToTask(node:MapNode, config:IconConfig):Task {
     // Resolve icons to contexts
     if (node.icon) {
         for (let i = 0; i < node.icon.length; i++) {
-            var result = config.iconToConfig(node.icon[i].$['BUILTIN']);
+            const result = config.iconToConfig(node.icon[i].$['BUILTIN']);
             if (contextRe.test(result)) {
                 if (!retval.context) {
                     retval.context = [];
@@ -118,11 +113,11 @@ export function nodeToTask(node:MapNode, config:IconConfig):Task {
     return retval;
 }
 
-export function parseConfig(file:FileContent):IconConfig {
-    var config:IconConfig = new IconConfig();
+export function parseConfig(file:MapContent):IconConfig {
+    const config:IconConfig = new IconConfig();
     file.recurseNodes(function (node:MapNode):boolean {
         if (iconRe.test(node.nodeMarkdown)) {
-            var res:RegExpExecArray = iconRe.exec(node.nodeMarkdown);
+            const res:RegExpExecArray = iconRe.exec(node.nodeMarkdown);
             if (node.icon) {
                 config.addIcon(new IconConfigItem(res[1], node.icon[0].$['BUILTIN']));
             }
@@ -132,14 +127,14 @@ export function parseConfig(file:FileContent):IconConfig {
     return config;
 }
 
-export function parseTasks(file:FileContent) {
-    var taskRex:RegExp = /^\*(.*)/;
+export function parseTasks(file:MapContent) {
+    const taskRex:RegExp = /^\*(.*)/;
 
-    var config:IconConfig = parseConfig(file);
+    const config:IconConfig = parseConfig(file);
     file.recurseNodes(function (node:MapNode):boolean {
         if (taskRex.test(node.nodeMarkdown) || node.hasIcon(config.configToIcon('Task'))) {
-            var newTask = nodeToTask(node, config);
-            var taskIcon = config.configToIcon("task");
+            const newTask = nodeToTask(node, config);
+            const taskIcon = config.configToIcon("task");
             node.nodeMarkdown = newTask.description;
             if (!node.hasIcon(taskIcon)) {
                 node.addIcon(taskIcon);
@@ -148,8 +143,8 @@ export function parseTasks(file:FileContent) {
                 node.removeAttribute('Where');
                 node.addAttribute("Where", newTask.context.join(','));
                 for (let j = 0; j < newTask.context.length; j++) {
-                    var curContext:string = newTask.context[j];
-                    var curIcon:string = config.configToIcon("@" + curContext);
+                    const curContext:string = newTask.context[j];
+                    const curIcon:string = config.configToIcon("@" + curContext);
                     if (curIcon && !node.hasIcon(curIcon)) {
                         node.addIcon(curIcon);
                     }

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as async from 'async';
 import * as cassandra from 'cassandra-driver';
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import {ServiceError} from "mindweb-request-classes";
 
 var client:cassandra.Client;
 

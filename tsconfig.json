@@ -3,9 +3,10 @@
     "target": "ES6",
     "module": "commonjs",
     "sourceMap": true,
-    "declaration": false
+    "declaration": false,
+    "outDir": "dest"
   },
-  "exclude": [
-    "node_modules"
+  "include": [
+    "src"
   ]
 }

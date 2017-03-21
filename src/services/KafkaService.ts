@@ -1,27 +1,30 @@
 import * as cassandra from "cassandra-driver";
 import * as kafka from "kafka-node";
 import * as app from "../app";
-import FileService from "./FileService";
-import EditAction from "mindweb-request-classes/dist/classes/EditAction";
-import File from "mindweb-request-classes/dist/classes/File";
-import FileContent from "mindweb-request-classes/dist/classes/FileContent";
-import FileVersion from "mindweb-request-classes/dist/classes/FileVersion";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
-import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
-import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
-import EditResponse from "mindweb-request-classes/dist/response/EditResponse";
-import PublishedResponse from "mindweb-request-classes/dist/response/PublishedResponse";
-import MapService from "mindweb-request-classes/dist/service/MapService";
+import FileService from "./MapService";
+import {
+    EditAction,
+    MapContainer,
+    MapContent,
+    MapVersion,
+    ServiceError,
+    AbstractResponse
+} from "mindweb-request-classes";
+import {MindwebService} from "mindweb-request-classes/service/MindwebService";
+import MapService from "mindweb-request-classes/service/MapService";
+import JoinResponse from "mindweb-request-classes/response/JoinResponse";
+import EditResponse from "mindweb-request-classes/response/EditResponse";
+import PublishedResponse from "../responseImpl/PublishedResponse";
 
 class FileCacheItem {
     subscribers: number;
-    content: FileContent;
+    content: MapContent;
 }
 
 /**
  * One instance per websocket connection
  */
-export default class KafkaService implements MapService {
+export default class KafkaService implements MindwebService {
     private static cache: Map<string,FileCacheItem> = new Map();
 
     private openfiles: Set<string> = new Set();
@@ -48,47 +51,47 @@ export default class KafkaService implements MapService {
         });
     }
 
-    private static openFile(fileService: FileService, fileId: string|cassandra.types.Uuid, done: (error?: ServiceError) => void): void {
-        const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
+    private static openFile(fileService: FileService, fileId: string, done: (error?: ServiceError) => void): void {
+        const cacheItem: FileCacheItem = KafkaService.cache[fileId];
         if (cacheItem) {
             cacheItem.subscribers++;
             done(null);
             return;
         }
-        fileService.getFile(fileId, function (error: ServiceError, result?: File): void {
+        fileService.getMap(fileId, function (error: ServiceError, result?: MapContainer): void {
             if (error) {
                 done(error);
                 return;
             }
-            fileService.getFileVersion(result.versions[0], function (error: ServiceError, file?: FileVersion): void {
+            fileService.getMapVersion(result.versions[0], function (error: ServiceError, file?: MapVersion): void {
                 if (error) {
                     done(error);
                     return;
                 }
-                KafkaService.cache[fileId.toString()] = {subscribers: 1, content: file.content};
+                KafkaService.cache[fileId] = {subscribers: 1, content: file.content};
                 done();
             })
         });
     }
 
-    private static updateFile(fileId: string|cassandra.types.Uuid, action: EditAction, done: (error?: ServiceError) => void): void {
-        const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
+    private static updateFile(fileId: string, action: EditAction, done: (error?: ServiceError) => void): void {
+        const cacheItem: FileCacheItem = KafkaService.cache[fileId];
         if (!cacheItem) {
             //TODO handle error
-                done(null);
+            done(null);
             return;
         }
         MapService.applyAction(cacheItem.content, action, function (error: ServiceError): void {
-                if (error) {
-                    done(error);
-                    return;
-                }
-                done();
+            if (error) {
+                done(error);
+                return;
+            }
+            done();
         });
     }
 
-    private static closeFile(fileService: FileService, fileId: string|cassandra.types.Uuid, done: (error?: ServiceError) => void): void {
-        const cacheItem: FileCacheItem = KafkaService.cache[fileId.toString()];
+    private static closeFile(fileService: FileService, fileId: string, done: (error?: ServiceError) => void): void {
+        const cacheItem: FileCacheItem = KafkaService.cache[fileId];
         if (!cacheItem) {
             //TODO handle error
             done();
@@ -98,20 +101,20 @@ export default class KafkaService implements MapService {
             done();
             return;
         }
-        fileService.updateFileVersion(fileId, cacheItem.content.toString(), function (error: ServiceError, result?: string): void {
-                if (error) {
-                    done(error);
-                    return;
-                }
-                delete KafkaService.cache[fileId.toString()];
-                done();
+        fileService.updateMapVersion(fileId, JSON.stringify(cacheItem.content), function (error: ServiceError, result?: string): void {
+            if (error) {
+                done(error);
+                return;
+            }
+            delete KafkaService.cache[fileId];
+            done();
         });
     }
 
 
-    public subscribeToFile(sessionId: string, userId: string|cassandra.types.Uuid, fileId: string|cassandra.types.Uuid, callback: (error: ServiceError) => void) {
-        const newTopic = fileId.toString();
-        const payload: AbstractResponse = new JoinResponse(userId);
+    public subscribeToFile(sessionId: string, userId: string, fileId: string, callback: (error: ServiceError) => void) {
+        const newTopic = fileId;
+        const payload: AbstractResponse = new JoinResponse(userId, newTopic);
         const parent = this;
         this.publishResponse(sessionId, newTopic, payload,
             function (error: Error) {
@@ -127,14 +130,14 @@ export default class KafkaService implements MapService {
                         return;
                     }
                 });
-                parent.openfiles.add(fileId.toString());
+                parent.openfiles.add(fileId);
                 KafkaService.openFile(parent.fileService, fileId, callback);
             }
         );
     }
 
-    public    unsubscribeToFile(sessionId: string, fileId: string | cassandra.types.Uuid, callback: (error: ServiceError) => void) {
-        const newTopics = [fileId.toString()];
+    public    unsubscribeToFile(sessionId: string, fileId: string, callback: (error: ServiceError) => void) {
+        const newTopics = [fileId];
         const parent = this;
         this.consumer.removeTopics(newTopics, function (error: any, removed) {
             if (error) {
@@ -145,10 +148,10 @@ export default class KafkaService implements MapService {
         });
     }
 
-    public    sendUpdateToFile(sessionId: string, fileId: string | cassandra.types.Uuid, action: EditAction, callback: (error: Error, result?: any) => void) {
+    public    sendUpdateToFile(sessionId: string, fileId: string, action: EditAction, callback: (error: Error, result?: any) => void) {
         const parent: KafkaService = this;
         const payload: AbstractResponse = new EditResponse(action);
-        parent.publishResponse(sessionId, fileId.toString(), payload, function (error: any, data: any) {
+        parent.publishResponse(sessionId, fileId, payload, function (error: any, data: any) {
             if (error) {
                 callback(new ServiceError(500, error.message, "Error in sending update"));
                 return;

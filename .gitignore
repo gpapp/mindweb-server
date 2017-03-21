@@ -6,11 +6,12 @@ node_modules
 **/*.js.map
 !gruntfile.js
 
-# Ignore Typescript generated definitions
-**/*.d.ts
+dest/
+logs/
 
 # Unignore handmade typescript definitions
 !/typings/**/*.d.ts
 .tscache
 .idea
 coverage
+

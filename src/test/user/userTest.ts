@@ -1,9 +1,9 @@
 import {assert} from "chai";
 import * as app from "../../app";
-import File from "mindweb-request-classes/dist/classes/File";
-import Friend from "mindweb-request-classes/dist/classes/Friend";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
-import FileService from "../../services/FileService";
+import {MapContainer} from "mindweb-request-classes";
+import {Friend} from "mindweb-request-classes";
+import {ServiceError} from "mindweb-request-classes";
+import FileService from "../../services/MapService";
 import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";
 
@@ -263,7 +263,7 @@ describe('UserDAO userDelete', function () {
     });
     before(function (next) {
         fileService.createNewVersion(userId1, "Test fajl 1", true, false, null, null, ['tag1', 'tag2'], "Test Content",
-            function (error: ServiceError, result: File) {
+            function (error: ServiceError, result: MapContainer) {
                 next();
             });
     });

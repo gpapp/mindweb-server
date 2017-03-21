@@ -4,10 +4,10 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require('../dest/app');
 var debug = require('debug')('server:server');
 var http = require('http');
-var WSServer = require('../services/WSServer');
+var WSServer = require('../dest/services/WSServer');
 
 /**
  * Get port from environment and store in Express.
@@ -91,5 +91,5 @@ function onListening() {
 
 
     debug("All set up, starting web socket server");
-    new WSServer.default(server);
+    new WSServer.default(server,app.processConfig().url);
 }

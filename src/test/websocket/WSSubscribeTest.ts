@@ -7,26 +7,27 @@ import * as websocket from "websocket";
 import {IMessage} from "websocket";
 import * as app from "../../app";
 import WSServer from "../../services/WSServer";
-import ResponseFactory from "mindweb-request-classes/dist/service/ResponseFactory";
-import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
-import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
-import FileService from "../../services/FileService";
+import FileService from "../../services/MapService";
 import UserService from "../../services/UserService";
 import FriendService from "../../services/FriendService";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
-import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
-import JoinResponse from "mindweb-request-classes/dist/response/JoinResponse";
-import EditResponse from "mindweb-request-classes/dist/response/EditResponse";
 import SubscribeRequestImpl from "../../requestImpl/SubscribeRequestImpl";
 import UnsubscribeRequestImpl from "../../requestImpl/UnsubscribeRequestImpl";
 import EditRequestImpl from "../../requestImpl/EditRequestImpl";
+import {AbstractMessage, ServiceError} from "mindweb-request-classes";
+import ResponseFactory from "mindweb-request-classes/service/ResponseFactory";
+import ErrorResponse from "mindweb-request-classes/response/ErrorResponse";
+import TextResponse from "mindweb-request-classes/response/TextResponse";
+import JoinResponse from "mindweb-request-classes/response/JoinResponse";
+import EditResponse from "mindweb-request-classes/response/EditResponse";
+import UnsubscribeResponse from "mindweb-request-classes/response/UnsubscribeResponse";
+import SubscribeResponse from "mindweb-request-classes/response/SubscribeResponse";
 
 const ORIGIN = "http://myorigin:8080";
 const PORT = 18084;
 const SESSION_ID1 = "SESSION-TEST-1234567890-1";
 const SESSION_ID2 = "SESSION-TEST-1234567890-2";
 const SESSION_ID3 = "SESSION-TEST-1234567890-3";
-const FILE_CONTENT = {'$': '', 'rootNode': 'MyFile SUBSCRIBE content'};
+const FILE_CONTENT = {'$': '', 'rootNode': 'MapContainer SUBSCRIBE content'};
 let wsServer: WSServer;
 let userService: UserService;
 let fileService: FileService;
@@ -47,7 +48,7 @@ before(function (next) {
     next();
 });
 before(function (next) {
-    userService.createUser("subscribeTest:ID1", "Test Subscribe User 1", "test1@subscribe.com", "Test MyFile Avatar 1", function (error, result) {
+    userService.createUser("subscribeTest:ID1", "Test Subscribe User 1", "test1@subscribe.com", "Test MapContainer Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("subscribeTest:ID1", function (error, result) {
                 userId1 = result.id;
@@ -63,7 +64,7 @@ before(function (next) {
     });
 });
 before(function (next) {
-    userService.createUser("subscribeTest:ID2", "Test Subscribe User 2", "test2@subscribe.com", "Test MyFile Avatar 1", function (error, result) {
+    userService.createUser("subscribeTest:ID2", "Test Subscribe User 2", "test2@subscribe.com", "Test MapContainer Avatar 1", function (error, result) {
         if (error) {
             userService.getUserByAuthId("subscribeTest:ID2", function (error, result) {
                 userId2 = result.id;
@@ -114,19 +115,19 @@ before(function (next) {
 before(function (next) {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
-        {sessionId: SESSION_ID1, session: JSON.stringify({user: userId1})}, {}, next
+        {sessionId: SESSION_ID1, session: JSON.stringify({passport: {user: userId1}})}, {}, next
     );
 });
 before(function (next) {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
-        {sessionId: SESSION_ID2, session: JSON.stringify({user: userId1})}, {}, next
+        {sessionId: SESSION_ID2, session: JSON.stringify({passport: {user: userId2}})}, {}, next
     );
 });
 before(function (next) {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
-        {sessionId: SESSION_ID3, session: JSON.stringify({user: userId1})}, {}, next
+        {sessionId: SESSION_ID3, session: JSON.stringify({passport: {user: userId2}})}, {}, next
     );
 });
 describe('WebSocket subscription tests', function () {
@@ -148,16 +149,18 @@ describe('WebSocket subscription tests', function () {
                 assert.isNotNull(message, "Message cannot be empty");
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
-                const response: AbstractResponse = ResponseFactory.create(message);
-                assert.equal("ErrorResponse", response.name);
-                assert.equal("error", response.result);
+                const response: AbstractMessage = ResponseFactory.create(message.utf8Data);
                 assert.instanceOf(response, ErrorResponse);
                 const errorResponse: ErrorResponse = response as ErrorResponse;
+                assert.equal("error", errorResponse.result);
+
                 assert.equal("TypeError", errorResponse.errorName);
                 connection.close();
                 done();
             });
-            connection.send(JSON.stringify(new SubscribeRequestImpl("INVALID")));
+            const subscribeRequestImpl = new SubscribeRequestImpl("INVALID");
+            subscribeRequestImpl['name'] = 'SubscribeRequest';
+            connection.send(JSON.stringify(subscribeRequestImpl));
         });
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
@@ -179,11 +182,11 @@ describe('WebSocket subscription tests', function () {
                 assert.isNotNull(message, "Message cannot be empty");
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
-                const response: AbstractResponse = ResponseFactory.create(message);
-                assert.equal("TextResponse", response.name);
-                assert.instanceOf(response, TextResponse);
-                const echoResponse: TextResponse = response as TextResponse;
-                assert.equal("Subscription done", echoResponse.message);
+                const response: AbstractMessage = ResponseFactory.create(message.utf8Data);
+                assert.instanceOf(response, SubscribeResponse);
+                const subscribeResponse: SubscribeResponse = response as SubscribeResponse;
+                assert.equal("ok", subscribeResponse.result);
+                assert.equal(fileId1,subscribeResponse.mapContainer.id);
                 connection.close();
                 done();
             });
@@ -208,19 +211,21 @@ describe('WebSocket subscription tests', function () {
                 assert.isNotNull(message, "Message cannot be empty");
                 assert.equal("utf8", message.type, "Message type must be utf8");
                 assert.isNotNull(message.utf8Data, "Message body must exist");
-                const response: AbstractResponse = ResponseFactory.create(message);
-                assert.equal("TextResponse", response.name);
-                assert.instanceOf(response, TextResponse);
-                const echoResponse: TextResponse = response as TextResponse;
-                assert.equal("Unsubscribe done", echoResponse.message);
+                const response: AbstractMessage = ResponseFactory.create(message.utf8Data);
+                assert.instanceOf(response, UnsubscribeResponse);
+                const unsubscribeResponse: UnsubscribeResponse = response as UnsubscribeResponse;
+                assert.equal("ok", unsubscribeResponse.result);
+                assert.equal(fileId1, unsubscribeResponse.mapContainer.id);
                 connection.close();
                 done();
             });
-            connection.send(JSON.stringify(new UnsubscribeRequestImpl(fileId1)));
+            const unsubscribeRequestImpl = new UnsubscribeRequestImpl(fileId1);
+            unsubscribeRequestImpl['name'] = 'UnsubscribeRequest';
+            connection.send(JSON.stringify(unsubscribeRequestImpl));
         });
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID1, "mindweb-protocol", "http://myorigin:8080");
     });
-    it("Subscribes to an existing file and send updates", function (done) {
+    it("Subscribes to an existing map and send updates", function (done) {
         this.timeout(12000);
         const client1: websocket.client = new websocket.client();
         const client2: websocket.client = new websocket.client();
@@ -244,28 +249,24 @@ describe('WebSocket subscription tests', function () {
             connection.on('close', function () {
             });
             connection.on('message', function (message: IMessage) {
-                const response: AbstractResponse = ResponseFactory.create(message);
+                const response: AbstractMessage = ResponseFactory.create(message.utf8Data);
                 let textResponse: TextResponse;
                 let joinResponse: JoinResponse;
                 let editResponse: EditResponse;
-                console.log('pipe1-' + messageCount + ':' + response.name);
                 messageCount++;
-                switch (response.name) {
+                switch (response.constructor.name) {
                     case 'TextResponse':
                         assert.isTrue(response instanceof TextResponse);
                         textResponse = response as TextResponse;
-                        assert.equal('ok', response.result);
                         assert.equal('Subscription done', textResponse.message);
                         break;
 
                     case 'JoinResponse':
-                        assert.equal('JoinResponse', response.name);
                         assert.isTrue(response instanceof JoinResponse);
                         joinResponse = response as JoinResponse;
                         assert.equal(userId1.toString(), joinResponse.userId);
                         break;
                     case 'EditResponse':
-                        assert.equal('EditResponse', response.name);
                         assert.isTrue(response instanceof EditResponse);
                         editResponse = response as EditResponse;
                         assert.equal("del", editResponse.action.event);
@@ -274,7 +275,7 @@ describe('WebSocket subscription tests', function () {
                         done();
                         break;
                     default:
-                        assert.fail('Must not receive ' + response.name);
+                        assert.fail('Must not receive ' + response.constructor.name);
                 }
             });
             connection.send(JSON.stringify(new SubscribeRequestImpl(fileId1)));
@@ -289,35 +290,31 @@ describe('WebSocket subscription tests', function () {
                 receiveConnection.close();
             });
             connection.on('message', function (message: IMessage) {
-                const response: AbstractResponse = ResponseFactory.create(message);
-                console.log('pipe2-' + messageCount + ':' + response.name);
+                const response: AbstractMessage = ResponseFactory.create(message.utf8Data);
+                console.log('pipe2-' + messageCount + ':' + response.constructor.name);
                 let textResponse: TextResponse;
                 let joinResponse: JoinResponse;
                 messageCount++;
-                switch (response.name) {
+                switch (response.constructor.name) {
                     case 'TextResponse':
-                        assert.equal('TextResponse', response.name);
                         assert.isTrue(response instanceof TextResponse);
                         textResponse = response as TextResponse;
-                        assert.equal('ok', response.result);
                         assert.isTrue('Subscription done' === textResponse.message || 'Edit accepted' === textResponse.message);
 
                         break;
 
                     case 'JoinResponse':
-                        assert.equal('JoinResponse', response.name);
                         assert.isTrue(response instanceof JoinResponse);
                         joinResponse = response as JoinResponse;
                         assert.equal(userId1.toString(), joinResponse.userId);
                         break;
                     case 'EditResponse':
-                        assert.equal('TextResponse', response.name);
                         assert.isTrue(response instanceof TextResponse);
                         textResponse = response as TextResponse;
                         assert.equal("Edit accepted", textResponse.message);
                         break;
                     default:
-                        assert.fail('Must not receive ' + response.name);
+                        assert.fail('Must not receive ' + response.constructor.name);
                 }
 
             });

@@ -1,13 +1,13 @@
 import * as app from "../app";
-import SubscribeRequest from 'mindweb-request-classes/dist/request/SubscribeRequest';
-import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
-import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
-import ErrorResponse from "mindweb-request-classes/dist/response/ErrorResponse";
+import {
+    SubscribeRequest,
+    AbstractResponse,
+    MapContainer, ServiceError
+} from "mindweb-request-classes";
 import KafkaService from "../services/KafkaService";
-import FileService from "../services/FileService";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
-import File from "mindweb-request-classes/dist/classes/File";
-
+import FileService from "../services/MapService";
+import ErrorResponse from "mindweb-request-classes/response/ErrorResponse";
+import SubscribeResponse from "mindweb-request-classes/response/SubscribeResponse";
 
 export default class SubscribeRequestImpl extends SubscribeRequest {
     static fileService: FileService;
@@ -17,20 +17,20 @@ export default class SubscribeRequestImpl extends SubscribeRequest {
         super(fileId);
     }
 
-    execute(userId: string, kafkaService: KafkaService, next: (response: AbstractResponse) => void) {
+    internalExecute(userId: string, kafkaService: KafkaService, next: (response: AbstractResponse) => void) {
         if (!SubscribeRequestImpl.initialized) {
             SubscribeRequestImpl.fileService = new FileService(app.cassandraClient);
             SubscribeRequestImpl.initialized = true;
         }
-        const fileId = this as SubscribeRequest.fileId;
-        const sessionId = this as SubscribeRequest.sessionId;
-        SubscribeRequest.fileService.getFile(fileId, function (error: ServiceError, file: File) {
+        const fileId = this.fileId;
+        const sessionId = this.sessionId;
+        SubscribeRequestImpl.fileService.getMap(fileId, function (error: ServiceError, mapContainer: MapContainer) {
             if (error) {
                 next(new ErrorResponse(error));
                 return;
             }
-            if (!file.canView(userId)) {
-                next(new ErrorResponse({name: "Permission denied", message: "User cannot read file"}));
+            if (!mapContainer.canView(userId)) {
+                next(new ErrorResponse({name: "Permission denied", message: "User cannot read mapDAO"}));
                 return;
             }
             kafkaService.subscribeToFile(sessionId, userId, fileId, function (error: Error) {
@@ -38,8 +38,7 @@ export default class SubscribeRequestImpl extends SubscribeRequest {
                 if (error) {
                     response = new ErrorResponse(error);
                 } else {
-                    response = new TextResponse("Subscription done");
-                    response.result = "ok";
+                    response = new SubscribeResponse(mapContainer);
                 }
                 next(response);
             });

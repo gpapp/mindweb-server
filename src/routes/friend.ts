@@ -1,9 +1,9 @@
 import * as async from "async";
 import * as bodyParser from "body-parser";
 import * as cassandra from "cassandra-driver";
-import Friend from "mindweb-request-classes/dist/classes/Friend";
+import {Friend} from "mindweb-request-classes";
 import BaseRouter from "./BaseRouter";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import {ServiceError} from "mindweb-request-classes";
 import FriendService from "../services/FriendService";
 
 export default class FriendRouter extends BaseRouter {
@@ -11,7 +11,7 @@ export default class FriendRouter extends BaseRouter {
     constructor(cassandraClient: cassandra.Client) {
         super();
 
-        console.log("Setting up DB connection for file service");
+        console.log("Setting up DB connection for friend service");
         const friendService = new FriendService(cassandraClient);
 
         this.router

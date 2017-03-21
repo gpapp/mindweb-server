@@ -1,8 +1,8 @@
 import * as async from "async";
-import MapContainer from "mindweb-request-classes";
-import ServiceError from "mindweb-request-classes";
-import MapVersion from "mindweb-request-classes";
-import MapContent from "mindweb-request-classes";
+import {MapContainer} from "mindweb-request-classes";
+import {ServiceError} from "mindweb-request-classes";
+import {MapVersion} from "mindweb-request-classes";
+import {MapContent} from "mindweb-request-classes";
 import MapContainerDAO from "../dao/MapContainerDAO";
 import MapVersionDAO from "../dao/MapVersionDAO";
 import * as cassandra from "cassandra-driver";
@@ -91,8 +91,8 @@ export default class FileService {
             function (retval: MapContainer[], next) {
                 retval =
                     retval
-                        .filter(FilterHelper.uniqueFilterFile)
-                        .filter(FilterHelper.queryFilterFile(query))
+                        .filter(FilterHelper.uniqueFilterMap)
+                        .filter(FilterHelper.queryFilterMap(query))
                         .filter(function (v: MapContainer) {
                             if (v.tags == null) {
                                 return tags.length == 0;
@@ -255,7 +255,7 @@ export default class FileService {
                     });
                 },
                 function (fileId: cassandra.types.Uuid, versions: cassandra.types.Uuid[],
-                          next: (error: ServiceError, file: File, fileId?: cassandra.types.Uuid, versions?: cassandra.types.Uuid[]) => void) {
+                          next: (error: ServiceError, file: MapContainer, fileId?: cassandra.types.Uuid, versions?: cassandra.types.Uuid[]) => void) {
                     if (versions.length > 0) {
                         parent.getMap(fileId, function (error: ServiceError, file: MapContainer) {
                             if (error) return callback(error);
@@ -265,15 +265,15 @@ export default class FileService {
                         next(null, null, fileId, versions);
                     }
                 },
-                function (file: File, fileId: cassandra.types.Uuid, versions: cassandra.types.Uuid[],
-                          next: (error: ServiceError, file: File, fileId: cassandra.types.Uuid, versions: cassandra.types.Uuid[]) => void) {
+                function (file: MapContainer, fileId: cassandra.types.Uuid, versions: cassandra.types.Uuid[],
+                          next: (error: ServiceError, file: MapContainer, fileId: cassandra.types.Uuid, versions: cassandra.types.Uuid[]) => void) {
                     const newFileVersionId: cassandra.types.Uuid = cassandra.types.Uuid.random();
                     if (file) {
                         const oldFileVersionId = versions[0];
                         parent.mapVersionDAO.getContent(oldFileVersionId, function (error: ServiceError, result: cassandra.types.ResultSet) {
                             if (error) return callback(error);
                             const row = result.first();
-                            if (content === row["content"]) {
+                            if (row && content === row["content"]) {
                                 next(null, file, fileId, versions);
                             }
                             else {
@@ -339,7 +339,7 @@ export default class FileService {
                     parent.getMap(fileId, function (error: ServiceError, result: MapContainer) {
                         if (error) return callback(error);
                         if (result == null) {
-                            return callback(new ServiceError(500, 'Trying to share non-existing mapDAO', "MyFile share error"));
+                            return callback(new ServiceError(500, 'Trying to share non-existing mapDAO', "MapContainer share error"));
                         }
                         next(null, result);
                     });
@@ -385,14 +385,14 @@ export default class FileService {
                     next(null, result);
                 });
             },
-            function (file: File, next: (error: ServiceError, tags?: string[], file?: MapContainer) => void) {
+            function (file: MapContainer, next: (error: ServiceError, tags?: string[], file?: MapContainer) => void) {
                 parent.mapDAO.tagQuery(userId, function (error: ServiceError, result: cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     let retval: string[] = [];
                     for (let i = 0; i < result.rows.length; i++) {
                         retval = retval.concat(result.rows[i]['tags']);
                     }
-                    next(null, retval, MapContainer);
+                    next(null, retval, file);
                 })
             },
             function (tags: string[], file: MapContainer) {
@@ -408,7 +408,7 @@ export default class FileService {
     public tagMap(fileId: string|cassandra.types.Uuid, tag: string, callback: (error: ServiceError, result?: MapContainer) => void) {
         const parent: FileService = this;
         if (tag == null) {
-            return callback(new ServiceError(500, 'Cannot add null tag', 'Error MyFile tagging'));
+            return callback(new ServiceError(500, 'Cannot add null tag', 'Error MapContainer tagging'));
         }
         async.waterfall([
             function (next: (error: ServiceError, result?: MapContainer) => void) {
@@ -417,7 +417,7 @@ export default class FileService {
                     next(null, result)
                 })
             },
-            function (file: File, next) {
+            function (file: MapContainer, next) {
                 parent.mapDAO.tagFile(fileId, tag, function (error: ServiceError, result: cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     parent.getMap(fileId, callback);
@@ -428,7 +428,7 @@ export default class FileService {
     public untagMap(fileId: string|cassandra.types.Uuid, tag: string, callback: (error: ServiceError, result?: MapContainer) => void) {
         const parent: FileService = this;
         if (tag == null) {
-            return callback(new ServiceError(500, 'Cannot remove null tag', 'Error MyFile untagging'));
+            return callback(new ServiceError(500, 'Cannot remove null tag', 'Error MapContainer untagging'));
         }
         async.waterfall([
             function (next: (error: ServiceError, result?: MapContainer) => void) {

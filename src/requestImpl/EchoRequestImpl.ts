@@ -1,17 +1,15 @@
-import EchoRequest from 'mindweb-request-classes/dist/request/EchoRequest';
-import AbstractResponse from "mindweb-request-classes/dist/response/AbstractResponse";
-import TextResponse from "mindweb-request-classes/dist/response/TextResponse";
+import {EchoRequest} from "mindweb-request-classes";
+import {AbstractResponse} from "mindweb-request-classes";
 import KafkaService from "../services/KafkaService";
+import TextResponse from "mindweb-request-classes/response/TextResponse";
 
 export default class EchoRequestImpl extends EchoRequest {
-    content: string;
 
     constructor(content?: string) {
-        super();
-        this.content = content;
+        super(content);
     }
 
-    execute(userId: string, kafkaService: KafkaService, next: (response: AbstractResponse) => void) {
+    internalExecute(userId: string, kafkaService: KafkaService, next: (response: AbstractResponse) => void) {
         const response = new TextResponse(this.content);
         response.result = "ok";
         next(response);

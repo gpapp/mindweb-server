@@ -9,31 +9,27 @@ module.exports = function (grunt) {
             gen: {
                 expand: true,
                 cwd: '.',
-                src: ['**/*.js',
-                    '**/*.js.map',
-                    '!**/gruntfile.js',
-                    '**/*.d.ts',
-                    '!**/node_modules/**']
+                src: ['dest/**']
             },
         },
         ts: {
             default: {
-                src: ['**/*.ts','!**/node_modules/**'],
-                dest: '.',
+                src: ['src/**/*.ts'],
+                dest: 'dest',
                 options: {
                     module: 'commonjs', //or commonjs
                     target: 'es6', //or es3
                     sourceMap: true,
                     declaration: false
                 }
-            }
+            },
         },
         mochaTest: {
             default: {
                 options: {
 
                 },
-                src: ['test/**/*.js']
+                src: ['dest/**/*Test.js']
             }
         }
     });

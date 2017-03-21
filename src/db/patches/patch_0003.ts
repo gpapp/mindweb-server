@@ -1,4 +1,4 @@
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import {ServiceError} from "mindweb-request-classes";
 import * as cassandra from 'cassandra-driver';
 import * as async from 'async';
 
@@ -12,7 +12,7 @@ export default function patch(cassandraClient: cassandra.Client,
         addSessionColumn2,
         addSessionColumn3
     ], function (error: ServiceError) {
-        afterExecution(error, 'Adding shareable column to file database', callback)
+        afterExecution(error, 'Updating session DB', callback)
     });
 }
 

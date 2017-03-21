@@ -1,23 +1,23 @@
 import * as xml2js from 'xml2js';
 import * as markdown from 'markdown';
 
-import MapNode from 'mindweb-request-classes/dist/classes/MapNode';
-import FileContent from "mindweb-request-classes/dist/classes/FileContent";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import {MapNode} from "mindweb-request-classes";
+import {MapContent} from "mindweb-request-classes";
+import {ServiceError} from "mindweb-request-classes";
 
 
 const mapBuilder = new xml2js.Builder({rootName: 'map', headless: true, renderOpts: {pretty: true}});
 const htmlBuilder = new xml2js.Builder({rootName: 'html', headless: true, renderOpts: {pretty: true}});
 const toMarkdown = require('to-markdown');
 
-export function fromFreeplane(buffer:Buffer, callback:(error:ServiceError, result?:FileContent)=>void) {
+export function fromFreeplane(buffer:Buffer, callback:(error:ServiceError, result?:MapContent)=>void) {
     // XML to JSON
     xml2js.parseString(buffer.toString(), {trim: true}, function (err, result:{map:{$:any,node:MapNode[]}}) {
             if (err) {
                 return callback(err);
             }
 
-            var retval:FileContent = new FileContent({$: result.map.$, rootNode: result.map.node[0]});
+            const retval:MapContent = new MapContent({$: result.map.$, rootNode: result.map.node[0]});
             try {
                 buildMarkdownContent(retval.rootNode);
             } catch (e) {
@@ -33,14 +33,14 @@ function buildMarkdownContent(node:MapNode):void {
     if (node.$ && node.$['TEXT']) {
         node.nodeMarkdown = node.$['TEXT'];
     }
-    var richcontent = node['richcontent'];
+    const richcontent = node['richcontent'];
     if (richcontent) {
-        for (var i = 0, len = richcontent.length; i < len; i++) {
-            var richNode = richcontent[i];
+        for (let i = 0, len = richcontent.length; i < len; i++) {
+            const richNode = richcontent[i];
             if (richNode === '') {
                 continue;
             }
-            var markdown = buildMarkdownContentForNode(richNode);
+            const markdown = buildMarkdownContentForNode(richNode);
             if (markdown) {
                 switch (richNode.$['TYPE']) {
                     case 'NODE':
@@ -60,7 +60,7 @@ function buildMarkdownContent(node:MapNode):void {
         }
         delete node['richcontent'];
     }
-    for (var attr in node) {
+    for (const attr in node) {
         if (!node.hasOwnProperty(attr) || attr === '$') {
             continue;
         }
@@ -68,7 +68,7 @@ function buildMarkdownContent(node:MapNode):void {
             attr === 'open' || attr === 'detailOpen' || attr === 'richcontent') {
 
         } else if (Array.isArray(node[attr])) {
-            for (var i = 0, len = node[attr].length; i < len; i++) {
+            for (let i = 0, len = node[attr].length; i < len; i++) {
                 buildMarkdownContent(node[attr][i]);
             }
         } else {
@@ -81,30 +81,30 @@ function buildMarkdownContentForNode(node:MapNode):string {
     if (!node['html']) {
         return null;
     }
-    var buildObject = htmlBuilder.buildObject(node['html'][0]);
+    const buildObject = htmlBuilder.buildObject(node['html'][0]);
     return toMarkdown(buildObject, {gfm: true});
 }
 
-export function toFreeplane(content:FileContent, callback:(error:ServiceError, result:string)=>void) {
+export function toFreeplane(content:MapContent, callback:(error:ServiceError, result:string)=>void) {
     content['node'] = [content.rootNode];
 
     removeMarkdown(content['node']);
     delete content.rootNode;
 
 
-    var profiles:string = mapBuilder.buildObject(content);
+    const profiles:string = mapBuilder.buildObject(content);
     callback(null, profiles);
 }
 
 function removeMarkdown(nodes:MapNode[]):void {
-    for (var i in nodes) {
-        var curnode:MapNode = nodes[i];
-        var content:string = markdown.parse(curnode.nodeMarkdown);
+    for (let i in nodes) {
+        const curnode:MapNode = nodes[i];
+        const content:string = markdown.parse(curnode.nodeMarkdown);
         delete curnode['richcontent'];
         if (content != "<p>" + curnode.nodeMarkdown + "</p>") {
-            var richContent = markdownToHTML(content);
+            const richContent = markdownToHTML(content);
             if (richContent) {
-                var richnode = {
+                const richnode = {
                     $: {TYPE: 'NODE'},
                     html: richContent
                 };
@@ -116,7 +116,7 @@ function removeMarkdown(nodes:MapNode[]):void {
         }
         curnode.$['TEXT'] = curnode.nodeMarkdown;
         if (curnode.detailMarkdown) {
-            var richnode = {
+            const richnode = {
                 $: {TYPE: 'DETAILS'},
                 html: markdownToHTML(markdown.parse(curnode.detailMarkdown))
             };
@@ -130,7 +130,7 @@ function removeMarkdown(nodes:MapNode[]):void {
             }
         }
         if (curnode.noteMarkdown) {
-            var richnode = {
+            const richnode = {
                 $: {TYPE: 'NOTE'},
                 html: markdownToHTML(markdown.parse(curnode.noteMarkdown))
             };

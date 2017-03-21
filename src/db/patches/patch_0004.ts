@@ -8,26 +8,15 @@ export default function patch(cassandraClient: cassandra.Client,
                               callback: (error?: ServiceError) => void) {
     client = cassandraClient;
     async.parallel([
-        addSessionColumn1,
-        addSessionColumn2,
-        addSessionColumn3
+        addSessionColumn
     ], function (error: ServiceError) {
-        afterExecution(error, 'Adding shareable column to mapDAO database', callback)
+        afterExecution(error, 'Add expires to session db', callback)
     });
 }
 
-function addSessionColumn1(next) {
+function addSessionColumn(next) {
     client.execute(
-        'ALTER TABLE mindweb.sessions ADD session text;',
-        next);
-}
-function addSessionColumn2(next) {
-    client.execute(
-        'ALTER TABLE mindweb.sessions ADD expire timestamp;',
-        next);
-}
-function addSessionColumn3(next) {
-    client.execute(
-        'ALTER TABLE mindweb.sessions DROP sobject;',
+        'ALTER TABLE mindweb.sessions ADD expires timestamp;',
+        // 'ALTER TABLE mindweb.sessions DROP expires;',
         next);
 }

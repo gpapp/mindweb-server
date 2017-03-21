@@ -9,7 +9,7 @@ import {EditAction} from "mindweb-request-classes";
 import BaseRouter from "./BaseRouter";
 import MapContainerService from "../services/MapService";
 import * as ConverterHelper from "../services/ConverterHelper";
-import {MapService} from "mindweb-request-classes";
+import MapService from "mindweb-request-classes/service/MapService";
 
 const EMPTY_MAP = {
     $: {version: "freeplane 1.3.0"},

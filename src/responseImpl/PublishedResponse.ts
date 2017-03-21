@@ -1,4 +1,4 @@
-import {AbstractMessage} from "../classes/AbstractMessage";
+import {AbstractMessage} from "mindweb-request-classes/classes/AbstractMessage";
 export default class PublishedResponse {
     get message(): AbstractMessage {
         return this._message;

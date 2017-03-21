@@ -1,89 +1,86 @@
-import * as async from 'async';
-import * as cassandra from 'cassandra-driver';
-
-import File from 'mindweb-request-classes/dist/classes/File';
-import User from 'mindweb-request-classes/dist/classes/User';
-import Persona from 'mindweb-request-classes/dist/classes/Persona';
-import Friend from "mindweb-request-classes/dist/classes/Friend";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
-
-import UserDAO from '../dao/User';
-import UserPersonaDAO from '../dao/UserPersona';
-
-import FileService from './FileService';
+import * as async from "async";
+import * as cassandra from "cassandra-driver";
+import {MapContainer} from "mindweb-request-classes";
+import {User} from "mindweb-request-classes";
+import {Persona} from "mindweb-request-classes";
+import {Friend} from "mindweb-request-classes";
+import {ServiceError} from "mindweb-request-classes";
+import UserDAO from "../dao/UserDAO";
+import UserPersonaDAO from "../dao/UserPersonaDAO";
+import MapService from "./MapService";
 import FriendService from "./FriendService";
 
 
 export default class UserService {
     private connection;
-    private _user:UserDAO;
-    private _persona:UserPersonaDAO;
-    private _friendService:FriendService;
-    private _fileService:FileService;
+    private _user: UserDAO;
+    private _persona: UserPersonaDAO;
+    private _friendService: FriendService;
+    private _fileService: MapService;
 
     constructor(connection) {
         this.connection = connection;
     }
 
-    get user():UserDAO {
+    get user(): UserDAO {
         if (this._user == null)
             this._user = new UserDAO(this.connection);
         return this._user;
     }
 
-    get persona():UserPersonaDAO {
+    get persona(): UserPersonaDAO {
         if (this._persona == null)
             this._persona = new UserPersonaDAO(this.connection);
         return this._persona;
     }
 
-    get friendService():FriendService {
+    get friendService(): FriendService {
         if (this._friendService == null)
             this._friendService = new FriendService(this.connection);
         return this._friendService;
     }
 
-    get fileService():FileService {
+    get fileService(): MapService {
         if (this._fileService == null)
-            this._fileService = new FileService(this.connection);
+            this._fileService = new MapService(this.connection);
         return this._fileService;
     }
 
-    public getUserByAuthId(authId:string, next:(error:ServiceError, user?:User)=>void) {
-        this.user.getUserByAuthId(authId, function (error:ServiceError, result:cassandra.types.ResultSet) {
+    public getUserByAuthId(authId: string, next: (error: ServiceError, user?: User) => void) {
+        this.user.getUserByAuthId(authId, function (error: ServiceError, result: cassandra.types.ResultSet) {
             if (error) {
                 return next(error, null);
             }
             if (result.rows.length == 0) {
                 return next(null, null);
             }
-            var row = result.first();
+            const row = result.first();
             next(null, new User(row['id'], row['persona'], row['name'], row['email'], row['avatarurl'], row['created'], row['modified']));
         });
     }
 
-    public getUserById(id:string|cassandra.types.Uuid, next:(error:ServiceError, user?:User)=>void) {
-        this.user.getUserById(id, function (error:ServiceError, result:cassandra.types.ResultSet) {
+    public getUserById(id: string|cassandra.types.Uuid, next: (error: ServiceError, user?: User) => void) {
+        this.user.getUserById(id, function (error: ServiceError, result: cassandra.types.ResultSet) {
             if (error) {
                 return next(error);
             }
             if (result.rows.length == 0) {
                 return next(new ServiceError(403, 'Cannot find user:' + id, 'getUserById'));
             }
-            var row = result.first();
+            const row = result.first();
             next(null, new User(row['id'], row['persona'], row['name'], row['email'], row['avatarurl'], row['created'], row['modified']));
         });
     }
 
-    public createUser(authId:string, name:string, email:string, avatarUrl:string, callback:(error:ServiceError, user?:User)=>void) {
-        var parent = this;
-        this.getUserByAuthId(authId, function (error, result:User) {
+    public createUser(authId: string, name: string, email: string, avatarUrl: string, callback: (error: ServiceError, user?: User) => void) {
+        const parent = this;
+        this.getUserByAuthId(authId, function (error, result: User) {
             if (error) return callback(error);
             if (result != null) {
                 return callback(new ServiceError(500, "User already exists with authid: " + authId, "User creation error"), result);
             }
-            var userId = cassandra.types.Uuid.random();
-            parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
+            const userId = cassandra.types.Uuid.random();
+            parent.persona.createPersona(authId, name, email, avatarUrl, function (error: ServiceError, result: cassandra.types.ResultSet) {
                 if (error) return callback(error);
                 parent.user.createUser(userId, [authId], name, email, avatarUrl, function (error) {
                     if (error) return callback(error);
@@ -93,56 +90,56 @@ export default class UserService {
         });
     }
 
-    public deleteUser(userId:string|cassandra.types.Uuid, callback:(error?:ServiceError)=>void) {
-        var parent = this;
+    public deleteUser(userId: string|cassandra.types.Uuid, callback: (error?: ServiceError) => void) {
+        const parent = this;
         async.waterfall([
-            function (next:()=>void) {
-                parent.friendService.getFriends(userId, function (error, result:Friend[]) {
+            function (next: () => void) {
+                parent.friendService.getFriends(userId, function (error, result: Friend[]) {
                     if (error) return callback(error);
-                    async.each(result, function (rec:Friend, eachNext) {
+                    async.each(result, function (rec: Friend, eachNext) {
                         parent.friendService.deleteFriend(rec.id, eachNext);
-                    }, function (error:ServiceError) {
+                    }, function (error: ServiceError) {
                         if (error) return callback(error);
                         next();
                     });
                 });
             },
-            function (next:()=>void) {
-                parent.friendService.getFriendOfList(userId, function (error, result:Friend[]) {
+            function (next: () => void) {
+                parent.friendService.getFriendOfList(userId, function (error, result: Friend[]) {
                     if (error) return callback(error);
-                    async.each(result, function (rec:Friend, eachNext) {
+                    async.each(result, function (rec: Friend, eachNext) {
                         parent.friendService.deleteFriend(rec.id, eachNext);
-                    }, function (error:ServiceError) {
+                    }, function (error: ServiceError) {
                         if (error) return callback(error);
                         next();
                     });
                 });
             },
-            function (next:()=>void) {
-                parent.fileService.getFiles(userId, function (error, result:File[]) {
+            function (next: () => void) {
+                parent.fileService.getMapContainers(userId, function (error, result: MapContainer[]) {
                     if (error) return callback(error);
 
-                    async.each(result, function (rec:File, eachNext) {
-                        parent.fileService.deleteFile(rec.id, eachNext);
-                    }, function (error:ServiceError) {
+                    async.each(result, function (rec: MapContainer, eachNext) {
+                        parent.fileService.deleteMap(rec.id, eachNext);
+                    }, function (error: ServiceError) {
                         if (error) return callback(error);
                         next();
                     });
                 });
             },
-            function (next:()=>void) {
-                parent.getUserById(userId, function (error, user:User) {
+            function (next: () => void) {
+                parent.getUserById(userId, function (error, user: User) {
                     if (error) return callback(error);
-                    async.each(user.persona, function (personaId:string, eachNext) {
+                    async.each(user.persona, function (personaId: string, eachNext) {
                         parent.persona.deletePersona(personaId, eachNext);
-                    }, function (error:ServiceError) {
+                    }, function (error: ServiceError) {
                         if (error) return callback(error);
                         next();
                     });
                 })
             },
             function () {
-                parent.user.deleteUser(userId, function (error:ServiceError, result:cassandra.types.ResultSet) {
+                parent.user.deleteUser(userId, function (error: ServiceError, result: cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     callback();
                 });
@@ -150,13 +147,13 @@ export default class UserService {
         ])
     }
 
-    public addPersona(userId:string|cassandra.types.Uuid, authId:string, name:string, email:string, avatarUrl:string,
-                      callback:(error:ServiceError, user?:User)=>void) {
-        var parent = this;
+    public addPersona(userId: string|cassandra.types.Uuid, authId: string, name: string, email: string, avatarUrl: string,
+                      callback: (error: ServiceError, user?: User) => void) {
+        const parent = this;
         async.waterfall([
-            function (next:(error:ServiceError, user?:User, isUpdate?:boolean)=>void) {
+            function (next: (error: ServiceError, user?: User, isUpdate?: boolean) => void) {
                 // check if persona already exists
-                parent.getUserByAuthId(authId, function (error, user:User) {
+                parent.getUserByAuthId(authId, function (error, user: User) {
                     if (error) return callback(error);
                     if (user == null) {
                         parent.getUserById(userId, function (error, user) {
@@ -168,8 +165,8 @@ export default class UserService {
                         return callback(new ServiceError(500, 'Persona already associated to another user', 'Add persona error'));
                     }
                     // check to see if the persona already exists
-                    var isUpdate = false;
-                    for (var i in user.persona) {
+                    let isUpdate = false;
+                    for (let i in user.persona) {
                         if (user.persona[i] === authId) {
                             isUpdate = true;
                             break;
@@ -178,24 +175,24 @@ export default class UserService {
                     next(null, user, isUpdate);
                 });
             },
-            function (user:User, isUpdate:boolean, next:(error:ServiceError, user?:User, isUpdate?:boolean)=>void) {
+            function (user: User, isUpdate: boolean, next: (error: ServiceError, user?: User, isUpdate?: boolean) => void) {
                 if (isUpdate) {
-                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
+                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error: ServiceError, result: cassandra.types.ResultSet) {
                         if (error) return callback(error);
                         next(null, user, isUpdate);
                     });
                 } else {
-                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
+                    parent.persona.createPersona(authId, name, email, avatarUrl, function (error: ServiceError, result: cassandra.types.ResultSet) {
                         if (error) return callback(error);
                         next(null, user, isUpdate);
                     });
                 }
             },
-            function (user:User, isUpdate:boolean) {
+            function (user: User, isUpdate: boolean) {
                 if (!isUpdate) {
                     user.persona.push(authId);
                 }
-                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
+                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error: ServiceError, result: cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     return callback(null, user);
                 });
@@ -203,27 +200,27 @@ export default class UserService {
         ]);
     }
 
-    public selectMainPersona(userId:string|cassandra.types.Uuid, authId:string,
-                             callback:(error:ServiceError, user?:User)=>void) {
-        var parent = this;
+    public selectMainPersona(userId: string|cassandra.types.Uuid, authId: string,
+                             callback: (error: ServiceError, user?: User) => void) {
+        const parent = this;
         async.waterfall([
-            function (next:(error:ServiceError, user?:User)=>void) {
-                parent.getUserByAuthId(authId, function (error, user:User) {
+            function (next: (error: ServiceError, user?: User) => void) {
+                parent.getUserByAuthId(authId, function (error, user: User) {
                     if (error) return callback(error);
                     next(null, user);
                 });
-            }, function (user:User, next:(error:ServiceError, user?:User, persona?:Persona)=>void) {
-                parent.persona.getPersona(authId, function (error:ServiceError, result:cassandra.types.ResultSet) {
+            }, function (user: User, next: (error: ServiceError, user?: User, persona?: Persona) => void) {
+                parent.persona.getPersona(authId, function (error: ServiceError, result: cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     if (result.rows.length == 0) {
                         return callback(new ServiceError(500, 'Cannot find persona:' + authId, "Main persona selection error"));
                     }
-                    var row = result.first();
+                    const row = result.first();
                     next(null, user, new Persona(authId, row['name'], row['email'], row['avatarurl'], null, null));
                 });
 
-            }, function (attachedUser:User, persona:Persona, next:(error:ServiceError, attachedUser?:User, targetUser?:User, persona?:Persona)=>void) {
-                parent.getUserById(userId, function (error, targetUser:User) {
+            }, function (attachedUser: User, persona: Persona, next: (error: ServiceError, attachedUser?: User, targetUser?: User, persona?: Persona) => void) {
+                parent.getUserById(userId, function (error, targetUser: User) {
                     if (error) return callback(error);
                     if (targetUser == null) {
                         return callback(new ServiceError(500, 'Non-existing target user:' + userId, "Main persona selection error"));
@@ -233,23 +230,23 @@ export default class UserService {
                     }
                     next(null, attachedUser, targetUser, persona);
                 });
-            }, function (attachedUser:User, targetUser:User, persona:Persona, next) {
+            }, function (attachedUser: User, targetUser: User, persona: Persona, next) {
                 parent.user.createUser(userId, targetUser.persona, persona.name, persona.email, persona.avatarUrl, function (error) {
                     parent.getUserById(userId, callback);
                 });
             }
-        ], function (error:ServiceError) {
+        ], function (error: ServiceError) {
             callback(error);
         });
     }
 
-    public removePersona(userId:string | cassandra.types.Uuid, authId:string,
-                         callback:(error:ServiceError, user?:User)=>void):void {
-        var parent = this;
+    public removePersona(userId: string | cassandra.types.Uuid, authId: string,
+                         callback: (error: ServiceError, user?: User) => void): void {
+        const parent = this;
         async.waterfall([
-            function (next:(error:ServiceError, user?:User)=>void) {
+            function (next: (error: ServiceError, user?: User) => void) {
                 // check if persona already exists
-                parent.getUserByAuthId(authId, function (error, user:User) {
+                parent.getUserByAuthId(authId, function (error, user: User) {
                     if (error) return callback(error);
                     if (user == null) {
                         return callback(new ServiceError(500, 'Persona not associated with any user', 'Remove persona error'));
@@ -263,31 +260,31 @@ export default class UserService {
                     next(null, user);
                 });
             },
-            function (user:User, next:(error:ServiceError, user?:User)=>void) {
-                parent.persona.deletePersona(authId, function (error:ServiceError) {
+            function (user: User, next: (error: ServiceError, user?: User) => void) {
+                parent.persona.deletePersona(authId, function (error: ServiceError) {
                     if (error) return callback(error);
                     next(null, user);
                 });
             },
-            function (user:User, next:(error:ServiceError, user?:User)=>void) {
+            function (user: User, next: (error: ServiceError, user?: User) => void) {
                 user.persona = user.persona.filter(function (value) {
                     return value != authId;
                 });
                 next(null, user);
             },
-            function (user:User, next:(error:ServiceError, user?:User)=>void) {
-                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error:ServiceError, result:cassandra.types.ResultSet) {
+            function (user: User, next: (error: ServiceError, user?: User) => void) {
+                parent.user.createUser(user.id, user.persona, user.name, user.email, user.avatarUrl, function (error: ServiceError, result: cassandra.types.ResultSet) {
                     if (error) return callback(error);
                     next(null, user);
                 });
             },
-            function (user:User) {
-                parent.selectMainPersona(user.id, user.persona[0], function (error, result:User) {
+            function (user: User) {
+                parent.selectMainPersona(user.id, user.persona[0], function (error, result: User) {
                     if (error) return callback(error);
                     return callback(null, result);
                 });
             }
-        ], function (error:ServiceError) {
+        ], function (error: ServiceError) {
             callback(error);
         });
     }

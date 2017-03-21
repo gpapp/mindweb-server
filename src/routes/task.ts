@@ -1,11 +1,11 @@
 import * as async from "async";
 import * as cassandra from "cassandra-driver";
-import File from "mindweb-request-classes/dist/classes/File";
-import FileVersion from "mindweb-request-classes/dist/classes/FileVersion";
-import FileContent from "mindweb-request-classes/dist/classes/FileContent";
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import {MapContainer} from "mindweb-request-classes";
+import {MapVersion} from "mindweb-request-classes";
+import {MapContent} from "mindweb-request-classes";
+import {ServiceError} from "mindweb-request-classes";
 import BaseRouter from "./BaseRouter";
-import FileService from "../services/FileService";
+import FileService from "../services/MapService";
 import * as TaskHelper from "../services/TaskHelper";
 
 export default class TaskRouter extends BaseRouter {
@@ -22,25 +22,25 @@ export default class TaskRouter extends BaseRouter {
                 const userId = request.user ? request.user.id : null;
                 async.waterfall(
                     [
-                        function (next: (error: ServiceError, result?: File) => void) {
-                            fileService.getFile(fileId, next);
+                        function (next: (error: ServiceError, result?: MapContainer) => void) {
+                            fileService.getMap(fileId, next);
                         },
-                        function (file, next: (error: ServiceError, file?: File, fileVersionId?: cassandra.types.Uuid, fileContent?: FileContent) => void) {
+                        function (file, next: (error: ServiceError, file?: MapContainer, fileVersionId?: cassandra.types.Uuid, fileContent?: MapContent) => void) {
                             if (!file.canView(userId)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             const fileVersionId: cassandra.types.Uuid = file.versions[0];
-                            fileService.getFileVersion(fileVersionId, function (error: ServiceError, fileVersion?: FileVersion) {
+                            fileService.getMapVersion(fileVersionId, function (error: ServiceError, fileVersion?: MapVersion) {
                                 if (error) return appCallback(error);
-                                const fileContent: FileContent = new FileContent(fileVersion.content);
+                                const fileContent: MapContent = new MapContent(fileVersion.content);
                                 next(null, file, fileVersionId, fileContent);
                             });
                         },
-                        function (file: File, fileVersionId: cassandra.types.Uuid, fileContent: FileContent) {
+                        function (file: MapContainer, fileVersionId: cassandra.types.Uuid, fileContent: MapContent) {
                             TaskHelper.parseTasks(fileContent);
-                            fileService.updateFileVersion(fileVersionId, JSON.stringify(fileContent),
+                            fileService.updateMapVersion(fileVersionId, JSON.stringify(fileContent),
                                 function (error: ServiceError, result: string) {
-                                    fileService.getFileVersion(fileVersionId, function (error: ServiceError, result?: FileVersion) {
+                                    fileService.getMapVersion(fileVersionId, function (error: ServiceError, result?: MapVersion) {
                                         if (error) return appCallback(error);
                                         result.file = file;
                                         result.file['owned'] = file.canRemove(userId);

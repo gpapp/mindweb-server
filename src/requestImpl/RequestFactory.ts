@@ -1,37 +1,29 @@
-import {KeyedMessage} from "kafka-node";
-import {PublishedResponse, AbstractMessage} from "mindweb-request-classes";
 import EchoRequestImpl from "../requestImpl/EchoRequestImpl";
 import UnsubscribeRequestImpl from "../requestImpl/UnsubscribeRequestImpl";
 import SubscribeRequestImpl from "../requestImpl/SubscribeRequestImpl";
 import EditRequestImpl from "../requestImpl/EditRequestImpl";
-import {AbstractObjectFactory} from "mindweb-request-classes/service/ResponseFactory";
+import {AbstractObjectFactory, AbstractRequest} from "mindweb-request-classes";
 /**
  * Created by gpapp on 2017.02.01..
  */
-export default class PublishedResponseFactory extends AbstractObjectFactory {
+export default class RequestFactory extends AbstractObjectFactory<AbstractRequest> {
     initialize() {
-        this.registerClass("EchoRequest", EchoRequestImpl.constructor);
-        this.registerClass("EditRequest", EditRequestImpl.constructor);
-        this.registerClass("SubscribeRequest", SubscribeRequestImpl.constructor);
-        this.registerClass("UnsubscribeRequest", UnsubscribeRequestImpl.constructor);
+        this.registerClass("EchoRequest", EchoRequestImpl);
+        this.registerClass("EditRequest", EditRequestImpl);
+        this.registerClass("SubscribeRequest", SubscribeRequestImpl);
+        this.registerClass("UnsubscribeRequest", UnsubscribeRequestImpl);
     }
 
     private static _instance;
 
-    static get instance():PublishedResponseFactory{
-        if (!PublishedResponseFactory._instance) {
-            PublishedResponseFactory._instance=new PublishedResponseFactory();
+    static get instance(): RequestFactory {
+        if (!RequestFactory._instance) {
+            RequestFactory._instance = new RequestFactory();
         }
-        return PublishedResponseFactory._instance;
+        return RequestFactory._instance;
     }
 
-    static create(message: KeyedMessage): PublishedResponse {
-        const payload = JSON.parse(message['value']);
-
-        const rawMessage = payload._message;
-        const sessionId = payload._originSessionId;
-
-        const newClass: AbstractMessage = PublishedResponseFactory.instance.create(rawMessage);
-        return new PublishedResponse(sessionId, newClass);
+    static create(message: string): AbstractRequest {
+        return RequestFactory.instance.create(message);
     }
 }
