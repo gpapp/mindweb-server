@@ -1,6 +1,6 @@
 import DAOBase from './DAOBase';
 import * as cassandra from 'cassandra-driver';
-import ServiceError from "mindweb-request-classes/dist/classes/ServiceError";
+import ServiceError from "mindweb-request-classes";
 
 export default class FileVersion extends DAOBase {
     public createNewVersion(id:string|cassandra.types.Uuid, version:number, content:string, next:(error:ServiceError,result:cassandra.types.ResultSet)=>void) {
