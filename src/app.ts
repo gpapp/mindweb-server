@@ -24,6 +24,21 @@ let cassandraOptions: cassandra.ClientOptions;
 export const app = express();
 export let cassandraClient: cassandra.Client;
 
+function waitForDB(cassandraClient: cassandra.Client, ttl: number, timeout: number, next: () => void) {
+    cassandraClient.connect((error) => {
+        if (error) {
+            if (ttl) {
+                console.log('DB is not available, waiting for ' + timeout + 's');
+                setTimeout(waitForDB, timeout * 1000, cassandraClient, ttl - 1, timeout * 2, next);
+            } else {
+                throw error;
+            }
+        } else {
+            next();
+        }
+    });
+}
+
 export function initialize(done) {
     async.waterfall([
         function (next) {
@@ -42,21 +57,19 @@ export function initialize(done) {
                 },
                 keyspace: "",
             };
-            DbKeyspace(cassandraOptions, next);
+            const cassandraSchemaClient = new cassandra.Client(cassandraOptions);
+            waitForDB(cassandraSchemaClient, 7, 1, () => {
+                DbKeyspace(cassandraSchemaClient, next);
+            });
         },
         function (next) {
             cassandraOptions.keyspace = "mindweb";
             cassandraClient = new cassandra.Client(cassandraOptions);
-            cassandraClient.connect(function (error) {
-                if (error) {
-                    console.error(error);
-                    throw new Error('Cannot connect to database');
-                }
+            waitForDB(cassandraClient, 3, 2, () => {
                 console.log('Building session schema');
                 CoreSchema(cassandraClient, next);
             });
         },
-
         function () {
             done();
         }]);
@@ -75,17 +88,11 @@ async.waterfall([
         const taskRoute: TaskRoute = new TaskRoute(cassandraClient);
 
         console.log("All set up, starting web server");
-        // view engine setup
-        app.set('views', path.join(__dirname, 'views'));
-        app.set('view engine', 'pug');
 
-        // uncomment after placing your favicon in /public
-        //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
         app.use(logger({path: 'logs/current.log'}));
-        app.use(express.static(path.join(__dirname, 'public')));
 
         app.set('trust proxy', 1); // trust first proxy
-        app.set('cassandraStore',_cassandraStore);
+        app.set('cassandraStore', _cassandraStore);
         app.use(session({
             secret: options.cookie_secret,
             name: 'mindweb_session',
@@ -118,10 +125,7 @@ async.waterfall([
         if (app.get('env') === 'development') {
             app.use(function (err: ServiceError, req, res, next2) {
                 res.status(err.statusCode || 500);
-                res.render('error', {
-                    message: err.message,
-                    error: err
-                });
+                res.write(JSON.stringify(err));
                 next2();
             });
         }
@@ -130,10 +134,10 @@ async.waterfall([
         // no stacktraces leaked to user
         app.use(function (err: ServiceError, req, res, next2) {
             res.status(err.statusCode || 500);
-            res.render('error', {
+            res.write(JSON.stringify({
                 message: err.message,
                 error: {}
-            });
+            }));
             next2();
         });
         next();
