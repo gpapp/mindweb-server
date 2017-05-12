@@ -1,8 +1,8 @@
 import * as cassandra from 'cassandra-driver';
 
-export default function (cassandraClient, callback) {
+export default (cassandraClient, callback) => {
     console.log("Creating keyspace");
-    cassandraClient.connect(function (error) {
+    cassandraClient.connect((error) => {
         if(error) {
             throw error;
         }

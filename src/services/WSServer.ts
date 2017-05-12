@@ -10,6 +10,7 @@ import {app, cassandraClient, options} from "../app";
 import PublishedResponseFactory from "../responseImpl/PublishedResponseFactory";
 import RequestFactory from "../requestImpl/RequestFactory";
 import PublishedResponse from "../responseImpl/PublishedResponse";
+import {KeyedMessage} from "kafka-node";
 const CassandraStore = require("cassandra-store");
 
 export default class WSServer {
@@ -55,7 +56,7 @@ export default class WSServer {
         if (sessionId) {
             // find session in DB
 
-            app.get('cassandraStore').get(sessionId, function (error, session) {
+            app.get('cassandraStore').get(sessionId, (error, session) => {
                 if (error || session == null) {
                     request.reject(201, "Session not found");
                     return;
@@ -65,7 +66,7 @@ export default class WSServer {
                         return;
                     }
                     const connection: connection = request.accept('mindweb-protocol', request.origin, request.cookies);
-                    const kafkaService: KafkaService = new KafkaService(cassandraClient, function (message) {
+                    const kafkaService: KafkaService = new KafkaService(cassandraClient, (message: KeyedMessage) => {
                             const publishedResponse: PublishedResponse = PublishedResponseFactory.create(message);
                             const response: AbstractMessage = publishedResponse.message;
                             if (sessionId != publishedResponse.originSessionId) {
@@ -73,17 +74,20 @@ export default class WSServer {
                             }
                         }
                     );
-                    connection.on('error', function () {
+                    connection.on('error', () => {
                         console.log((new Date()) + "Invalid protocol requested");
                         connection.drop(510, "Invalid protocol requested");
                         connection.close();
                     });
-                    connection.on('message', function (message: IMessage) {
+                    connection.on('message', (message: IMessage) => {
                         if (message.type == "utf8" && message.utf8Data != null) {
                             try {
                                 const request: AbstractRequest = RequestFactory.create(message.utf8Data);
-                                request.execute(sessionId, session.user, kafkaService, function (response: IStringified) {
-                                    connection.sendUTF(JSON.stringify(response));
+                                request.execute(sessionId, session.passport.user.id, kafkaService, (response: IStringified) => {
+                                    // Edit is asynchronous, will not produce output
+                                    if (response) {
+                                        connection.sendUTF(JSON.stringify(response));
+                                    }
                                 })
                             } catch (e) {
                                 connection.drop(500, "Error in client:" + e.message);
@@ -94,7 +98,7 @@ export default class WSServer {
                             connection.close();
                         }
                     });
-                    connection.on('close', function (reasonCode: number, description) {
+                    connection.on('close', (reasonCode: number, description) => {
                         kafkaService.closeAll(sessionId);
                         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
                     });

@@ -8,20 +8,20 @@ import {MapNode} from "mindweb-request-classes";
 import {MapContent} from "mindweb-request-classes";
 
 
-before(function (next) {
+before((next) => {
     app.initialize(next);
 });
 
-describe('FileHelper node empty map parse', function () {
+describe('FileHelper node empty map parse', () => {
     var testFileRaw: Buffer;
     var testFile: MapContent;
-    before(function (next) {
-        fs.readFile("src/test/task/tasktest1.mm", function (err, data: Buffer) {
+    before((next) => {
+        fs.readFile("src/test/task/tasktest1.mm", (err, data: Buffer) => {
             if (err) {
                 console.error("Could not create mapDAO", err);
             }
             testFileRaw = data;
-            ConverterHelper.fromFreeplane(data, function (error: ServiceError, result: MapContent) {
+            ConverterHelper.fromFreeplane(data, (error: ServiceError, result: MapContent) => {
                 if (error) {
                     console.error("Could not create mapDAO", error);
                     next();
@@ -34,9 +34,9 @@ describe('FileHelper node empty map parse', function () {
 
         });
     });
-    it("Parses an empty map for config", function (done) {
+    it("Parses an empty map for config", (done) => {
         TaskHelper.parseTasks(testFile);
-        ConverterHelper.fromFreeplane(testFileRaw, function (error: ServiceError, result: MapContent) {
+        ConverterHelper.fromFreeplane(testFileRaw, (error: ServiceError, result: MapContent) => {
             result.recurseNodes(function (node: MapNode): boolean {
                 var origNode: MapNode = testFile.findNodeById(node.$['ID']);
                 assert.equal(origNode.detailMarkdown, node.detailMarkdown);
@@ -48,16 +48,16 @@ describe('FileHelper node empty map parse', function () {
     });
 });
 
-describe('FileHelper node simple parse', function () {
+describe('FileHelper node simple parse', () => {
     var testFileRaw: Buffer;
     var testFile: MapContent;
-    before(function (next) {
-        fs.readFile("src/test/task/tasktest2.mm", function (err, data: Buffer) {
+    before((next) => {
+        fs.readFile("src/test/task/tasktest2.mm", (err, data: Buffer) => {
             if (err) {
                 console.error("Could not create mapDAO", err);
             }
             testFileRaw = data;
-            ConverterHelper.fromFreeplane(data, function (error: ServiceError, result: MapContent) {
+            ConverterHelper.fromFreeplane(data, (error: ServiceError, result: MapContent) => {
                 if (error) {
                     console.error("Could not create mapDAO", error);
                     next();
@@ -70,9 +70,9 @@ describe('FileHelper node simple parse', function () {
 
         });
     });
-    it("Parses an example map for tasks", function (done) {
+    it("Parses an example map for tasks", (done) => {
         TaskHelper.parseTasks(testFile);
-        ConverterHelper.fromFreeplane(testFileRaw, function (error: ServiceError, testFileOrig: MapContent) {
+        ConverterHelper.fromFreeplane(testFileRaw, (error: ServiceError, testFileOrig: MapContent) => {
             testFileOrig.recurseNodes(function (node: MapNode): boolean {
                 var nodeId = node.$['ID'];
                 var origNode: MapNode = testFile.findNodeById(nodeId);
@@ -172,16 +172,16 @@ describe('FileHelper node simple parse', function () {
     });
 });
 
-describe('FileHelper node cornercases parse', function () {
+describe('FileHelper node cornercases parse', () => {
     var testFileRaw: Buffer;
     var testFile: MapContent;
-    before(function (next) {
-        fs.readFile("src/test/task/tasktest3.mm", function (err, data: Buffer) {
+    before((next) => {
+        fs.readFile("src/test/task/tasktest3.mm", (err, data: Buffer) => {
             if (err) {
                 console.error("Could not create mapDAO", err);
             }
             testFileRaw = data;
-            ConverterHelper.fromFreeplane(data, function (error: ServiceError, result: MapContent) {
+            ConverterHelper.fromFreeplane(data, (error: ServiceError, result: MapContent) => {
                 if (error) {
                     console.error("Could not create mapDAO", error);
                     next();
@@ -194,9 +194,9 @@ describe('FileHelper node cornercases parse', function () {
 
         });
     });
-    it("Parses a map with corner cases for tasks", function (done) {
+    it("Parses a map with corner cases for tasks", (done) => {
         TaskHelper.parseTasks(testFile);
-        ConverterHelper.fromFreeplane(testFileRaw, function (error: ServiceError, testFileOrig: MapContent) {
+        ConverterHelper.fromFreeplane(testFileRaw, (error: ServiceError, testFileOrig: MapContent) => {
             testFileOrig.recurseNodes(function (node: MapNode): boolean {
                 var nodeId = node.$['ID'];
                 var origNode: MapNode = testFile.findNodeById(nodeId);

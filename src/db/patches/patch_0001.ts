@@ -14,7 +14,7 @@ export default function patch(cassandraClient:cassandra.Client,
         friendsTable,
         fileTable,
         fileVersionTable
-    ], function (error:ServiceError) {
+    ], (error:ServiceError) => {
         afterExecution(error, 'Tables created', callback)
     });
 }
@@ -37,11 +37,11 @@ function userTable(next) {
         'avatarUrl text,' +
         'created timestamp,' +
         'modified timestamp);',
-        function (err, res) {
+        (err, res) => {
             async.parallel([
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS user_persona ON mindweb.user (persona);', nextI);
-                    }, function (nextI) {
+                    }, (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS user_email ON mindweb.user (email);', nextI);
                     },
                 ], next
@@ -57,11 +57,11 @@ function userPersonaTable(next) {
         'avatarUrl text,' +
         'created timestamp,' +
         'modified timestamp);',
-        function (err, res) {
+        (err, res) => {
             async.parallel([
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS userpersona_name ON mindweb.user_persona (name);', nextI);
-                    }, function (nextI) {
+                    }, (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS userpersona_email ON mindweb.user_persona (email);', nextI);
                     },
                 ], next
@@ -79,15 +79,15 @@ function friendsTable(next) {
         'tags set<text>,' +
         'created timestamp,' +
         'modified timestamp);',
-        function (err, res) {
+        (err, res) => {
             async.parallel([
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS friends_owner_alias ON mindweb.friends (alias);', nextI);
-                    }, function (nextI) {
+                    }, (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS friends_owner ON mindweb.friends (owner);', nextI);
-                    }, function (nextI) {
+                    }, (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS friends_linkeduser ON mindweb.friends (linked_user);', nextI);
-                    }, function (nextI) {
+                    }, (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS friends_tags ON mindweb.friends (tags);', nextI);
                     }
                 ], next
@@ -108,27 +108,27 @@ function fileTable(next) {
         'tags set<text>,' +
         'created timestamp,' +
         'modified timestamp);',
-        function (err, res) {
+        (err, res) => {
             async.parallel([
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS file_owner ON mindweb.file (owner);', nextI);
                     },
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS file_tags ON mindweb.file (tags);', nextI);
                     },
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS file_public ON mindweb.file (public);', nextI);
                     },
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS file_name ON mindweb.file (name);', nextI);
                     },
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS file_viewers ON mindweb.file (viewers);', nextI);
                     },
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS file_editors ON mindweb.file (editors);', nextI);
                     },
-                    function (nextI) {
+                    (nextI) => {
                         client.execute('CREATE INDEX IF NOT EXISTS file_name ON mindweb.file (name);', nextI);
                     }
                 ], next

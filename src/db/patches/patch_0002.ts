@@ -10,7 +10,7 @@ export default function patch(cassandraClient:cassandra.Client,
     async.parallel([
         addColumn,
         updateValues
-    ], function (error:ServiceError) {
+    ], (error:ServiceError) => {
         afterExecution(error, 'Adding shareable column to file database', callback)
     });
 }
@@ -18,7 +18,7 @@ export default function patch(cassandraClient:cassandra.Client,
 function addColumn(next) {
     client.execute(
         'ALTER TABLE mindweb.file ADD shareable boolean;',
-        function (err, res) {
+        (err, res) => {
             client.execute('CREATE INDEX IF NOT EXISTS file_shareable ON mindweb.file (shareable);', next);
         });
 }
@@ -26,10 +26,10 @@ function addColumn(next) {
 function updateValues(next) {
     client.execute(
         'SELECT id FROM mindweb.file;',
-        function (err, res) {
+        (err, res) => {
             if (res) {
                 async.each(res.rows,
-                        function (row, nextI) {
+                        (row, nextI) => {
                             client.execute('UPDATE mindweb.file SET shareable=true WHERE id=:id;',
                 	    {id: row['id']},
                     	    {prepare: true},

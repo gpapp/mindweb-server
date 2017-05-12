@@ -2,7 +2,7 @@ import DAOBase from './DAOBase';
 import * as cassandra from 'cassandra-driver';
 import {ServiceError} from "mindweb-request-classes";
 
-export default class File extends DAOBase {
+export default class MapContainerDAO extends DAOBase {
     public getFiles(userId:string|cassandra.types.Uuid, next:(error:ServiceError, result:cassandra.types.ResultSet)=>void) {
         const query = 'SELECT id, name, owner, versions, shareable, public, viewers, editors, tags, created, modified ' +
             'FROM mindweb.file WHERE owner=:userId ALLOW FILTERING';

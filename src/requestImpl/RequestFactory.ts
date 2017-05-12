@@ -1,4 +1,3 @@
-import EchoRequestImpl from "../requestImpl/EchoRequestImpl";
 import UnsubscribeRequestImpl from "../requestImpl/UnsubscribeRequestImpl";
 import SubscribeRequestImpl from "../requestImpl/SubscribeRequestImpl";
 import EditRequestImpl from "../requestImpl/EditRequestImpl";
@@ -8,7 +7,6 @@ import {AbstractObjectFactory, AbstractRequest} from "mindweb-request-classes";
  */
 export default class RequestFactory extends AbstractObjectFactory<AbstractRequest> {
     initialize() {
-        this.registerClass("EchoRequest", EchoRequestImpl);
         this.registerClass("EditRequest", EditRequestImpl);
         this.registerClass("SubscribeRequest", SubscribeRequestImpl);
         this.registerClass("UnsubscribeRequest", UnsubscribeRequestImpl);

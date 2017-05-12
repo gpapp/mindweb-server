@@ -12,7 +12,7 @@ const toMarkdown = require('to-markdown');
 
 export function fromFreeplane(buffer:Buffer, callback:(error:ServiceError, result?:MapContent)=>void) {
     // XML to JSON
-    xml2js.parseString(buffer.toString(), {trim: true}, function (err, result:{map:{$:any,node:MapNode[]}}) {
+    xml2js.parseString(buffer.toString(), {trim: true}, (err, result:{map:{$:any,node:MapNode[]}}) => {
             if (err) {
                 return callback(err);
             }
@@ -159,7 +159,7 @@ function cleanNode(curnode) {
 }
 
 function markdownToHTML(content:string):Object {
-    xml2js.parseString('<body>' + content + '</body>', {trim: true, async: false}, function (error, result) {
+    xml2js.parseString('<body>' + content + '</body>', {trim: true, async: false}, (error, result) => {
         if (error) {
             console.error(content);
             console.error(error);

@@ -41,11 +41,11 @@ function waitForDB(cassandraClient: cassandra.Client, ttl: number, timeout: numb
 
 export function initialize(done) {
     async.waterfall([
-        function (next) {
+        (next) => {
             options = processConfig();
             next();
         },
-        function (next) {
+        (next) => {
             cassandraOptions = {
                 contactPoints: [
                     options.db.host
@@ -62,7 +62,7 @@ export function initialize(done) {
                 DbKeyspace(cassandraSchemaClient, next);
             });
         },
-        function (next) {
+        (next) => {
             cassandraOptions.keyspace = "mindweb";
             cassandraClient = new cassandra.Client(cassandraOptions);
             waitForDB(cassandraClient, 3, 2, () => {
@@ -70,16 +70,16 @@ export function initialize(done) {
                 CoreSchema(cassandraClient, next);
             });
         },
-        function () {
+        () => {
             done();
         }]);
 }
 
 async.waterfall([
-    function (next) {
+    (next) => {
         initialize(next);
     },
-    function (next) {
+    (next) => {
         const _cassandraStore = new CassandraStore({client: cassandraClient});
         const authRoute: AuthRoute = new AuthRoute(cassandraClient, options.url);
         const publicRoute: PublicRoute = new PublicRoute(cassandraClient);
@@ -114,7 +114,7 @@ async.waterfall([
         app.use('/task', BaseRouter.ensureAuthenticated, taskRoute.getRouter());
 
         // catch 404 and forward to error handler
-        app.use(function (req, res, next) {
+        app.use((req, res, next) => {
             next(new ServiceError(404, 'Page not found', 'Not Found'));
         });
 
@@ -123,7 +123,7 @@ async.waterfall([
         // development error handler
         // will print stacktrace
         if (app.get('env') === 'development') {
-            app.use(function (err: ServiceError, req, res, next2) {
+            app.use((err: ServiceError, req, res, next2) => {
                 res.status(err.statusCode || 500);
                 res.write(JSON.stringify(err));
                 next2();
@@ -132,7 +132,7 @@ async.waterfall([
 
         // production error handler
         // no stacktraces leaked to user
-        app.use(function (err: ServiceError, req, res, next2) {
+        app.use((err: ServiceError, req, res, next2) => {
             res.status(err.statusCode || 500);
             res.write(JSON.stringify({
                 message: err.message,

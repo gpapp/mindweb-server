@@ -15,20 +15,20 @@ export default class FriendRouter extends BaseRouter {
         const friendService = new FriendService(cassandraClient);
 
         this.router
-            .get('/list',  function (request, response, appCallback) {
-                friendService.getFriends(request.user.id, function (error, result) {
+            .get('/list',  (request, response, appCallback) => {
+                friendService.getFriends(request.user.id, (error, result) => {
                     if (error) return appCallback(error);
 
                     response.json(result);
                     response.end();
                 });
             })
-            .get('/get/:id',  function (request, response, appCallback) {
+            .get('/get/:id',  (request, response, appCallback) => {
                 const fileId = request.params.id;
                 async.waterfall(
                     [
-                        function (next) {
-                            friendService.getFriendById(fileId, function (error, result: Friend) {
+                        (next) => {
+                            friendService.getFriendById(fileId, (error, result: Friend) => {
                                 if (error) return appCallback(error);
                                 if (result.owner.toString() != request.user.id.toString()) {
                                     return appCallback(401, 'This is not your friend', 'Getting friend')
@@ -36,128 +36,128 @@ export default class FriendRouter extends BaseRouter {
                                 next(null, result);
                             });
                         },
-                        function (fileContent, next) {
+                        (fileContent, next) => {
                             response.json(fileContent);
                             response.end();
                             next();
                         }],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
-            .put('/create',  bodyParser.json(), function (request, response, appCallback) {
+            .put('/create',  bodyParser.json(), (request, response, appCallback) => {
                 const alias = request.body.alias;
                 const linkedUserId = request.body.linkedUserId;
                 const tags = request.body.tags;
                 async.waterfall(
                     [
-                        function (next) {
-                            friendService.createFriend(request.user.id.toString(), alias, linkedUserId, tags, function (error, result) {
+                        (next) => {
+                            friendService.createFriend(request.user.id.toString(), alias, linkedUserId, tags, (error, result) => {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (fileContent, next) {
+                        (fileContent, next) => {
                             response.json(fileContent);
                             response.end();
                             next();
                         }],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
-            .put('/update/:id',  bodyParser.json(), function (request, response, appCallback) {
+            .put('/update/:id',  bodyParser.json(), (request, response, appCallback) => {
                 const friendId = request.body.id;
                 const alias = request.body.alias;
                 const tags = request.body.tags;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             friendService.getFriendById(friendId, next);
                         },
-                        function (friend: Friend, next) {
+                        (friend: Friend, next) => {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            friendService.updateFriend(friendId, alias, tags, function (error, result) {
+                            friendService.updateFriend(friendId, alias, tags, (error, result) => {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (friend: Friend, next) {
+                        (friend: Friend, next) => {
                             response.json(friend);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             })
-            .put('/tag',  bodyParser.json(), function (request, response, appCallback) {
+            .put('/tag',  bodyParser.json(), (request, response, appCallback) => {
                 const friendId = request.body.id;
                 const tag = request.body.tag;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             friendService.getFriendById(friendId, next);
                         },
-                        function (friend: Friend, next) {
+                        (friend: Friend, next) => {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            friendService.tagFriend(friendId, tag, function (error, result) {
+                            friendService.tagFriend(friendId, tag, (error, result) => {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (friend: Friend, next) {
+                        (friend: Friend, next) => {
                             response.json(friend);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             })
-            .put('/untag',  bodyParser.json(), function (request, response, appCallback) {
+            .put('/untag',  bodyParser.json(), (request, response, appCallback) => {
                 const friendId = request.body.id;
                 const tag = request.body.tag;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             friendService.getFriendById(friendId, next);
                         },
-                        function (friend: Friend, next) {
+                        (friend: Friend, next) => {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            friendService.untagFriend(friendId, tag, function (error, result) {
+                            friendService.untagFriend(friendId, tag, (error, result) => {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (friend: Friend, next) {
+                        (friend: Friend, next) => {
                             response.json(friend);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             })
-            .delete('/remove/:id',  function (request, response, appCallback) {
+            .delete('/remove/:id',  (request, response, appCallback) => {
                 const friendId = request.params.id;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             friendService.getFriendById(friendId, next);
                         },
-                        function (friend: Friend, next) {
+                        (friend: Friend, next) => {
                             if (friend.owner.toString() === request.user.id.toString()) {
-                                friendService.deleteFriend(friendId, function (error: ServiceError) {
+                                friendService.deleteFriend(friendId, (error: ServiceError) => {
                                     if (error) return appCallback(error);
                                     next(null, friend);
                                 });
@@ -165,13 +165,13 @@ export default class FriendRouter extends BaseRouter {
                                 appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             response.json(fileInfo);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             });

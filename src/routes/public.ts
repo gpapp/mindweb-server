@@ -21,34 +21,34 @@ export default class PublicRouter extends BaseRouter {
         const fileService = new FileService(cassandraClient);
 
         this.router
-            .get('/fileTags/', function (request, response, appCallback) {
-                fileService.getPublicFileTags('', function (error, result) {
+            .get('/fileTags/', (request, response, appCallback) => {
+                fileService.getPublicFileTags('', (error, result) => {
                     if (error) return appCallback(error);
 
                     response.json(result);
                     response.end();
                 });
             })
-            .get('/fileTags/:query', function (request, response, appCallback) {
+            .get('/fileTags/:query', (request, response, appCallback) => {
                 const query = request.params.query;
-                fileService.getPublicFileTags(query, function (error, result) {
+                fileService.getPublicFileTags(query, (error, result) => {
                     if (error) return appCallback(error);
 
                     response.json(result);
                     response.end();
                 });
             })
-            .put('/filesForTags', bodyParser.json(), function (request, response, appCallback) {
+            .put('/filesForTags', bodyParser.json(), (request, response, appCallback) => {
                 const query: string = request.body.query;
                 const tags: string[] = request.body.tags;
-                fileService.getPublicMapsForTags(query, tags, function (error, result) {
+                fileService.getPublicMapsForTags(query, tags, (error, result) => {
                     if (error) return appCallback(error);
 
                     response.json(result);
                     response.end();
                 });
             })
-            .get('/mapDAO/:id', function (request, response, appCallback) {
+            .get('/mapDAO/:id', (request, response, appCallback) => {
                 const fileId = request.params.id;
                 const userId = request.user ? request.user.id : null;
                 async.waterfall(
@@ -56,70 +56,70 @@ export default class PublicRouter extends BaseRouter {
                         function (next: (error: ServiceError, file?: MapContainer) => void) {
                             fileService.getMap(fileId, next);
                         },
-                        function (file: MapContainer, next) {
+                        (file: MapContainer, next) => {
                             if (!file.isPublic) {
                                 if (!file.canView(userId)) {
                                     return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                                 }
                             }
                             const lastVersionId = file.versions[0];
-                            fileService.getMapVersion(lastVersionId, function (error: ServiceError, result: MapVersion) {
+                            fileService.getMapVersion(lastVersionId, (error: ServiceError, result: MapVersion) => {
                                 if (error) return appCallback(error);
-                                result.file = file;
+                                result.container = file;
                                 next(null, result);
                             });
                         },
-                        function (fileVersion: MapVersion, next) {
-                            fileVersion.file['owned'] = fileVersion.file.canRemove(userId);
-                            fileVersion.file['editable'] = fileVersion.file.canEdit(userId);
-                            fileVersion.file['viewable'] = fileVersion.file.canView(userId);
+                        (fileVersion: MapVersion, next) => {
+                            fileVersion.container['owned'] = fileVersion.container.canRemove(userId);
+                            fileVersion.container['editable'] = fileVersion.container.canEdit(userId);
+                            fileVersion.container['viewable'] = fileVersion.container.canView(userId);
                             response.json(fileVersion);
                             response.end();
                             next();
                         }],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
-            .get('/convert/freeplane/:id', function (request, response, appCallback) {
+            .get('/convert/freeplane/:id', (request, response, appCallback) => {
                 const fileId = request.params.id;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             if (!fileInfo.canView(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             const fileVersionId = fileInfo.versions[0];
-                            fileService.getMapVersion(fileVersionId, function (error, fileVersion) {
+                            fileService.getMapVersion(fileVersionId, (error, fileVersion) => {
                                 if (error) return appCallback(error);
                                 next(null, fileInfo, fileVersion)
                             });
                         },
-                        function (fileInfo, fileVersion) {
-                            ConverterHelper.toFreeplane(fileVersion.content, function (error, result) {
+                        (fileInfo, fileVersion) => {
+                            ConverterHelper.toFreeplane(fileVersion.content, (error, result) => {
                                 if (error) return appCallback(error);
                                 response.write(result);
                                 response.end();
                                 appCallback(null);
                             });
                         }],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             })
-            .post('/display', upload.single('mapDAO'), function (request, response, appCallback) {
+            .post('/display', upload.single('mapDAO'), (request, response, appCallback) => {
                 const file = request.mapDAO;
                 console.log("Received request to transform mapDAO: " + file.originalname + " length:" + file.size);
-                ConverterHelper.fromFreeplane(file.buffer, function (error, fileContent: MapContent) {
+                ConverterHelper.fromFreeplane(file.buffer, (error, fileContent: MapContent) => {
                         if (error) return appCallback(error);
-                        const retval: MapVersion = new MapVersion(0, fileContent);
-                        retval.file = new MapContainer('DUMMY_ID', file.originalName, null, null, null, false, false, null, null);
-                        retval.file['owned'] = false;
-                        retval.file['editable'] = false;
-                        retval.file['viewable'] = false;
+                        const retval: MapVersion = new MapVersion();
+                        retval.version = 0;
+                        retval.content = fileContent;
+                        retval.container = new MapContainer();
+                        retval.container.name = file.originalname;
                         response.json(retval);
                         response.end();
                     }

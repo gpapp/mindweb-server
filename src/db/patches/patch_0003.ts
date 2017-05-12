@@ -11,7 +11,7 @@ export default function patch(cassandraClient: cassandra.Client,
         addSessionColumn1,
         addSessionColumn2,
         addSessionColumn3
-    ], function (error: ServiceError) {
+    ], (error: ServiceError) => {
         afterExecution(error, 'Updating session DB', callback)
     });
 }

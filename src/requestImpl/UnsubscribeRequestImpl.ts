@@ -21,7 +21,7 @@ export default class UnsubscribeRequestImpl extends UnsubscribeRequest {
         const sessionId = this.sessionId;
         const fileId = this.fileId;
 
-        UnsubscribeRequestImpl.fileService.getMap(fileId, function (error: ServiceError, mapContainer: MapContainer) {
+        UnsubscribeRequestImpl.fileService.getMap(fileId, (error: ServiceError, mapContainer: MapContainer) => {
             if (error) {
                 next(new ErrorResponse(error));
                 return;
@@ -30,7 +30,7 @@ export default class UnsubscribeRequestImpl extends UnsubscribeRequest {
                 next(new ErrorResponse({name: "Permission denied", message: "User cannot read mapDAO"}));
                 return;
             }
-            kafkaService.unsubscribeToFile(sessionId, fileId, function (error: Error) {
+            kafkaService.unsubscribeToFile(sessionId, fileId, (error: Error) => {
                 let response;
                 if (error) {
                     response = new ErrorResponse(error);

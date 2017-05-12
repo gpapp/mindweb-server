@@ -27,19 +27,19 @@ let userId2;
 let fileId1;
 let fileId2;
 
-before(function (next) {
+before((next) => {
     app.initialize(next);
 });
-before(function (next) {
+before((next) => {
     userService = new UserService(app.cassandraClient);
     fileService = new FileService(app.cassandraClient);
     friendService = new FriendService(app.cassandraClient);
     next();
 });
-before(function (next) {
-    userService.createUser("kafkaTest:ID1", "Test Subscribe User 1", "test1@kafka.com", "Test MapContainer Avatar 1", function (error, result) {
+before((next) => {
+    userService.createUser("kafkaTest:ID1", "Test Subscribe User 1", "test1@kafka.com", "Test MapContainer Avatar 1", (error, result) => {
         if (error) {
-            userService.getUserByAuthId("kafkaTest:ID1", function (error, result) {
+            userService.getUserByAuthId("kafkaTest:ID1", (error, result) => {
                 userId1 = result.id;
                 console.log("User loaded:" + userId1);
                 next();
@@ -52,10 +52,10 @@ before(function (next) {
         }
     });
 });
-before(function (next) {
-    userService.createUser("kafkaTest:ID2", "Test Subscribe User 2", "test2@kafka.com", "Test MapContainer Avatar 1", function (error, result) {
+before((next) => {
+    userService.createUser("kafkaTest:ID2", "Test Subscribe User 2", "test2@kafka.com", "Test MapContainer Avatar 1", (error, result) => {
         if (error) {
-            userService.getUserByAuthId("kafkaTest:ID2", function (error, result) {
+            userService.getUserByAuthId("kafkaTest:ID2", (error, result) => {
                 userId2 = result.id;
                 console.log("User loaded:" + userId2);
                 next();
@@ -68,9 +68,9 @@ before(function (next) {
         }
     });
 });
-before(function (next) {
-    before(function (done) {
-        fileService.createNewVersion(userId1, "KAFKAText1", true, false, null, null, ['KAFKA-TEST'], JSON.stringify(FILE_CONTENT), function (error, result) {
+before((next) => {
+    before((done) => {
+        fileService.createNewVersion(userId1, "KAFKAText1", true, false, null, null, ['KAFKA-TEST'], JSON.stringify(FILE_CONTENT), (error, result) => {
             if (error) console.error(error.message);
             fileId1 = result.id.toString();
             done();
@@ -78,9 +78,9 @@ before(function (next) {
     });
     next();
 });
-before(function (next) {
-    before(function (done) {
-        fileService.createNewVersion(userId1, "KAFKAText2", true, false, null, null, ['KAFKA-TEST'], JSON.stringify(FILE_CONTENT), function (error, result) {
+before((next) => {
+    before((done) => {
+        fileService.createNewVersion(userId1, "KAFKAText2", true, false, null, null, ['KAFKA-TEST'], JSON.stringify(FILE_CONTENT), (error, result) => {
             if (error) console.error(error.message);
             fileId2 = result.id.toString();
             done();
@@ -90,19 +90,19 @@ before(function (next) {
 });
 
 
-before(function (next) {
+before((next) => {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
         {sessionId: SESSION_ID1, session: JSON.stringify({user: "Pumukli"})}, {}, next
     );
 });
-before(function (next) {
+before((next) => {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
         {sessionId: SESSION_ID2, session: JSON.stringify({user: "Pumukli"})}, {}, next
     );
 });
-before(function (next) {
+before((next) => {
     app.cassandraClient.execute(
         "insert into mindweb.sessions (sid,session) values (:sessionId,:session)",
         {sessionId: SESSION_ID3, session: JSON.stringify({user: "Pumukli"})}, {}, next
@@ -123,13 +123,13 @@ function getPromiseFor(fn: () => boolean) {
     });
 }
 
-describe('Kafka connection tests', function () {
+describe('Kafka connection tests', () => {
 
     it("open kafka call", function (done) {
         this.timeout(10000);
         let gotMsg: boolean = false;
         let gotResp: boolean = false;
-        const kafkaService = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
+        const kafkaService = new KafkaService(app.cassandraClient, (message: KeyedMessage) => {
             let response: AbstractMessage = PublishedResponseFactory.create(message).message;
             assert.isTrue(response instanceof JoinResponse);
             const joinResponse = response as JoinResponse;
@@ -139,8 +139,8 @@ describe('Kafka connection tests', function () {
         });
 
 
-        kafkaService.subscribeToFile(SESSION_ID1, userId1, fileId1, function (error: ServiceError) {
-            assert.isUndefined(error, error ? error.message : "WTF");
+        kafkaService.subscribeToFile(SESSION_ID1, userId1, fileId1, (error: ServiceError) => {
+            assert.isNull(error, error ? error.message : "WTF");
             gotResp = true;
         });
         const messageTest = getPromiseFor(() => {
@@ -160,7 +160,7 @@ describe('Kafka connection tests', function () {
         this.timeout(10000);
         let gotMsg1: number = 0;
         let gotResp1: number = 0;
-        const kafkaService1 = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
+        const kafkaService1 = new KafkaService(app.cassandraClient, (message: KeyedMessage) => {
 
             const publishedResponse: PublishedResponse = PublishedResponseFactory.create(message);
             if (SESSION_ID1 == publishedResponse.originSessionId) {
@@ -171,13 +171,13 @@ describe('Kafka connection tests', function () {
                 gotMsg1++;
             }
         });
-        const messageTest = getPromiseFor(() => {
+        const messageTegst = getPromiseFor(() => {
             return gotMsg1 == 1;
         });
         const subscribeTest = getPromiseFor(() => {
             return gotResp1 == 1;
         });
-        kafkaService1.subscribeToFile(SESSION_ID1, userId1, fileId1, function (error: ServiceError) {
+        kafkaService1.subscribeToFile(SESSION_ID1, userId1, fileId1, (error: ServiceError) => {
             assert.isNull(error, error ? error.message : "WTF");
             gotResp1 = 1;
         });
@@ -185,7 +185,7 @@ describe('Kafka connection tests', function () {
             let gotMsg2: number = 0;
             let gotResp2: number = 0;
 
-            const kafkaService2 = new KafkaService(app.cassandraClient, function (message: KeyedMessage) {
+            const kafkaService2 = new KafkaService(app.cassandraClient, (message: KeyedMessage) => {
                 const publishedResponse = PublishedResponseFactory.create(message);
                 if (SESSION_ID2 == publishedResponse.originSessionId) {
                     let response: AbstractMessage = publishedResponse.message;
@@ -196,7 +196,7 @@ describe('Kafka connection tests', function () {
                     gotMsg2++;
                 }
             });
-            kafkaService2.subscribeToFile(SESSION_ID2, userId2, fileId1, function (error: ServiceError) {
+            kafkaService2.subscribeToFile(SESSION_ID2, userId2, fileId1, (error: ServiceError) => {
                 assert.isNull(error, error ? error.message : "WTF");
                 gotResp2 = 1;
             });
@@ -221,28 +221,28 @@ describe('Kafka connection tests', function () {
 
 });
 after(function (next) {
-    userService.deleteUser(userId1, function (error: ServiceError) {
+    userService.deleteUser(userId1, (error: ServiceError) => {
         next();
     });
 });
-after(function (next) {
-    userService.deleteUser(userId2, function (error: ServiceError) {
+after((next) => {
+    userService.deleteUser(userId2, (error: ServiceError) => {
         next();
     });
 });
-after(function (next) {
+after((next) => {
     app.cassandraClient.execute(
         "delete from mindweb.sessions where sid=:sessionId",
         {sessionId: SESSION_ID1}, {}, next
     );
 });
-after(function (next) {
+after((next) => {
     app.cassandraClient.execute(
         "delete from mindweb.sessions where sid=:sessionId",
         {sessionId: SESSION_ID2}, {}, next
     );
 });
-after(function (next) {
+after((next) => {
     app.cassandraClient.execute(
         "delete from mindweb.sessions where sid=:sessionId",
         {sessionId: SESSION_ID3}, {}, next

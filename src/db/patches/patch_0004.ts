@@ -9,7 +9,7 @@ export default function patch(cassandraClient: cassandra.Client,
     client = cassandraClient;
     async.parallel([
         addSessionColumn
-    ], function (error: ServiceError) {
+    ], (error: ServiceError) => {
         afterExecution(error, 'Add expires to session db', callback)
     });
 }

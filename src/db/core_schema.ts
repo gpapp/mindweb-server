@@ -9,15 +9,15 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
     client = inClient;
     async.waterfall(
         [
-            function (next) {
+            (next) => {
                 versionTable(next);
             },
             function (next:(error:ServiceError, version:number)=>void) {
                 lastVersion(next);
             },
-            function (lastVersion:number, next) {
+            (lastVersion:number, next) => {
                 console.log('DB on version ' + lastVersion);
-                fs.readdir(__dirname + '/patches', function (error, filenames:string[]) {
+                fs.readdir(__dirname + '/patches', (error, filenames:string[]) => {
                     if (error) return next(error);
                     if (filenames) {
                         var patches:string[] = [];
@@ -33,9 +33,9 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
                                     if (patchversion > lastVersion) {
                                         console.log('Running patch:' + patch);
                                         var patchFunction = require('./patches/' + patch);
-                                        patchFunction.default(inClient, afterExecution, function (error?:ServiceError) {
+                                        patchFunction.default(inClient, afterExecution, (error?:ServiceError) => {
                                             if (error) return nextPatch(error);
-                                            updateVersion(patchversion, function () {
+                                            updateVersion(patchversion, () => {
                                                 lastVersion = patchversion;
                                                 nextPatch();
                                             });
@@ -44,7 +44,7 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
                                         nextPatch();
                                     }
                                 },
-                                function (error:ServiceError) {
+                                (error:ServiceError) => {
                                     if(error) {
                                         console.error('Error in execution: '+error.message);
                                     }
@@ -60,7 +60,7 @@ export default function (inClient:cassandra.Client, done:(error:ServiceError)=>v
                 });
             }
         ],
-        function (error:ServiceError) {
+        (error:ServiceError) => {
             if (error) {
                 console.log(error.message);
             }
@@ -74,7 +74,7 @@ function versionTable(next) {
         'CREATE TABLE IF NOT EXISTS mindweb.version (' +
         '          object text PRIMARY KEY,' +
         '          version int);',
-        function (error, result:cassandra.types.ResultSet) {
+        (error, result:cassandra.types.ResultSet) => {
             if (error) return next(error);
             next();
         });
@@ -83,7 +83,7 @@ function versionTable(next) {
 function lastVersion(next:(error:ServiceError, version?:number)=>void):void {
     client.execute(
         "SELECT version FROM mindweb.version WHERE object='mindweb';",
-        function (error, result:cassandra.types.ResultSet) {
+        (error, result:cassandra.types.ResultSet) => {
             if (error) return next(error);
             if (result.rows.length > 0) {
                 next(null, result.rows[0]['version']);
@@ -98,7 +98,7 @@ function updateVersion(version:number, next:(error?:ServiceError)=>void):void {
         'INSERT INTO mindweb.version (object, version) VALUES (:object,:version);',
         {object: "mindweb", version: version},
         {prepare: true},
-        function (error:ServiceError, result:cassandra.types.ResultSet) {
+        (error:ServiceError, result:cassandra.types.ResultSet) => {
             if (error) return next(error);
             next();
         });

@@ -7,25 +7,25 @@ import UserService from "../../services/UserService";
 let userService: UserService;
 let fileService: FileService;
 
-before(function (next) {
+before(function(next) {
     this.timeout(12000);
     app.initialize(next);
 });
-before(function (next) {
+before((next) => {
     userService = new UserService(app.cassandraClient);
     fileService = new FileService(app.cassandraClient);
     next();
 });
 
 
-describe('MapContainerDAO mapDAO create', function () {
+describe('MapContainerDAO mapDAO create', () => {
     let userId1;
     let userId2;
     let testFileId;
-    before(function (next) {
-        userService.createUser("fileTest:ID1", "Test MapContainer User 1", "test1@mapDAO.com", "Test MapContainer Avatar 1", function (error, result) {
+    before((next) => {
+        userService.createUser("fileTest:ID1", "Test MapContainer User 1", "test1@mapDAO.com", "Test MapContainer Avatar 1", (error, result) => {
             if (error) {
-                userService.getUserByAuthId("fileTest:ID1", function (error, result) {
+                userService.getUserByAuthId("fileTest:ID1", (error, result) => {
                     userId1 = result.id;
                     console.log("User loaded:" + userId1);
                     next();
@@ -38,10 +38,10 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    before(function (next) {
-        userService.createUser("fileTest:ID2", "Test MapContainer User 2", "test2@mapDAO.com", "Test MapContainer Avatar 2", function (error, result) {
+    before((next) => {
+        userService.createUser("fileTest:ID2", "Test MapContainer User 2", "test2@mapDAO.com", "Test MapContainer Avatar 2", (error, result) => {
             if (error) {
-                userService.getUserByAuthId("fileTest:ID2", function (error, result) {
+                userService.getUserByAuthId("fileTest:ID2", (error, result) => {
                     userId2 = result.id;
                     console.log("User loaded:" + userId2);
                     next();
@@ -54,8 +54,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("creates a mapDAO in the database", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", false, false, null, null, ['tag1', 'tag2'], "Test Content", function (error, result: MapContainer) {
+    it("creates a mapDAO in the database", (done) => {
+        fileService.createNewVersion(userId1, "Test fajl 1", false, false, null, null, ['tag1', 'tag2'], "Test Content", (error, result: MapContainer) => {
             try {
                 assert.isNull(error, "Cannot create test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -77,12 +77,12 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Saves a mapDAO with identical content (no new version)", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", true, true, null, null, ['tag1', 'tag2'], "Test Content", function (error, result: MapContainer) {
+    it("Saves a mapDAO with identical content (no new version)", (done) => {
+        fileService.createNewVersion(userId1, "Test fajl 1", true, true, null, null, ['tag1', 'tag2'], "Test Content", (error, result: MapContainer) => {
             try {
                 assert.isNull(error, "Cannot create test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.equal(result.id.toString(), testFileId.toString(), "FileService ids mismatched");
+                assert.equal(result.id.toString(), testFileId.toString(), "MapService ids mismatched");
                 assert.isTrue(result.isShareable, "MapContainer is not shareable");
                 assert.isTrue(result.isPublic, "MapContainer is not public");
                 assert.isNull(result.editors, "Editors is not null");
@@ -100,12 +100,12 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Saves a new version of a mapDAO with changed content (new version)", function (done) {
-        fileService.createNewVersion(userId1, "Test fajl 1", true, true, null, null, ['tag1', 'tag2'], "Test Content changed", function (error, result) {
+    it("Saves a new version of a mapDAO with changed content (new version)", (done) => {
+        fileService.createNewVersion(userId1, "Test fajl 1", true, true, null, null, ['tag1', 'tag2'], "Test Content changed", (error, result) => {
             try {
                 assert.isNull(error, "Cannot create test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
-                assert.equal(result.id.toString(), testFileId.toString(), "FileService ids mismatched");
+                assert.equal(result.id.toString(), testFileId.toString(), "MapService ids mismatched");
                 assert.isTrue(result.isShareable, "MapContainer is not shareable");
                 assert.isTrue(result.isPublic, "MapContainer is not public");
                 assert.isNull(result.editors, "Editors is not null");
@@ -123,8 +123,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Renames a mapDAO", function (done) {
-        fileService.renameMap(testFileId, "Test fajl 1 (renamed)", function (error, result: MapContainer) {
+    it("Renames a mapDAO", (done) => {
+        fileService.renameMap(testFileId, "Test fajl 1 (renamed)", (error, result: MapContainer) => {
             try {
                 assert.isNull(error, "Cannot rename test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -144,12 +144,12 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Shares a mapDAO publicly", function (done) {
-        fileService.shareMap(testFileId, true, true, null, null, function (error, result) {
+    it("Shares a mapDAO publicly", (done) => {
+        fileService.shareMap(testFileId, true, true, null, null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot share mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
-                fileService.getMap(testFileId, function (error, result: MapContainer) {
+                fileService.getMap(testFileId, (error, result: MapContainer) => {
                     assert.equal(result.id.toString(), testFileId.toString(), "Wrong mapDAO loaded");
                     assert.isTrue(result.isShareable, "MapContainer is not shareable");
                     assert.isTrue(result.isPublic, "MapContainer is not public");
@@ -169,8 +169,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Unshares a mapDAO publicly with share-through-link", function (done) {
-        fileService.shareMap(testFileId, true, false, null, null, function (error, result) {
+    it("Unshares a mapDAO publicly with share-through-link", (done) => {
+        fileService.shareMap(testFileId, true, false, null, null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot share mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -192,8 +192,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Unshares a mapDAO publicly without share-through link", function (done) {
-        fileService.shareMap(testFileId, false, false, null, null, function (error, result) {
+    it("Unshares a mapDAO publicly without share-through link", (done) => {
+        fileService.shareMap(testFileId, false, false, null, null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot share mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -215,8 +215,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Shares a mapDAO to a viewer", function (done) {
-        fileService.shareMap(testFileId, true, false, [userId2], null, function (error, result) {
+    it("Shares a mapDAO to a viewer", (done) => {
+        fileService.shareMap(testFileId, true, false, [userId2], null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -239,8 +239,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Shares a mapDAO to an existing viewer", function (done) {
-        fileService.shareMap(testFileId, true, false, [userId2], null, function (error, result) {
+    it("Shares a mapDAO to an existing viewer", (done) => {
+        fileService.shareMap(testFileId, true, false, [userId2], null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -263,8 +263,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Shares a mapDAO to an editor ", function (done) {
-        fileService.shareMap(testFileId, true, false, null, [userId2], function (error, result) {
+    it("Shares a mapDAO to an editor ", (done) => {
+        fileService.shareMap(testFileId, true, false, null, [userId2], (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -287,8 +287,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Shares a mapDAO to an existing editor", function (done) {
-        fileService.shareMap(testFileId, true, true, null, [userId2], function (error, result) {
+    it("Shares a mapDAO to an existing editor", (done) => {
+        fileService.shareMap(testFileId, true, true, null, [userId2], (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -311,8 +311,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Shares a mapDAO to both viewer and editor", function (done) {
-        fileService.shareMap(testFileId, true, true, [userId2, userId2, userId2], [userId2, userId2, userId2], function (error, result) {
+    it("Shares a mapDAO to both viewer and editor", (done) => {
+        fileService.shareMap(testFileId, true, true, [userId2, userId2, userId2], [userId2, userId2, userId2], (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -335,8 +335,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Unshares a mapDAO from all editors and viewers and makes it public", function (done) {
-        fileService.shareMap(testFileId, true, true, null, null, function (error, result) {
+    it("Unshares a mapDAO from all editors and viewers and makes it public", (done) => {
+        fileService.shareMap(testFileId, true, true, null, null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -357,8 +357,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Unshares a mapDAO from all editors and viewers and makes it non-public, with share-through-link", function (done) {
-        fileService.shareMap(testFileId, true, false, null, null, function (error, result) {
+    it("Unshares a mapDAO from all editors and viewers and makes it non-public, with share-through-link", (done) => {
+        fileService.shareMap(testFileId, true, false, null, null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -379,8 +379,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Unshares a mapDAO from all editors and viewers and makes it non-public, without share-through-link", function (done) {
-        fileService.shareMap(testFileId, false, false, null, null, function (error, result) {
+    it("Unshares a mapDAO from all editors and viewers and makes it non-public, without share-through-link", (done) => {
+        fileService.shareMap(testFileId, false, false, null, null, (error, result) => {
             try {
                 assert.isNull(error, "Cannot unshare test mapDAO: " + error);
                 assert.isNotNull(result, "Result is empty");
@@ -401,8 +401,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Tries to unshare non-existing mapDAO", function (done) {
-        fileService.shareMap("00000000-0000-0000-0000-000000000000", true, true, null, null, function (error, result) {
+    it("Tries to unshare non-existing mapDAO", (done) => {
+        fileService.shareMap("00000000-0000-0000-0000-000000000000", true, true, null, null, (error, result) => {
             try {
                 assert.isNotNull(error, "Should fail");
                 assert.isNotNull(result, "Result is not empty");
@@ -413,8 +413,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    it("Deletes a mapDAO", function (done) {
-        fileService.deleteMap(testFileId, function (error, result) {
+    it("Deletes a mapDAO", (done) => {
+        fileService.deleteMap(testFileId, (error, result) => {
             try {
                 assert.isNull(error, "Cannot delete test mapDAO: " + error);
                 assert.equal(result, 'OK', "Result is empty");
@@ -425,8 +425,8 @@ describe('MapContainerDAO mapDAO create', function () {
             }
         });
     });
-    after(function (next) {
-        userService.deleteUser(userId1, function (error) {
+    after((next) => {
+        userService.deleteUser(userId1, (error) => {
             if (error) {
                 next(error);
             }
@@ -434,8 +434,8 @@ describe('MapContainerDAO mapDAO create', function () {
             next();
         });
     });
-    after(function (next) {
-        userService.deleteUser(userId2, function (error) {
+    after((next) => {
+        userService.deleteUser(userId2, (error) => {
             if (error) {
                 next(error);
             }
@@ -446,33 +446,33 @@ describe('MapContainerDAO mapDAO create', function () {
 });
 
 
-describe('MapContainer taging', function () {
+describe('MapContainer taging', () => {
     var user;
     var fileId1;
     var fileId2;
-    before(function (done) {
-        userService.createUser("FileTagTest:ID", "Test MapContainer Tag ", "test@Filetag.com", "Test MapContainer Tag Avatar ", function (error, result) {
+    before((done) => {
+        userService.createUser("FileTagTest:ID", "Test MapContainer Tag ", "test@Filetag.com", "Test MapContainer Tag Avatar ", (error, result) => {
             if (error) console.error(error.message);
             user = result;
             done();
         });
     });
-    before(function (done) {
-        fileService.createNewVersion(user.id, "FileTagText", true, false, null, null, null, "MapContainer tagging content", function (error, result) {
+    before((done) => {
+        fileService.createNewVersion(user.id, "FileTagText", true, false, null, null, null, "MapContainer tagging content", (error, result) => {
             if (error) console.error(error.message);
             fileId1 = result.id;
             done();
         });
     });
-    before(function (done) {
-        fileService.createNewVersion(user.id, "FileTagText2", true, false, null, null, ['TAG-TEST1', 'TAG-TEST2', 'TAG-TEST3', 'TAG-TEST4'], "MapContainer tagging content2", function (error, result) {
+    before((done) => {
+        fileService.createNewVersion(user.id, "FileTagText2", true, false, null, null, ['TAG-TEST1', 'TAG-TEST2', 'TAG-TEST3', 'TAG-TEST4'], "MapContainer tagging content2", (error, result) => {
             if (error) console.error(error.message);
             fileId2 = result.id;
             done();
         });
     });
-    it("tags a MapContainer with new tag", function (done) {
-        fileService.tagMap(fileId1, 'TAG-TEST1', function (error, result) {
+    it("tags a MapContainer with new tag", (done) => {
+        fileService.tagMap(fileId1, 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -484,8 +484,8 @@ describe('MapContainer taging', function () {
             }
         })
     });
-    it("tags a MapContainer with new tag 2", function (done) {
-        fileService.tagMap(fileId1, 'TAG-TEST2', function (error, result) {
+    it("tags a MapContainer with new tag 2", (done) => {
+        fileService.tagMap(fileId1, 'TAG-TEST2', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -498,8 +498,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("tags a MapContainer with existing tag", function (done) {
-        fileService.tagMap(fileId1, 'TAG-TEST1', function (error, result) {
+    it("tags a MapContainer with existing tag", (done) => {
+        fileService.tagMap(fileId1, 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -512,8 +512,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("Full query tags with existing tag and no mapDAO", function (done) {
-        fileService.tagQuery(user.id, null, 'TAG-TEST1', function (error, result) {
+    it("Full query tags with existing tag and no mapDAO", (done) => {
+        fileService.tagQuery(user.id, null, 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result);
@@ -526,8 +526,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("Full query tags with existing tag and mapDAO", function (done) {
-        fileService.tagQuery(user.id, fileId1, 'TAG-TEST1', function (error, result) {
+    it("Full query tags with existing tag and mapDAO", (done) => {
+        fileService.tagQuery(user.id, fileId1, 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result);
@@ -539,8 +539,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("Partial query tags with existing tag no mapDAO", function (done) {
-        fileService.tagQuery(user.id, null, 'TAG-TEST', function (error, result) {
+    it("Partial query tags with existing tag no mapDAO", (done) => {
+        fileService.tagQuery(user.id, null, 'TAG-TEST', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result);
@@ -556,8 +556,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("Partial query tags with existing tag and mapDAO", function (done) {
-        fileService.tagQuery(user.id, fileId1, 'TAG-TEST', function (error, result) {
+    it("Partial query tags with existing tag and mapDAO", (done) => {
+        fileService.tagQuery(user.id, fileId1, 'TAG-TEST', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result);
@@ -571,8 +571,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("removes existing tag", function (done) {
-        fileService.untagMap(fileId1, 'TAG-TEST1', function (error, result) {
+    it("removes existing tag", (done) => {
+        fileService.untagMap(fileId1, 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -585,8 +585,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("removes missing tag", function (done) {
-        fileService.untagMap(fileId1, 'TAG-TEST1', function (error, result) {
+    it("removes missing tag", (done) => {
+        fileService.untagMap(fileId1, 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNull(error);
                 assert.isNotNull(result.tags);
@@ -599,8 +599,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("tags invalid MapContainer", function (done) {
-        fileService.tagMap('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
+    it("tags invalid MapContainer", (done) => {
+        fileService.tagMap('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNotNull(error);
                 assert.isUndefined(result);
@@ -610,8 +610,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    it("untags invalid MapContainer", function (done) {
-        fileService.tagMap('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
+    it("untags invalid MapContainer", (done) => {
+        fileService.tagMap('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNotNull(error);
                 assert.isUndefined(result);
@@ -621,8 +621,8 @@ describe('MapContainer taging', function () {
             }
         });
     });
-    after(function (done) {
-        userService.deleteUser(user.id, function (error) {
+    after((done) => {
+        userService.deleteUser(user.id, (error) => {
             if (error) console.error(error);
             done();
         });

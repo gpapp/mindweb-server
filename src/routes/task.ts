@@ -17,7 +17,7 @@ export default class TaskRouter extends BaseRouter {
         const fileService: FileService = new FileService(cassandraClient);
 
         this.router
-            .get('/parse/:id', function (request, response, appCallback) {
+            .get('/parse/:id', (request, response, appCallback) => {
                 const fileId = request.params.id;
                 const userId = request.user ? request.user.id : null;
                 async.waterfall(
@@ -30,29 +30,26 @@ export default class TaskRouter extends BaseRouter {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             const fileVersionId: cassandra.types.Uuid = file.versions[0];
-                            fileService.getMapVersion(fileVersionId, function (error: ServiceError, fileVersion?: MapVersion) {
+                            fileService.getMapVersion(fileVersionId, (error: ServiceError, fileVersion?: MapVersion) => {
                                 if (error) return appCallback(error);
                                 const fileContent: MapContent = new MapContent(fileVersion.content);
                                 next(null, file, fileVersionId, fileContent);
                             });
                         },
-                        function (file: MapContainer, fileVersionId: cassandra.types.Uuid, fileContent: MapContent) {
+                        (file: MapContainer, fileVersionId: cassandra.types.Uuid, fileContent: MapContent) => {
                             TaskHelper.parseTasks(fileContent);
                             fileService.updateMapVersion(fileVersionId, JSON.stringify(fileContent),
-                                function (error: ServiceError, result: string) {
-                                    fileService.getMapVersion(fileVersionId, function (error: ServiceError, result?: MapVersion) {
+                                (error: ServiceError, result: string) => {
+                                    fileService.getMapVersion(fileVersionId, (error: ServiceError, result?: MapVersion) => {
                                         if (error) return appCallback(error);
-                                        result.file = file;
-                                        result.file['owned'] = file.canRemove(userId);
-                                        result.file['editable'] = file.canEdit(userId);
-                                        result.file['viewable'] = file.canView(userId);
+                                        result.container = file;
                                         response.json(result);
                                         response.end();
                                         appCallback();
                                     });
                                 });
                         }],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             });

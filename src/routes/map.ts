@@ -27,23 +27,23 @@ export default class MapRouter extends BaseRouter {
         const fileService: MapContainerService = new MapContainerService(cassandraClient);
 
         this.router
-            .get('/maps',  function (request, response, appCallback) {
-                fileService.getMapContainers(request.user.id, function (error, result) {
+            .get('/maps',  (request, response, appCallback) => {
+                fileService.getMapContainers(request.user.id, (error, result) => {
                     if (error) return appCallback(error);
 
                     response.json(result);
                     response.end();
                 });
             })
-            .get('/sharedMaps',  function (request, response, appCallback) {
-                fileService.getSharedMaps(request.user.id, function (error, result) {
+            .get('/sharedMaps',  (request, response, appCallback) => {
+                fileService.getSharedMaps(request.user.id, (error, result) => {
                     if (error) return appCallback(error);
 
                     response.json(result);
                     response.end();
                 });
             })
-            .post('/tagQuery',  bodyParser.json(), function (request, response, appCallback) {
+            .post('/tagQuery',  bodyParser.json(), (request, response, appCallback) => {
                 const fileId = request.body.id;
                 const query = request.body.query;
                 if (undefined == fileId) {
@@ -54,19 +54,19 @@ export default class MapRouter extends BaseRouter {
                 }
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (friend: MapContainer, next) {
+                        (friend: MapContainer, next) => {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.tagQuery(request.user.id, fileId, query, function (error, result) {
+                            fileService.tagQuery(request.user.id, fileId, query, (error, result) => {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (tags: string[], next) {
+                        (tags: string[], next) => {
                             const retval = [];
                             for (let i = 0; i < tags.length; i++) {
                                 retval.push({text: tags[i]});
@@ -76,11 +76,11 @@ export default class MapRouter extends BaseRouter {
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             })
-            .post('/tag',  bodyParser.json(), function (request, response, appCallback) {
+            .post('/tag',  bodyParser.json(), (request, response, appCallback) => {
                 const fileId = request.body.id;
                 const tag = request.body.tag;
                 if (undefined == fileId) {
@@ -91,29 +91,29 @@ export default class MapRouter extends BaseRouter {
                 }
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (friend: MapContainer, next) {
+                        (friend: MapContainer, next) => {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.tagMap(fileId, tag, function (error, result) {
+                            fileService.tagMap(fileId, tag, (error, result) => {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (friend: MapContainer, next) {
+                        (friend: MapContainer, next) => {
                             response.json(friend);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             })
-            .post('/untag',  bodyParser.json(), function (request, response, appCallback) {
+            .post('/untag',  bodyParser.json(), (request, response, appCallback) => {
                 const fileId = request.body.id;
                 const tag = request.body.tag;
                 if (undefined == fileId) {
@@ -124,55 +124,55 @@ export default class MapRouter extends BaseRouter {
                 }
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (friend: MapContainer, next) {
+                        (friend: MapContainer, next) => {
                             if (friend.owner.toString() != request.user.id.toString()) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.untagMap(fileId, tag, function (error, result) {
+                            fileService.untagMap(fileId, tag, (error, result) => {
                                 if (error) return appCallback(error);
                                 next(null, result);
                             });
                         },
-                        function (friend: MapContainer, next) {
+                        (friend: MapContainer, next) => {
                             response.json(friend);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     });
             })
-            .delete('/map/:id',  function (request, response, appCallback) {
+            .delete('/map/:id',  (request, response, appCallback) => {
                 const fileId = request.params.id;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             if (!fileInfo.canRemove(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.deleteMap(fileId, function (error) {
+                            fileService.deleteMap(fileId, (error) => {
                                 if (error) return appCallback(error);
                                 next(null, fileInfo);
                             });
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             response.json(fileInfo);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
-            .post('/rename/:id',  bodyParser.json(), function (request, response, appCallback) {
+            .post('/rename/:id',  bodyParser.json(), (request, response, appCallback) => {
                 const fileId = request.params.id;
                 if (!request.body.newName) {
                     return appCallback(new ServiceError(500, 'Service invocation error', 'newName not supplied'))
@@ -180,30 +180,30 @@ export default class MapRouter extends BaseRouter {
                 const newName = request.body.newName + '.mm';
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             if (!fileInfo.canRemove(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
-                            fileService.renameMap(fileId, newName, function (error) {
+                            fileService.renameMap(fileId, newName, (error) => {
                                 if (error) return appCallback(error);
                                 next(null, fileInfo);
                             });
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             fileInfo.name = newName;
                             response.json(fileInfo);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
-            .post('/share',  bodyParser.json(), function (request, response, appCallback) {
+            .post('/share',  bodyParser.json(), (request, response, appCallback) => {
                 const fileId = request.body.fileId;
                 const isShareable = request.body.isShareable;
                 const isPublic = request.body.isPublic;
@@ -211,26 +211,26 @@ export default class MapRouter extends BaseRouter {
                 const editors = request.body.editors;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             if (!fileInfo.canRemove(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             fileService.shareMap(fileId, isShareable, isPublic, viewers, editors, next);
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             response.json(fileInfo);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
-            .post('/create',  bodyParser.json(), function (request, response, appCallback) {
+            .post('/create',  bodyParser.json(), (request, response, appCallback) => {
 
                 const name = request.body.name + '.mm';
                 const isShareable = request.body.isShareable;
@@ -240,44 +240,44 @@ export default class MapRouter extends BaseRouter {
                 const tags = request.body.tags;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.createNewVersion(request.user.id, name, isShareable, isPublic, viewers, editors, tags, JSON.stringify(EMPTY_MAP), next);
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             response.json(fileInfo);
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
-            .post('/change/:id',  bodyParser.json(), function (request, response, appCallback) {
+            .post('/change/:id',  bodyParser.json(), (request, response, appCallback) => {
                 const fileId = request.params.id;
                 const actions = request.body.actions;
                 async.waterfall(
                     [
-                        function (next) {
+                        (next) => {
                             fileService.getMap(fileId, next);
                         },
-                        function (fileInfo, next) {
+                        (fileInfo, next) => {
                             if (!fileInfo.canEdit(request.user.id)) {
                                 return appCallback(new ServiceError(401, 'Unauthorized', 'Unauthorized'));
                             }
                             const fileVersionId = fileInfo.versions[0];
-                            fileService.getMapVersion(fileVersionId, function (error, fileVersion) {
+                            fileService.getMapVersion(fileVersionId, (error, fileVersion) => {
                                 if (error) return appCallback(error);
                                 next(null, fileVersionId, fileVersion.content)
                             });
                         },
-                        function (fileVersionId, fileContent, next) {
+                        (fileVersionId, fileContent, next) => {
                             async.each(
                                 actions,
-                                function (action: EditAction, callback) {
+                                (action: EditAction, callback) => {
                                     MapService.applyAction(fileContent, action, callback);
                                 },
-                                function (error) {
+                                (error) => {
                                     if (error) {
                                         console.error("Error applying action: " + error);
                                     }
@@ -285,25 +285,25 @@ export default class MapRouter extends BaseRouter {
                                 }
                             );
                         },
-                        function (fileVersionId, fileContent, next) {
+                        (fileVersionId, fileContent, next) => {
                             fileService.updateMapVersion(fileVersionId, JSON.stringify(fileContent), next);
                         },
-                        function (result, next) {
+                        (result, next) => {
                             response.end();
                             next();
                         }
                     ],
-                    function (error) {
+                    (error) => {
                         if (error) appCallback(error);
                     })
             })
 
-            .post('/upload',  upload.array('files'), function (request, response, appCallback) {
+            .post('/upload',  upload.array('files'), (request, response, appCallback) => {
                 async.forEachOf(
                     request.files,
-                    function (file, index, next) {
+                    (file, index, next) => {
                         console.log("Received request to store map: " + file["originalname"] + " length:" + file["size"]);
-                        ConverterHelper.fromFreeplane(file["buffer"], function (error, rawmap: MapContent) {
+                        ConverterHelper.fromFreeplane(file["buffer"], (error, rawmap: MapContent) => {
                             if (error) return appCallback(error);
 
                             fileService.createNewVersion(request.user.id, file["originalname"], true, false, null, null, null,
@@ -314,7 +314,7 @@ export default class MapRouter extends BaseRouter {
                                 });
                         });
                     },
-                    function (error) {
+                    (error) => {
                         if (error) return appCallback(error);
                         response.end();
                     })

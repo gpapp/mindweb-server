@@ -1,10 +1,9 @@
 import {assert} from "chai";
 import * as app from "../../app";
 import * as async from "async";
-import {Friend} from "mindweb-request-classes";
+import {Friend, ServiceError} from "mindweb-request-classes";
 import FriendService from "../../services/FriendService";
 import UserService from "../../services/UserService";
-import {ServiceError} from "mindweb-request-classes";
 
 let userService: UserService;
 let friendService: FriendService;
@@ -12,44 +11,44 @@ let friendService: FriendService;
 before(function (next) {
     app.initialize(next);
 });
-before(function (next) {
+before((next) => {
     userService = new UserService(app.cassandraClient);
     friendService = new FriendService(app.cassandraClient);
     next();
 });
 
 
-describe('Friend management', function () {
-    var users = [];
-    var friendIds = [];
-    var createdUsers = 2;
-    var timeout = 1000;
+describe('Friend management', () => {
+    const users = [];
+    const friendIds = [];
+    const createdUsers = 2;
+    const timeout = 1000;
     before(function (done) {
         this.timeout(createdUsers * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
                 return i < createdUsers;
             },
-            function (next) {
-                userService.createUser("friendTest:ID" + i, "Test User " + i, "test" + i + "@friend.com", "Test Avatar " + i, function (error, result) {
+            (next) => {
+                userService.createUser("friendTest:ID" + i, "Test User " + i, "test" + i + "@friend.com", "Test Avatar " + i, (error, result) => {
                     if (error) console.error(error.message);
                     users.push(result);
                     i++;
                     next();
                 });
             },
-            function (error) {
+            (error) => {
                 done(error);
             }
         );
     });
     it("creates a friend", function (done) {
         this.timeout(createdUsers * timeout);
-        var i = 1;
-        async.whilst(function () {
+        let i = 1;
+        async.whilst(() => {
             return i < createdUsers;
-        }, function (next) {
-            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag1', 'tag2'], function (error, result: Friend) {
+        }, (next) => {
+            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag1', 'tag2'], (error, result: Friend) => {
                 try {
                     assert.isNull(error);
                     friendIds.push(result.id);
@@ -65,17 +64,17 @@ describe('Friend management', function () {
                     done(e);
                 }
             });
-        }, function (error) {
+        }, (error) => {
             done(error);
         });
     });
     it("creates an existing friend", function (done) {
         this.timeout(createdUsers * timeout);
-        var i = 1;
-        async.whilst(function () {
+        let i = 1;
+        async.whilst(() => {
             return i < createdUsers;
-        }, function (next) {
-            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag3', 'tag4', 'tag5'], function (error, result: Friend) {
+        }, (next) => {
+            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, ['tag3', 'tag4', 'tag5'], (error, result: Friend) => {
                 try {
                     assert.isNull(error);
                     assert.equal(result.owner.toString(), users[0].id.toString(), 'Owner mismatch');
@@ -92,17 +91,17 @@ describe('Friend management', function () {
                 }
 
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
     it("removes friend", function (done) {
         this.timeout(createdUsers * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdUsers - 1;
-        }, function (next) {
-            friendService.deleteFriend(friendIds[i], function (error: ServiceError) {
+        }, (next) => {
+            friendService.deleteFriend(friendIds[i], (error: ServiceError) => {
                 try {
                     if (error) return done(error);
                     assert.isUndefined(error);
@@ -112,74 +111,74 @@ describe('Friend management', function () {
                     done(e);
                 }
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
-    after(function (done) {
+    after(function(done)  {
         this.timeout(createdUsers * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdUsers;
-        }, function (next) {
-            userService.deleteUser(users[i].id, function (error) {
+        }, (next) => {
+            userService.deleteUser(users[i].id, (error) => {
                 if (error) console.error(error);
                 i++;
                 next();
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
 });
 
-describe('Friend taging', function () {
-    var users = [];
-    var friendIds = [];
-    var createdFriends = 10;
-    var timeout = 1000;
-    before(function (done) {
+describe('Friend taging', () => {
+    const users = [];
+    const friendIds = [];
+    const createdFriends = 10;
+    const timeout = 1000;
+    before(function(done) {
         this.timeout(createdFriends * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
                 return i < createdFriends + 1;
             },
-            function (next) {
-                userService.createUser("friendTagTest:ID" + i, "Test Friend Tag " + i, "test" + i + "@friendtag.com", "Test Friend Tag Avatar " + i, function (error, result) {
+            (next) => {
+                userService.createUser("friendTagTest:ID" + i, "Test Friend Tag " + i, "test" + i + "@friendtag.com", "Test Friend Tag Avatar " + i, (error, result) => {
                     if (error) console.error(error.message);
                     users.push(result);
                     i++;
                     next();
                 });
             },
-            function (error) {
+            (error) => {
                 done(error);
             }
         );
     });
-    before(function (done) {
+    before(function(done) {
         this.timeout(createdFriends * timeout);
-        var i = 1;
-        async.whilst(function () {
+        let i = 1;
+        async.whilst(() => {
             return i < createdFriends + 1;
-        }, function (next) {
-            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, null, function (error, result) {
+        }, (next) => {
+            friendService.createFriend(users[0].id, "Alias 0-" + i, users[i].id, null, (error, result) => {
                 if (error) console.error(error.message);
                 friendIds.push(result.id);
                 i++;
                 next();
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
     it("tags a friend with new tag", function (done) {
         this.timeout(createdFriends * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdFriends;
-        }, function (next) {
-            friendService.tagFriend(friendIds[i], 'TAG-TEST1', function (error, result) {
+        }, (next) => {
+            friendService.tagFriend(friendIds[i], 'TAG-TEST1', (error, result) => {
                 try {
                     assert.isNull(error);
                     assert.isNotNull(result.tags);
@@ -191,17 +190,17 @@ describe('Friend taging', function () {
                     done(e);
                 }
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
     it("tags a friend with new tag 2", function (done) {
         this.timeout(createdFriends * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdFriends;
-        }, function (next) {
-            friendService.tagFriend(friendIds[i], 'TAG-TEST2', function (error, result) {
+        }, (next) => {
+            friendService.tagFriend(friendIds[i], 'TAG-TEST2', (error, result) => {
                 try {
                     assert.isNull(error);
                     assert.isNotNull(result.tags);
@@ -214,17 +213,17 @@ describe('Friend taging', function () {
                     done(e);
                 }
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
     it("tags a friend with existing tag", function (done) {
         this.timeout(createdFriends * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdFriends;
-        }, function (next) {
-            friendService.tagFriend(friendIds[i], 'TAG-TEST1', function (error, result) {
+        }, (next) => {
+            friendService.tagFriend(friendIds[i], 'TAG-TEST1', (error, result) => {
                 try {
                     assert.isNull(error);
                     assert.isNotNull(result.tags);
@@ -237,17 +236,17 @@ describe('Friend taging', function () {
                     done(e);
                 }
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
     it("removes existing tag", function (done) {
         this.timeout(createdFriends * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdFriends;
-        }, function (next) {
-            friendService.untagFriend(friendIds[i], 'TAG-TEST1', function (error, result) {
+        }, (next) => {
+            friendService.untagFriend(friendIds[i], 'TAG-TEST1', (error, result) => {
                 try {
                     assert.isNull(error);
                     assert.isNotNull(result.tags);
@@ -260,17 +259,17 @@ describe('Friend taging', function () {
                     done(e);
                 }
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
     it("removes missing tag", function (done) {
         this.timeout(createdFriends * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdFriends;
-        }, function (next) {
-            friendService.untagFriend(friendIds[i], 'TAG-TEST1', function (error, result) {
+        }, (next) => {
+            friendService.untagFriend(friendIds[i], 'TAG-TEST1', (error, result) => {
                 try {
                     assert.isNull(error);
                     assert.isNotNull(result.tags);
@@ -283,12 +282,12 @@ describe('Friend taging', function () {
                     done(e);
                 }
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
     it("tags invalid friend", function (done) {
-        friendService.tagFriend('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
+        friendService.tagFriend('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNotNull(error);
                 assert.isUndefined(result);
@@ -299,7 +298,7 @@ describe('Friend taging', function () {
         });
     });
     it("untags invalid friend", function (done) {
-        friendService.tagFriend('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', function (error, result) {
+        friendService.tagFriend('00000000-0000-0000-0000-000000000000', 'TAG-TEST1', (error, result) => {
             try {
                 assert.isNotNull(error);
                 assert.isUndefined(result);
@@ -311,16 +310,16 @@ describe('Friend taging', function () {
     });
     after(function (done) {
         this.timeout(createdFriends * timeout);
-        var i = 0;
-        async.whilst(function () {
+        let i = 0;
+        async.whilst(() => {
             return i < createdFriends + 1;
-        }, function (next) {
-            userService.deleteUser(users[i].id, function (error) {
+        }, (next) => {
+            userService.deleteUser(users[i].id, (error) => {
                 if (error) console.error(error);
                 i++;
                 next();
             });
-        }, function () {
+        }, () => {
             done();
         });
     });
