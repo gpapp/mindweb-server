@@ -3,17 +3,16 @@ import * as express from "express";
 import * as passport from "passport";
 import * as async from "async";
 import * as fs from "fs";
-import * as path from "path";
 import * as cassandra from "cassandra-driver";
 import DbKeyspace from "./db/keyspace";
 import CoreSchema from "./db/core_schema";
 import BaseRouter from "./routes/BaseRouter";
-import IndexRoute from "./routes/index";
-import AuthRoute from "./routes/auth";
-import MapRoute from "./routes/map";
-import PublicRoute from "./routes/public";
-import FriendRoute from "./routes/friend";
-import TaskRoute from "./routes/task";
+import IndexRouter from "./routes/index";
+import AuthRouter from "./routes/auth";
+import MapRouter from "./routes/map";
+import PublicRouter from "./routes/public";
+import FriendRouter from "./routes/friend";
+import TaskRouter from "./routes/task";
 import * as logger from "express-logger";
 import {ServiceError} from "mindweb-request-classes";
 const CassandraStore = require("cassandra-store");
@@ -81,11 +80,11 @@ async.waterfall([
     },
     (next) => {
         const _cassandraStore = new CassandraStore({client: cassandraClient});
-        const authRoute: AuthRoute = new AuthRoute(cassandraClient, options.url);
-        const publicRoute: PublicRoute = new PublicRoute(cassandraClient);
-        const mapRoute: MapRoute = new MapRoute(cassandraClient);
-        const friendRoute: FriendRoute = new FriendRoute(cassandraClient);
-        const taskRoute: TaskRoute = new TaskRoute(cassandraClient);
+        const authRoute: AuthRouter = new AuthRouter(cassandraClient, options.url, options.auth);
+        const publicRoute: PublicRouter = new PublicRouter(cassandraClient);
+        const mapRoute: MapRouter = new MapRouter(cassandraClient);
+        const friendRoute: FriendRouter = new FriendRouter(cassandraClient);
+        const taskRoute: TaskRouter = new TaskRouter(cassandraClient);
 
         console.log("All set up, starting web server");
 
@@ -106,7 +105,7 @@ async.waterfall([
 
         app.use(nocache);
 
-        app.use('/', IndexRoute);
+        app.use('/', IndexRouter);
         app.use('/auth', authRoute.getRouter());
         app.use('/public', publicRoute.getRouter());
         app.use('/map', BaseRouter.ensureAuthenticated, mapRoute.getRouter());
