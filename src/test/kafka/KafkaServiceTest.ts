@@ -5,6 +5,7 @@ import * as app from "../../app";
 import KafkaService from "../../services/KafkaService";
 import {KeyedMessage} from "kafka-node";
 import {ServiceError, AbstractMessage} from "mindweb-request-classes";
+import {before, describe, it, after} from "mocha";
 import {assert} from "chai";
 import UserService from "../../services/UserService";
 import FileService from "../../services/MapService";
@@ -12,6 +13,8 @@ import FriendService from "../../services/FriendService";
 import PublishedResponseFactory from "../../responseImpl/PublishedResponseFactory";
 import JoinResponse from "mindweb-request-classes/response/JoinResponse";
 import PublishedResponse from "../../responseImpl/PublishedResponse";
+import AbstractResponse from "mindweb-request-classes/response/AbstractResponse";
+import MapVersion from "mindweb-request-classes/classes/MapVersion";
 
 const SESSION_ID1 = "SESSION-TEST-1234567890-1";
 const SESSION_ID2 = "SESSION-TEST-1234567890-2";
@@ -108,6 +111,7 @@ before((next) => {
         {sessionId: SESSION_ID3, session: JSON.stringify({user: "Pumukli"})}, {}, next
     );
 });
+
 function getPromiseFor(fn: () => boolean) {
     return new Promise((resolve) => {
         function waitfor() {
@@ -127,39 +131,28 @@ describe('Kafka connection tests', () => {
 
     it("open kafka call", function (done) {
         this.timeout(10000);
-        let gotMsg: boolean = false;
-        let gotResp: boolean = false;
         const kafkaService = new KafkaService(app.cassandraClient, (message: KeyedMessage) => {
             let response: AbstractMessage = PublishedResponseFactory.create(message).message;
             assert.isTrue(response instanceof JoinResponse);
             const joinResponse = response as JoinResponse;
             assert.equal(userId1.toString(), joinResponse.userId);
             assert.equal(fileId1.toString(), joinResponse.fileId);
-            gotMsg = true;
         });
 
 
-        kafkaService.subscribeToFile(SESSION_ID1, userId1, fileId1, (error: ServiceError) => {
+        kafkaService.subscribeToFile(SESSION_ID1, userId1, fileId1, (error: ServiceError, version?: MapVersion) => {
             assert.isNull(error, error ? error.message : "WTF");
-            gotResp = true;
-        });
-        const messageTest = getPromiseFor(() => {
-            return gotMsg
-        });
-        const subscribeTest = getPromiseFor(() => {
-            return gotResp
-        });
-        Promise.all([messageTest, subscribeTest]).then(() => {
+            assert.isNotNull(version, "No map returned");
+            assert.equal(version.version, 1);
             kafkaService.closeAll(SESSION_ID1);
             done();
-        });
+        }, (response: AbstractResponse) => {
 
+        });
     });
 
     it("open two sessions", function (done) {
         this.timeout(10000);
-        let gotMsg1: number = 0;
-        let gotResp1: number = 0;
         const kafkaService1 = new KafkaService(app.cassandraClient, (message: KeyedMessage) => {
 
             const publishedResponse: PublishedResponse = PublishedResponseFactory.create(message);
@@ -168,55 +161,36 @@ describe('Kafka connection tests', () => {
                 assert.isTrue(response instanceof JoinResponse);
                 const joinResponse = response as JoinResponse;
                 assert.equal(userId1.toString(), joinResponse.userId);
-                gotMsg1++;
+                kafkaService1.subscribeToFile(SESSION_ID1, userId1, fileId1, (error: ServiceError, version?: MapVersion) => {
+                    assert.isNull(error, error ? error.message : "WTF");
+                    assert.isNotNull(version, "No map returned");
+                    assert.equal(version.version, 1);
+                }, (response: AbstractResponse) => {
+
+                });
+                const kafkaService2 = new KafkaService(app.cassandraClient, (message: KeyedMessage) => {
+                    const publishedResponse = PublishedResponseFactory.create(message);
+                    if (SESSION_ID2 == publishedResponse.originSessionId) {
+                        let response: AbstractMessage = publishedResponse.message;
+                        assert.isTrue(response instanceof JoinResponse);
+                        const joinResponse = response as JoinResponse;
+                        assert.equal(fileId1.toString(), joinResponse.fileId);
+                        assert.equal(userId2.toString(), joinResponse.userId);
+
+                    }
+                });
+                kafkaService2.subscribeToFile(SESSION_ID2, userId2, fileId1, (error: ServiceError, version?: MapVersion) => {
+                    assert.isNull(error, error ? error.message : "WTF");
+                    assert.isNotNull(version, "No map returned");
+                    assert.equal(version.version, 1);
+                    kafkaService1.closeAll(SESSION_ID1);
+                    kafkaService2.closeAll(SESSION_ID2);
+                    done();
+                }, (response: AbstractResponse) => {
+
+                });
             }
         });
-        const messageTegst = getPromiseFor(() => {
-            return gotMsg1 == 1;
-        });
-        const subscribeTest = getPromiseFor(() => {
-            return gotResp1 == 1;
-        });
-        kafkaService1.subscribeToFile(SESSION_ID1, userId1, fileId1, (error: ServiceError) => {
-            assert.isNull(error, error ? error.message : "WTF");
-            gotResp1 = 1;
-        });
-        Promise.all([messageTest, subscribeTest]).then(() => {
-            let gotMsg2: number = 0;
-            let gotResp2: number = 0;
-
-            const kafkaService2 = new KafkaService(app.cassandraClient, (message: KeyedMessage) => {
-                const publishedResponse = PublishedResponseFactory.create(message);
-                if (SESSION_ID2 == publishedResponse.originSessionId) {
-                    let response: AbstractMessage = publishedResponse.message;
-                    assert.isTrue(response instanceof JoinResponse);
-                    const joinResponse = response as JoinResponse;
-                    assert.equal(fileId1.toString(), joinResponse.fileId);
-                    assert.equal(userId2.toString(), joinResponse.userId);
-                    gotMsg2++;
-                }
-            });
-            kafkaService2.subscribeToFile(SESSION_ID2, userId2, fileId1, (error: ServiceError) => {
-                assert.isNull(error, error ? error.message : "WTF");
-                gotResp2 = 1;
-            });
-            const messageTest1 = getPromiseFor(() => {
-                return gotMsg1 >= 1
-            });
-            const messageTest2 = getPromiseFor(() => {
-                return gotMsg2 >= 1
-            });
-            const subscribeTest = getPromiseFor(() => {
-                return gotResp2 >= 1
-            });
-            Promise.all([messageTest1, messageTest2, subscribeTest]).then(() => {
-                kafkaService1.closeAll(SESSION_ID1);
-                kafkaService2.closeAll(SESSION_ID2);
-                done();
-            });
-        });
-
-
     });
 
 });

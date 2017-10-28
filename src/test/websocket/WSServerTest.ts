@@ -1,6 +1,7 @@
 /**
  * Created by gpapp on 2016.12.30..
  */
+import {after, before, describe, it} from "mocha";
 import {assert} from "chai";
 import * as http from "http";
 import * as websocket from "websocket";
@@ -117,15 +118,15 @@ describe('WebSocket connection tests', () => {
                 connection.close();
             });
             const echoRequest = new SubscribeRequestImpl("Blabla");
-            echoRequest['name']='EchoRequest';
+            echoRequest['name'] = 'EchoRequest';
             connection.send(JSON.stringify(echoRequest));
         });
 
         client.connect('ws://localhost:' + PORT + '?mindweb-session=' + SESSION_ID, "mindweb-protocol", ORIGIN);
 
     });
-    it("Connects with socket to server and sends many echo commands", function(done)  {
-        const msgCount=1000;
+    it("Connects with socket to server and sends many echo commands", function (done) {
+        const msgCount = 1000;
         this.timeout(30000);
         const client: websocket.client = new websocket.client();
         client.on('connectFailed', (err) => {
@@ -138,7 +139,7 @@ describe('WebSocket connection tests', () => {
                 assert.fail('got error' + error.message);
             });
             connection.on('close', () => {
-                assert.equal(msgCount, pos, "Should get "+msgCount+" messages");
+                assert.equal(msgCount, pos, "Should get " + msgCount + " messages");
                 done();
             });
             connection.on('message', (message: IMessage) => {
@@ -158,12 +159,12 @@ describe('WebSocket connection tests', () => {
                     connection.close();
                 } else {
                     pos++;
-                    echoRequest['_content']='Blabla'+pos;
+                    echoRequest['_content'] = 'Blabla' + pos;
                     connection.send(JSON.stringify(echoRequest));
                 }
             });
             const echoRequest = new SubscribeRequestImpl("Blabla" + 0);
-            echoRequest['name']='EchoRequest';
+            echoRequest['name'] = 'EchoRequest';
             connection.send(JSON.stringify(echoRequest));
         });
 

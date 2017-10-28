@@ -26,6 +26,7 @@ class EditedFileCacheItem {
     response: AbstractMessage;
     result: MapVersion;
 }
+
 /**
  * Utility class to manage cache items, subscribe to updates and execute them on cache items.
  *
@@ -240,7 +241,7 @@ export default class KafkaService implements MindwebService {
         });
     }
 
-    public    sendUpdateToFile(sessionId: string, userId: string, fileId: string, action: EditAction, callback: (error: Error, result?: any) => void) {
+    public sendUpdateToFile(sessionId: string, userId: string, fileId: string, action: EditAction, callback: (error: Error, result?: any) => void) {
         const payload: AbstractResponse = new EditResponse(fileId, userId, action);
         this.publishResponse(sessionId, fileId, payload, (error: any, data: any) => {
             if (error) {

@@ -1,3 +1,5 @@
+// This is the configuration template, before starting the server you must
+// copy it to config.json, add your own IDs and keys and remove all comments
 {
   "db": {
     "host": "${DB_HOST}",
@@ -8,22 +10,23 @@
   },
   "auth": {
     "google": {
-      "clientID": "605748769967-s6vb5kqpgpsp41nlbaiu84sbvqid0itg.apps.googleusercontent.com",
-      "clientSecret": "7xeJUKt1DiJn8mdGI1l2hHOp"
+      "clientID": "YOURID",
+      "clientSecret": "YOURKEY"
     },
     "facebook": {
-      "clientID": "578046905670294",
-      "clientSecret": "7109c72ffe7cad58b5a55d52d85dabea"
+      "clientID": "YOURID",
+      "clientSecret": "YOURKEY"
     },
     "twitter": {
-      "consumerKey": "fman10LDdbSTEg0ZRlhdnevFJ",
-      "consumerSecret": "tjH5bWIIcuUZa6Ru3E14Bn0alU1RRqUp5aQM3ZjGCbiETXgevM"
+      "consumerKey": "YOURID",
+      "consumerSecret": "YOURKEY"
     },
     "linkedin": {
-      "consumerKey": "77d66pdruhn8fm",
-      "consumerSecret": "7XK9Ih89pevK1yRm"
+      "consumerKey": "YOURID",
+      "consumerSecret": "YOURKEY"
     }
   },
-  "cookie_secret": "J;SDUKLJDFMAP[M OWIO WRXD/L SDF;KZSDVKXCD;fAdslsd:fop$##o(we)tig]",
+  "cookie_secret": "YOUR_RANDOM_COOKIE_SECRET",
+  // This is where the API-s are exposed on, used for redirecting to the site after login
   "url": "http://localhost:3000"
 }

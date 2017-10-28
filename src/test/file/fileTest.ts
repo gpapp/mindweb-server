@@ -1,3 +1,4 @@
+import { before,describe, it, after } from "mocha";
 import {assert} from "chai";
 import * as app from "../../app";
 import {MapContainer} from "mindweb-request-classes";
@@ -447,9 +448,9 @@ describe('MapContainerDAO mapDAO create', () => {
 
 
 describe('MapContainer taging', () => {
-    var user;
-    var fileId1;
-    var fileId2;
+    let user;
+    let fileId1;
+    let fileId2;
     before((done) => {
         userService.createUser("FileTagTest:ID", "Test MapContainer Tag ", "test@Filetag.com", "Test MapContainer Tag Avatar ", (error, result) => {
             if (error) console.error(error.message);
